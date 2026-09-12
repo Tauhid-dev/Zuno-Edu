@@ -1,0 +1,5 @@
+# Bootstrap handoff
+
+The local planning artifacts are prepared for a planning-only PR. Application implementation has not started. Required next setup is to identify the intended GitHub repository, fetch and fast-forward master, create feature/project-bootstrap-planning, copy/reconcile these artifacts on that branch, run planning/tooling checks, commit, push and open a PR targeting master. Do not initialize or overwrite an unrelated remote. If the target has no master commit, repository owner must establish the remote master baseline before the required workflow can run; never fabricate a master SHA.
+
+Before human review, configure memory/repository.json, record the planning PR number in docs/product/scope-lock.json, regenerate immutable plan witnesses and commit those metadata changes to the planning branch. Set verified Git facts in PROJECT_STATE and final validation. Human reviews and merges only if scope and architecture are approved. Future `next chunk` starts at AGENTS.md and performs fresh synchronization and read-only reconciliation; no previous conversation is needed.

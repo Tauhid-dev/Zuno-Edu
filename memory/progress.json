@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "project": "zuno-edu",
+  "default_branch": "master",
+  "scope_version": "1.0",
+  "architecture_version": 1,
+  "master_sha_at_last_reconciliation": "9f926298f105cb6736ba16f4b0d3f2b94941daea",
+  "current_phase": "P01",
+  "last_completed_chunk": null,
+  "next_candidate_chunk": "ZE-P01-C01",
+  "active_chunk": null,
+  "active_pr": null,
+  "completed_chunks": [],
+  "blocked_chunks": []
+}

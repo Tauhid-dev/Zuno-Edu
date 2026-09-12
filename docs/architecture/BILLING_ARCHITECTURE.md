@@ -1,0 +1,28 @@
+# Billing architecture
+
+## Locked proposal for launch
+
+One upfront AUD card payment purchases one student's place in one cohort. A course has a default fee; a cohort can override it. Prices are integer cents, nonnegative, versioned and published; a checkout uses a positive payable amount. No subscriptions, instalments, coupons, cart, automatic discount, marketplace or saved-card administration. Public price is a publication projection, not access to a payment object. Financial administration belongs exclusively to an admin principal with finance permission; teachers and students receive no financial DTOs.
+
+The merchant identity, GST registration/treatment and required invoice text are explicit human configuration gates before taking real payments. The system supports a configured tax-inclusive total with tax amount and merchant identity captured immutably at purchase. It must not invent tax rates or claim a document is a tax invoice before approved merchant settings exist. These are launch configuration blockers, not permission to omit billing.
+
+## Checkout and fulfilment
+
+1. Parent selects linked child and open published cohort; server validates guardian authority, current declared age, capacity, duplicate enrolment and price version.
+2. In one PostgreSQL transaction lock cohort capacity, create pending enrolment, 30-minute seat reservation, immutable purchase/price/tax snapshot and payment intent record. A unique active student/cohort constraint prevents duplicate seats. Idempotency-Key is scoped to actor + operation, stored request hash; same key/different input returns 409.
+3. Create hosted Checkout with server-calculated line item, card payment mode, purchase ID metadata and matching expiration. Store session ID uniquely. Unknown timeout is reconciled using the operation key/provider lookup before another create. Return only Checkout URL and purchase ID to that family.
+4. Redirect shows payment pending and reads scoped server status. It never activates learning access. Signed webhook or authenticated server reconciliation retrieves payment state and checks environment/account, purchase identity, amount and AUD currency.
+5. Under a payment/enrolment lock, exactly once set succeeded and activate a still-valid reserved seat. Release reservation on expiry only after checking pending provider state. If payment succeeded after the seat was released and capacity is gone, set PAID_EXCEPTION; notify finance and keep learning unactivated. An explicit admin-finance resolution locks payment and enrolment and chooses ALLOCATE (lock capacity, require a free seat and no pending/succeeded refund, then activate) or REFUND (reserve the full refundable amount and prohibit activation while resolving). Persist the single resolution decision/version and idempotency key before the remote refund; a competing resolver returns 409. No overselling, silent success or dropped payment.
+6. Commit enrolment activation, receipt snapshot and communications outbox atomically. Receipt availability does not depend on an email arriving. Abandoned/failed/expired payments never grant access. Parents can retry using a new attempt after the previous attempt is safely terminal.
+
+## Webhooks and reconciliation
+
+Validate original body bytes with Stripe signature and tolerance; store provider event ID uniquely before acknowledging durable acceptance. Wrong mode/account/signature is rejected. Inbox processor retrieves authoritative current objects; event ordering never regresses state. Preserve payment/refund ledger and append audit entries. Scheduled hourly reconciliation checks pending/unknown records and daily reconciliation compares recent provider transactions including refunds/disputes. Admin sees mismatch queue with amount/status/identifier, last check and a restricted retry action. A provider dispute creates a financial exception and admin review; it does not silently erase educational history.
+
+## Refunds and documents
+
+RefundService requires finance permission, payment succeeded, positive cents <= succeeded amount minus succeeded/pending refunds, reason and explicit access disposition KEEP or CANCEL. Lock payment while reserving refund amount, deduplicate by command ID, submit gateway refund; pending counts against remaining refundable amount. Provider confirmation determines succeeded/failed. For CANCEL, enrolment cancellation is explicit and audited; historical submissions/results remain retained with permitted family read access. Partial refunds may keep access. A full refund does not implicitly alter education state. Failed refunds release reserved refundable amount and surface to finance.
+
+Parents read only their family's immutable invoice/receipt/payment/refund projections. Invoice/receipt has unique number, issue date, merchant snapshot, buyer/family, course/cohort description, amount/currency/tax breakdown, payment reference, status and download asset; corrections use linked adjustments, never mutate issued financial history. Reports cover date range, paid gross, refunds, net, unsettled exceptions and cohort totals; CSV export is finance-only, formula-injection escaped and audited. No accounting package or balance-sheet system.
+
+All ledger mutations include actor/source, correlation ID, idempotency key and provider IDs without card details. Stripe owns card entry. Validation: concurrent last-seat checkout, duplicated/reordered webhooks, forged redirect, amount mismatch, partial/full concurrent refunds, failed refund, late payment with no seat, guessed family IDs and teacher/student requests. [Stripe fulfilment](https://docs.stripe.com/checkout/fulfillment) and [webhook contract](https://docs.stripe.com/webhooks) inform the adapter design.

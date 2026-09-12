@@ -1,0 +1,7 @@
+# Binding current constraints
+
+Read synchronized approved scope before implementing. No application implementation during bootstrap. Once approved, neither scope expansion nor requirement erosion is permitted without explicit human scope-change instruction. Enforce blueprint/OOP/port boundaries; stop affected work for material design conflict. Exactly one eligible chunk per future run, fresh branch from synchronized master, independent review, tests, PR handoff and stop. No direct master edits/commits or automatic merges. PR_OPEN is not COMPLETE until verified present on fresh master.
+
+Child name and age required; school optional. Parents only linked children and their family's billing; students own released education and no billing; teachers currently assigned education and zero financial administration. Privileged admin access is permission-scoped. Public visibility requires explicit publication. Provider calls never bypass these rules. Server payment verification is authoritative. No unnecessary child sensitive data, secret leakage, unrelated abstractions, speculative integrations, vector retrieval or future-feature implementation.
+
+Expected origin is git@github-zuno-edu:Tauhid-dev/Zuno-Edu.git; repository identity is configured in repository.json. The user authorized one empty initial master commit as a one-time bootstrap exception; all planning and future implementation remain PR-only. Human legal/commercial/production settings remain explicit launch gates; do not manufacture approvals.
