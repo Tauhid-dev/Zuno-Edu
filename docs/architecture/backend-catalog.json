@@ -1740,6 +1740,7 @@
         "InvariantViolation",
         "LAUNCH_CONFIGURATION_REQUIRED",
         "NOT_FOUND",
+        "RATE_LIMITED",
         "RESCHEDULE_WINDOW_CLOSED",
         "SCHEDULE_CONFLICT",
         "UNAUTHENTICATED",
@@ -2722,7 +2723,7 @@
       "type": "projection aggregate",
       "module": "learning",
       "responsibility": "Derived from authoritative evidence; no arbitrary percentage setter; ignore cancelled sessions; >=80% delivered attendance and all required items",
-      "attributes": "enrolment_id:uuid;required_counts:RequiredItemCounts;completed_counts:RequiredItemCounts;attendance:AttendanceCounts;status:ProgressStatus;source_version:int;completion_basis:CompletionBasis;active_override_id:uuid?",
+      "attributes": "enrolment_id:uuid;required_counts:RequiredItemCounts;completed_counts:RequiredItemCounts;attendance:AttendanceCounts;status:ProgressStatus;source_version:int;completion_basis:CompletionBasis;active_override_id:uuid?;overrides:tuple[CompletionOverride]",
       "invariants": [
         "Derived counts and percentage cannot be manually rewritten. Standard evidence or explicit active evidenced completion override determines certificate eligibility."
       ],
@@ -2749,6 +2750,27 @@
             "InvalidState",
             "InvariantViolation",
             "VersionConflict"
+          ]
+        },
+        {
+          "name": "grant_override",
+          "signature": "grant_override(override:CompletionOverride)->CompletionEligibilityChanged",
+          "purpose": "Add owned evidenced exceptional decision without changing source counts",
+          "input": "Validated CompletionOverride from education-admin decision",
+          "output": "CompletionEligibilityChanged",
+          "errors": [
+            "EvidenceRequired",
+            "InvalidState"
+          ]
+        },
+        {
+          "name": "revoke_override",
+          "signature": "revoke_override(override_id:uuid,reason:Reason)->CompletionEligibilityChanged",
+          "purpose": "Revoke owned exceptional decision; recompute derived eligibility",
+          "input": "Override ID and reason",
+          "output": "CompletionEligibilityChanged",
+          "errors": [
+            "InvalidState"
           ]
         }
       ],
@@ -3020,6 +3042,7 @@
         "NOT_FOUND",
         "OVERLAPPING_PRICE_WINDOW",
         "PROVIDER_UNAVAILABLE",
+        "RATE_LIMITED",
         "REFUND_PENDING",
         "UNAUTHENTICATED",
         "VALIDATION_ERROR",
@@ -3100,6 +3123,8 @@
         "ALREADY_ENROLLED",
         "COHORT_FULL",
         "EXCEPTION_ALREADY_RESOLVED",
+        "EXPORT_EXPIRED",
+        "EXPORT_NOT_READY",
         "FORBIDDEN",
         "HUMAN_APPROVAL_REQUIRED",
         "INVALID_STATE",
@@ -3200,6 +3225,8 @@
         }
       ],
       "errors": [
+        "EXPORT_EXPIRED",
+        "EXPORT_NOT_READY",
         "FORBIDDEN",
         "INVALID_STATE",
         "InvalidState",
@@ -3273,6 +3300,8 @@
         "ALREADY_ENROLLED",
         "COHORT_FULL",
         "EXCEPTION_ALREADY_RESOLVED",
+        "EXPORT_EXPIRED",
+        "EXPORT_NOT_READY",
         "FORBIDDEN",
         "HUMAN_APPROVAL_REQUIRED",
         "INVALID_STATE",
@@ -3621,7 +3650,8 @@
       "responsibility": "Quarantine unavailable; immutable promotion only after successful actual-type/checksum/malware validation; key never public; hold prevents purge",
       "attributes": "id:uuid;owner_id:uuid;purpose:FilePurpose;context_id:uuid;staging_key:string;immutable_key:string?;mime:string;size:int;checksum:string;status:FileStatus;hold:bool",
       "invariants": [
-        "Quarantine unavailable; immutable promotion only after successful actual-type/checksum/malware validation; key never public; hold prevents purge"
+        "Quarantine unavailable; immutable promotion only after successful actual-type/checksum/malware validation; key never public; hold prevents purge",
+        "Generated financial_document/financial_export purposes require BillingScope/FinanceScope and cannot pass generic teaching/learning file routes."
       ],
       "methods": [
         {
@@ -3670,6 +3700,18 @@
             "InvalidState",
             "InvariantViolation",
             "VersionConflict"
+          ]
+        },
+        {
+          "name": "register_generated",
+          "signature": "register_generated(proof:GeneratedArtifactProof,key:ImmutableObjectKey)->AssetReady",
+          "purpose": "Accept trusted bounded renderer/exporter artifact after provider integrity proof",
+          "input": "Trusted internal generation proof with exact MIME,size,hash,purpose,intent and stored key",
+          "output": "AssetReady",
+          "errors": [
+            "IntegrityMismatch",
+            "InvalidGeneratedPurpose",
+            "ArtifactTooLarge"
           ]
         }
       ],
@@ -4785,7 +4827,8 @@
       "responsibility": "Ready state for download; owner draft for upload; release/guardian/assignment context; internal purpose excluded from learners",
       "attributes": "no mutable attributes; explicit evaluation context",
       "invariants": [
-        "Ready state for download; owner draft for upload; release/guardian/assignment context; internal purpose excluded from learners"
+        "Ready state for download; owner draft for upload; release/guardian/assignment context; internal purpose excluded from learners",
+        "Reject financial_document and financial_export on generic /files endpoints; financial-specific document/export services recheck billing membership or finance_admin before signed grant."
       ],
       "methods": [
         {
@@ -5141,6 +5184,159 @@
       "chunks": [],
       "services": [
         "AuthenticationService"
+      ]
+    },
+    {
+      "name": "ReconciliationException",
+      "type": "aggregate",
+      "module": "billing",
+      "responsibility": "Preserve provider financial truth when local purchase association is missing or inconsistent.",
+      "attributes": "id:uuid;provider_transaction_id:string;amount:Money;provider_status:string;payment_id:uuid?;status:ReconciliationStatus;first_seen_at:Instant;last_checked_at:Instant;reason_code:string;version:int",
+      "invariants": [
+        "No inferred child/family ownership; resolve only verified immutable-reference/amount/currency match or verified provider reversal; unresolved evidence remains visible."
+      ],
+      "methods": [
+        {
+          "name": "reconcile",
+          "signature": "reconcile(provider:VerifiedProviderPayment,match:VerifiedPurchaseMatch?)->ReconciliationChecked",
+          "purpose": "Resolve only proved local association or provider reversal",
+          "input": "Verified provider transaction and optional verified purchase match",
+          "output": "ReconciliationChecked",
+          "errors": [
+            "ReferenceMismatch",
+            "AmountMismatch",
+            "UnknownOutcome"
+          ]
+        }
+      ],
+      "errors": [
+        "AGE_INELIGIBLE",
+        "AGE_RECONFIRMATION_REQUIRED",
+        "ALREADY_ENROLLED",
+        "COHORT_FULL",
+        "EXCEPTION_ALREADY_RESOLVED",
+        "FORBIDDEN",
+        "HUMAN_APPROVAL_REQUIRED",
+        "INVALID_STATE",
+        "InvalidState",
+        "InvariantViolation",
+        "LAUNCH_CONFIGURATION_REQUIRED",
+        "NOT_FOUND",
+        "OVERLAPPING_PRICE_WINDOW",
+        "PROVIDER_UNAVAILABLE",
+        "REFUND_PENDING",
+        "UNAUTHENTICATED",
+        "VALIDATION_ERROR",
+        "VERSION_CONFLICT",
+        "VersionConflict"
+      ],
+      "authorization": "finance_admin or SystemBillingScope only; excluded from teacher/student and parent scopes until valid own purchase link exists.",
+      "dependencies": [
+        "Payment",
+        "Money"
+      ],
+      "collaborators": [
+        "Payment"
+      ],
+      "persistence": "reconciliation_exceptions",
+      "requirements": [
+        "PAY-009",
+        "ADM-025",
+        "ENR-007"
+      ],
+      "chunks": [],
+      "services": [
+        "BillingService"
+      ]
+    },
+    {
+      "name": "FinancialExport",
+      "type": "aggregate",
+      "module": "billing",
+      "responsibility": "Track private finance report request, immutable date range, generation job, protected artifact and expiry.",
+      "attributes": "id:uuid;requested_by:uuid;from_date:LocalDate;to_date:LocalDate;job_id:uuid;status:ExportStatus;asset_id:uuid?;expires_at:Instant?;version:int;failure_code:ExportFailureCode?",
+      "invariants": [
+        "finance_admin only; range<=366days; ready requires verified generated financial_export asset; immutable request range and requester; downloads authorized again; signed URL<=60s and export expires24h after ready.",
+        "Status requested/processing/ready/failed/expired. Exhausted bounded retries set failed with sanitized failure_code; no usable URL. Authorized operations job retry transitions failed to processing and clears failure; requester may create a new export with a new idempotency key."
+      ],
+      "methods": [
+        {
+          "name": "complete",
+          "signature": "complete(asset:ReadyFinancialFile,now:Instant)->FinancialExportReady",
+          "purpose": "Attach verified private CSV and set24h expiry",
+          "input": "Ready financial_export asset and instant",
+          "output": "FinancialExportReady",
+          "errors": [
+            "InvalidState",
+            "InvalidGeneratedPurpose"
+          ]
+        },
+        {
+          "name": "expire",
+          "signature": "expire(now:Instant)->FinancialExportExpired",
+          "purpose": "Expire download authority and schedule artifact cleanup",
+          "input": "Current instant",
+          "output": "FinancialExportExpired",
+          "errors": [
+            "InvalidState"
+          ]
+        },
+        {
+          "name": "start_generation",
+          "signature": "start_generation(job_id:JobId)->ExportProcessing",
+          "purpose": "Start or explicitly retry an authorized generation job",
+          "input": "Matching current job ID",
+          "output": "ExportProcessing",
+          "errors": [
+            "InvalidState",
+            "VersionConflict"
+          ]
+        },
+        {
+          "name": "fail",
+          "signature": "fail(code:ExportFailureCode)->ExportFailed",
+          "purpose": "Persist bounded-retry exhaustion without leaking provider details",
+          "input": "GENERATION_FAILED, LIMIT_EXCEEDED or STORAGE_UNAVAILABLE",
+          "output": "ExportFailed",
+          "errors": [
+            "InvalidState",
+            "VersionConflict"
+          ]
+        }
+      ],
+      "errors": [
+        "EXPORT_EXPIRED",
+        "EXPORT_NOT_READY",
+        "FORBIDDEN",
+        "INVALID_STATE",
+        "InvalidState",
+        "InvariantViolation",
+        "NOT_FOUND",
+        "UNAUTHENTICATED",
+        "VALIDATION_ERROR",
+        "VERSION_CONFLICT",
+        "VersionConflict"
+      ],
+      "authorization": "finance_admin requesting/overseeing export only; parent/teacher/student denied; worker generation requires SystemFinanceScope.",
+      "dependencies": [
+        "FileAsset",
+        "BackgroundJob"
+      ],
+      "collaborators": [
+        "Payment",
+        "Refund",
+        "FileAsset",
+        "BackgroundJob"
+      ],
+      "persistence": "privacy_exports with purpose=financial_export",
+      "requirements": [
+        "ADM-027",
+        "PAY-010",
+        "FILE-007"
+      ],
+      "chunks": [],
+      "services": [
+        "ReportingService"
       ]
     }
   ],
@@ -5921,10 +6117,10 @@
         },
         {
           "name": "get_student_self",
-          "signature": "get_student_self(principal: Principal, request: API_STUDENT_SELFRequest) -> TeachingStudentView",
+          "signature": "get_student_self(principal: Principal, request: API_STUDENT_SELFRequest) -> StudentSelfProfileView",
           "purpose": "Read own limited profile",
           "input": "API_STUDENT_SELFRequest",
-          "output": "TeachingStudentView",
+          "output": "StudentSelfProfileView",
           "errors": [
             "UNAUTHENTICATED",
             "FORBIDDEN",
@@ -5936,10 +6132,10 @@
         },
         {
           "name": "update_preferred_name",
-          "signature": "update_preferred_name(principal: Principal, request: API_STUDENT_PREFERREDRequest) -> TeachingStudentView",
+          "signature": "update_preferred_name(principal: Principal, request: API_STUDENT_PREFERREDRequest) -> StudentSelfProfileView",
           "purpose": "Change own preferred display name",
           "input": "API_STUDENT_PREFERREDRequest",
-          "output": "TeachingStudentView",
+          "output": "StudentSelfProfileView",
           "errors": [
             "UNAUTHENTICATED",
             "FORBIDDEN",
@@ -6361,14 +6557,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "ADM-007",
@@ -6573,7 +6773,9 @@
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "authorization": "Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.",
       "chunks": []
@@ -9640,7 +9842,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -9653,11 +9856,13 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-024",
         "ADM-025",
+        "ENR-007",
         "PAR-017",
         "PAR-018",
         "PAR-019",
@@ -9993,6 +10198,55 @@
           ],
           "authorization": "Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Lock Payment+Enrolment+Cohort; ALLOCATE requires available seat and no pending refund; REFUND reserves refundable balance and prevents activation.",
           "operation": "API-ADMIN-PAID-EXCEPTION"
+        },
+        {
+          "name": "discover_provider_transactions",
+          "signature": "discover_provider_transactions(principal: Principal, request: JOB_PAYMENT_DISCOVERYRequest) -> JobView",
+          "purpose": "Discover provider-side payments/refunds and reconcile missing local references",
+          "input": "JOB_PAYMENT_DISCOVERYRequest",
+          "output": "JobView",
+          "errors": [
+            "UNAUTHENTICATED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "VALIDATION_ERROR",
+            "VERSION_CONFLICT",
+            "INVALID_STATE"
+          ],
+          "authorization": "Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege.",
+          "operation": "JOB-PAYMENT-DISCOVERY"
+        },
+        {
+          "name": "list_reconciliation_exceptions",
+          "signature": "list_reconciliation_exceptions(principal: Principal, request: API_ADMIN_RECONCILIATION_EXCEPTIONSRequest) -> ReconciliationExceptionViewPage",
+          "purpose": "Inspect provider transactions unmatched to local financial records",
+          "input": "API_ADMIN_RECONCILIATION_EXCEPTIONSRequest",
+          "output": "ReconciliationExceptionViewPage",
+          "errors": [
+            "UNAUTHENTICATED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "VALIDATION_ERROR"
+          ],
+          "authorization": "Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.",
+          "operation": "API-ADMIN-RECONCILIATION-EXCEPTIONS"
+        },
+        {
+          "name": "retry_reconciliation_exception",
+          "signature": "retry_reconciliation_exception(principal: Principal, request: API_ADMIN_RECONCILIATION_EXCEPTION_RETRYRequest) -> Accepted",
+          "purpose": "Recheck provider truth and resolve only verified matching or reversed transaction",
+          "input": "API_ADMIN_RECONCILIATION_EXCEPTION_RETRYRequest",
+          "output": "Accepted",
+          "errors": [
+            "UNAUTHENTICATED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "VALIDATION_ERROR",
+            "VERSION_CONFLICT",
+            "INVALID_STATE"
+          ],
+          "authorization": "Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. No manual invented payment ownership; unresolved cases remain open for documented operational repair.",
+          "operation": "API-ADMIN-RECONCILIATION-EXCEPTION-RETRY"
         }
       ],
       "topic": "billing",
@@ -10009,7 +10263,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "authorization": "Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.",
       "chunks": []
@@ -10142,7 +10397,8 @@
       "objects": [
         "Payment",
         "Refund",
-        "Receipt"
+        "Receipt",
+        "FinancialExport"
       ],
       "ports": [
         "PaymentRepository",
@@ -10204,6 +10460,40 @@
           ],
           "authorization": "Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege.",
           "operation": "JOB-FINANCE-EXPORT"
+        },
+        {
+          "name": "get_finance_export",
+          "signature": "get_finance_export(principal: Principal, request: API_ADMIN_REPORT_EXPORT_STATUSRequest) -> ExportView",
+          "purpose": "Read own authorized financial report export status",
+          "input": "API_ADMIN_REPORT_EXPORT_STATUSRequest",
+          "output": "ExportView",
+          "errors": [
+            "UNAUTHENTICATED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "VALIDATION_ERROR"
+          ],
+          "authorization": "Authenticated finance_admin with active account and recent MFA, requesting the export or explicitly authorized finance oversight; status read permits every defined ExportView state and never requires a ready asset. Deny parent, student, teacher and non-finance admin.",
+          "operation": "API-ADMIN-REPORT-EXPORT-STATUS"
+        },
+        {
+          "name": "download_finance_export",
+          "signature": "download_finance_export(principal: Principal, request: API_ADMIN_REPORT_EXPORT_DOWNLOADRequest) -> DownloadTicketView",
+          "purpose": "Download ready private financial report export under finance scope",
+          "input": "API_ADMIN_REPORT_EXPORT_DOWNLOADRequest",
+          "output": "DownloadTicketView",
+          "errors": [
+            "UNAUTHENTICATED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "VALIDATION_ERROR",
+            "VERSION_CONFLICT",
+            "INVALID_STATE",
+            "EXPORT_NOT_READY",
+            "EXPORT_EXPIRED"
+          ],
+          "authorization": "Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Ready generated financial_export; initiated by this principal or explicitly privileged finance oversight; no generic teaching file grant.",
+          "operation": "API-ADMIN-REPORT-EXPORT-DOWNLOAD"
         }
       ],
       "topic": "reporting",
@@ -10771,7 +11061,7 @@
             "NOT_FOUND",
             "VALIDATION_ERROR"
           ],
-          "authorization": "FileAccessPolicy derives released curriculum, own submission, guardian link, teaching assignment or scoped admin purpose.",
+          "authorization": "FileAccessPolicy derives released curriculum, own submission, guardian link, teaching assignment or scoped admin purpose. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required.",
           "operation": "API-FILE-GET"
         },
         {
@@ -10789,7 +11079,7 @@
             "INVALID_STATE",
             "ASSET_NOT_READY"
           ],
-          "authorization": "FileAccessPolicy validates ready state and linked resource scope; submission parents read only authorized child; internal files never learner-readable.",
+          "authorization": "FileAccessPolicy validates ready state and linked resource scope; submission parents read only authorized child; internal files never learner-readable. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required.",
           "operation": "API-FILE-DOWNLOAD"
         },
         {
@@ -10808,7 +11098,7 @@
             "RESOURCE_IN_USE",
             "LEGAL_HOLD"
           ],
-          "authorization": "No referenced submitted work/published resource/certificate deletion; retention and legal hold apply.",
+          "authorization": "No referenced submitted work/published resource/certificate deletion; retention and legal hold apply. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required.",
           "operation": "API-FILE-DELETE"
         },
         {
@@ -12176,6 +12466,7 @@
       ],
       "consumers": [
         "TeacherService",
+        "PublicContentService",
         "CurriculumService",
         "CohortService",
         "SchedulingService",
@@ -12550,9 +12841,10 @@
       "responsibility": "Aggregate persistence and purpose-scoped projection of StudentProgress,ActivityCompletion",
       "objects": [
         "StudentProgress",
-        "ActivityCompletion"
+        "ActivityCompletion",
+        "CompletionOverride"
       ],
-      "persistence": "student_progress,activity_completions",
+      "persistence": "student_progress,activity_completions,completion_overrides",
       "adapter": "SQLAlchemy data-mapper adapter; PostgreSQL",
       "invariants": [
         "Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter.",
@@ -12618,6 +12910,54 @@
             "PersistenceUnavailable"
           ],
           "name": "save_progress"
+        },
+        {
+          "signature": "get_override_for_update(enrolment_id:uuid,scope:EducationAdminScope)->CompletionOverride?",
+          "input": "enrolment_id:uuid,scope:EducationAdminScope",
+          "output": "CompletionOverride?",
+          "purpose": "Load current exceptional decision under enrolment lock",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "get_override_for_update"
+        },
+        {
+          "signature": "list_override_history(enrolment_id:uuid,scope:EducationAdminScope)->tuple[CompletionOverride]",
+          "input": "enrolment_id:uuid,scope:EducationAdminScope",
+          "output": "tuple[CompletionOverride]",
+          "purpose": "Read evidence history for authorized education oversight only",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "list_override_history"
+        },
+        {
+          "signature": "save_override(override:CompletionOverride,scope:EducationAdminScope,expected_version:int)->None",
+          "input": "override:CompletionOverride,scope:EducationAdminScope,expected_version:int",
+          "output": "None",
+          "purpose": "Persist evidenced grant plus progress eligibility audit/outbox in same UnitOfWork",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "save_override"
+        },
+        {
+          "signature": "revoke_override(override_id:uuid,reason:Reason,scope:EducationAdminScope,expected_version:int)->None",
+          "input": "override_id:uuid,reason:Reason,scope:EducationAdminScope,expected_version:int",
+          "output": "None",
+          "purpose": "Record audited revocation and enqueue progress/certificate eligibility review",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "revoke_override"
         }
       ],
       "requirements": [
@@ -12729,9 +13069,11 @@
         "Price",
         "Payment",
         "Refund",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException",
+        "FinancialExport"
       ],
-      "persistence": "prices,payments,payment_events,refunds,purchase_documents",
+      "persistence": "prices,payments,payment_events,refunds,purchase_documents,reconciliation_exceptions,privacy_exports(financial_export purpose)",
       "adapter": "SQLAlchemy data-mapper adapter; PostgreSQL",
       "invariants": [
         "Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter.",
@@ -12833,6 +13175,178 @@
             "PersistenceUnavailable"
           ],
           "name": "save"
+        },
+        {
+          "signature": "get_receipt(id:uuid,scope:BillingScope)->Receipt?",
+          "input": "id:uuid,scope:BillingScope",
+          "output": "Receipt?",
+          "purpose": "Read immutable purchase document under financial scope",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "get_receipt"
+        },
+        {
+          "signature": "list_receipts(payment_id:uuid,scope:BillingScope)->tuple[Receipt]",
+          "input": "payment_id:uuid,scope:BillingScope",
+          "output": "tuple[Receipt]",
+          "purpose": "List only authorized purchase documents",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "list_receipts"
+        },
+        {
+          "signature": "save_receipt(receipt:Receipt,scope:SystemBillingScope)->None",
+          "input": "receipt:Receipt,scope:SystemBillingScope",
+          "output": "None",
+          "purpose": "Persist immutable receipt and generated financial-document asset reference",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "save_receipt"
+        },
+        {
+          "signature": "list_prices(filter:PriceFilter,scope:FinanceScope,page:Page)->Page[Price]",
+          "input": "filter:PriceFilter,scope:FinanceScope,page:Page",
+          "output": "Page[Price]",
+          "purpose": "Read effective dated fee configuration",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "list_prices"
+        },
+        {
+          "signature": "get_price_for_update(id:uuid,scope:FinanceScope)->Price?",
+          "input": "id:uuid,scope:FinanceScope",
+          "output": "Price?",
+          "purpose": "Load fee for versioned retirement",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "get_price_for_update"
+        },
+        {
+          "signature": "save_price(price:Price,scope:FinanceScope,expected_version:int)->None",
+          "input": "price:Price,scope:FinanceScope,expected_version:int",
+          "output": "None",
+          "purpose": "Persist fee and exclusion-constraint validation",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "save_price"
+        },
+        {
+          "signature": "record_provider_exception(reference:VerifiedProviderPayment,reason:ReconciliationException)->ReconciliationExceptionId",
+          "input": "reference:VerifiedProviderPayment,reason:ReconciliationException",
+          "output": "ReconciliationExceptionId",
+          "purpose": "Persist provider transaction lacking a local purchase for finance investigation; never invent child/family ownership",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "record_provider_exception"
+        },
+        {
+          "signature": "list_reconciliation_exceptions(scope:FinanceScope,filter:ExceptionFilter,page:Page)->Page[ReconciliationException]",
+          "input": "scope:FinanceScope,filter:ExceptionFilter,page:Page",
+          "output": "Page[ReconciliationException]",
+          "purpose": "Return unmatched provider financial evidence to finance administrators",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "list_reconciliation_exceptions"
+        },
+        {
+          "signature": "get_reconciliation_exception_for_update(id:uuid,scope:FinanceScope)->ReconciliationException?",
+          "input": "id:uuid,scope:FinanceScope",
+          "output": "ReconciliationException?",
+          "purpose": "Lock exception before verified resolution",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "get_reconciliation_exception_for_update"
+        },
+        {
+          "signature": "save_reconciliation_exception(exception:ReconciliationException,expected_version:int)->None",
+          "input": "exception:ReconciliationException,expected_version:int",
+          "output": "None",
+          "purpose": "Persist verified matched/reversed outcome; never fabricate ownership",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "PersistenceUnavailable"
+          ],
+          "name": "save_reconciliation_exception"
+        },
+        {
+          "signature": "create_finance_export(export:FinancialExport,scope:FinanceScope)->None",
+          "input": "export:FinancialExport,scope:FinanceScope",
+          "output": "None",
+          "purpose": "Persist immutable requester/date-range/job identity together with generation outbox",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "ExportLimitExceeded",
+            "PersistenceUnavailable"
+          ],
+          "name": "create_finance_export"
+        },
+        {
+          "signature": "get_finance_export(id:uuid,scope:FinanceScope,for_update:bool)->FinancialExport?",
+          "input": "id:uuid,scope:FinanceScope,for_update:bool",
+          "output": "FinancialExport?",
+          "purpose": "Load status/asset only for requesting finance admin or explicit finance oversight",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "ExportLimitExceeded",
+            "PersistenceUnavailable"
+          ],
+          "name": "get_finance_export"
+        },
+        {
+          "signature": "save_finance_export(export:FinancialExport,scope:SystemFinanceScope,expected_version:int)->None",
+          "input": "export:FinancialExport,scope:SystemFinanceScope,expected_version:int",
+          "output": "None",
+          "purpose": "Store ready/expired state and verified private asset association",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "ExportLimitExceeded",
+            "PersistenceUnavailable"
+          ],
+          "name": "save_finance_export"
+        },
+        {
+          "signature": "iter_finance_rows(range:DateRange,scope:SystemFinanceScope,batch_size:int)->Iterator[FinanceReportRow]",
+          "input": "range:DateRange,scope:SystemFinanceScope,batch_size:int",
+          "output": "Iterator[FinanceReportRow]",
+          "purpose": "Read bounded immutable financial snapshot rows; batches<=1000, report<=100000rows/100MiB, formula-safe formatting in report application use case",
+          "errors": [
+            "RepositoryConflict",
+            "NotFoundWithinScope",
+            "ExportLimitExceeded",
+            "PersistenceUnavailable"
+          ],
+          "name": "iter_finance_rows"
         }
       ],
       "requirements": [
@@ -12859,6 +13373,7 @@
         "UnitOfWork"
       ],
       "consumers": [
+        "PublicContentService",
         "BillingService",
         "RefundService",
         "ReportingService"
@@ -13063,7 +13578,8 @@
       "adapter": "SQLAlchemy data-mapper adapter; PostgreSQL",
       "invariants": [
         "Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter.",
-        "Writes participate in UnitOfWork; domain objects have no ORM imports."
+        "Writes participate in UnitOfWork; domain objects have no ORM imports.",
+        "Generated financial_document/export metadata and private storage references remain financial scope only; no teaching/public scope grants."
       ],
       "methods": [
         {
@@ -13137,6 +13653,18 @@
             "PersistenceUnavailable"
           ],
           "name": "save"
+        },
+        {
+          "signature": "save_generated_asset(asset:FileAsset,proof:GeneratedArtifactProof,scope:SystemGeneratedFileScope,expected_version:int)->None",
+          "input": "asset:FileAsset,proof:GeneratedArtifactProof,scope:SystemGeneratedFileScope,expected_version:int",
+          "output": "None",
+          "purpose": "Persist generated ready metadata only after immutable object existence,size and SHA256 verified; atomic link to owning receipt/certificate/export",
+          "errors": [
+            "RepositoryConflict",
+            "IntegrityMismatch",
+            "PersistenceUnavailable"
+          ],
+          "name": "save_generated_asset"
         }
       ],
       "requirements": [
@@ -13596,6 +14124,19 @@
             "InvalidProviderResponse"
           ],
           "name": "retrieve_refund"
+        },
+        {
+          "signature": "list_transactions(range:TimeRange,cursor:ProviderCursor?)->ProviderTransactionPage",
+          "input": "range:TimeRange,cursor:ProviderCursor?",
+          "output": "ProviderTransactionPage",
+          "purpose": "Discover provider payments/refunds missing from local state; normalized items have provider ID,created_at,amount,currency,status,checkout/order references and next cursor",
+          "errors": [
+            "ProviderUnavailable",
+            "ProviderRejected",
+            "UnknownOutcome",
+            "InvalidProviderResponse"
+          ],
+          "name": "list_transactions"
         }
       ],
       "requirements": [
@@ -13854,7 +14395,9 @@
       "persistence": "External adapter; authoritative references in PostgreSQL",
       "adapter": "S3-compatible adapter",
       "invariants": [
-        "Private buckets; unique staging+final keys; short-lived grants; no execution of child archives; metadata validated independently"
+        "Private buckets; unique staging+final keys; short-lived grants; no execution of child archives; metadata validated independently",
+        "Generated financial_document/export metadata and private storage references remain financial scope only; no teaching/public scope grants.",
+        "Generated artifact spec contains purpose,media_type,size_bytes,sha256,content_disposition,metadata and creation intent ID. Only SystemGeneratedFileScope may write certificate/financial_document/financial_export. PDF<=10MiB; CSV<=100MiB; no browser-authorized generated writes. Verify HEAD/checksum after unknown outcome; cleanup uses recorded orphan intent and reference/retention checks, never bulk bucket deletion."
       ],
       "methods": [
         {
@@ -13934,6 +14477,20 @@
             "InvalidProviderResponse"
           ],
           "name": "delete_versions"
+        },
+        {
+          "signature": "write_generated(source:BinaryStream,spec:GeneratedArtifactSpec,key:ImmutableObjectKey)->StoredObject",
+          "input": "source:BinaryStream,spec:GeneratedArtifactSpec,key:ImmutableObjectKey",
+          "output": "StoredObject",
+          "purpose": "Trusted worker writes bounded PDF/CSV bytes to a unique immutable key; validates actual size and SHA256 against spec; conditional create forbids overwrite; same key+checksum retry reuses identical result; mismatch fails. Orphan intent is recorded before write and cleaned if final DB association never commits",
+          "errors": [
+            "ProviderUnavailable",
+            "IntegrityMismatch",
+            "ImmutableKeyConflict",
+            "ArtifactTooLarge",
+            "UnknownOutcome"
+          ],
+          "name": "write_generated"
         }
       ],
       "requirements": [
@@ -13960,12 +14517,12 @@
       "name": "MalwareScanner",
       "type": "integration port",
       "module": "files",
-      "responsibility": "Fail closed on unavailable/stale scanner; archive expansion size<=250MiB, ratio<=20, entries<=1000, nesting<=2; reject encrypted/path traversal archives",
+      "responsibility": "Fail closed on unavailable/stale scanner; archive expansion size<=100MiB, ratio<=20, entries<=100; nested archives forbidden; reject encrypted/path traversal archives",
       "objects": [],
       "persistence": "External adapter; authoritative references in PostgreSQL",
       "adapter": "Sandboxed ClamAV scanner adapter",
       "invariants": [
-        "Fail closed on unavailable/stale scanner; archive expansion size<=250MiB, ratio<=20, entries<=1000, nesting<=2; reject encrypted/path traversal archives"
+        "Fail closed on unavailable/stale scanner; archive expansion size<=100MiB, ratio<=20, entries<=100; nested archives forbidden; reject encrypted/path traversal archives"
       ],
       "methods": [
         {
@@ -14756,6 +15313,28 @@
             "PersistenceUnavailable"
           ],
           "name": "consume_recovery"
+        },
+        {
+          "signature": "save_recovery_codes(factor_id:uuid,codes:HashedRecoveryCodeSet,scope:SelfAuthScope)->None",
+          "input": "factor_id:uuid,codes:HashedRecoveryCodeSet,scope:SelfAuthScope",
+          "output": "None",
+          "purpose": "Persist complete newly issued hashed recovery code set under factor lock; plaintext codes never persist",
+          "errors": [
+            "RepositoryConflict",
+            "PersistenceUnavailable"
+          ],
+          "name": "save_recovery_codes"
+        },
+        {
+          "signature": "revoke_recovery_codes(factor_id:uuid,scope:SelfAuthScope)->int",
+          "input": "factor_id:uuid,scope:SelfAuthScope",
+          "output": "int",
+          "purpose": "Invalidate previous set atomically when factor rotates",
+          "errors": [
+            "RepositoryConflict",
+            "PersistenceUnavailable"
+          ],
+          "name": "revoke_recovery_codes"
         }
       ],
       "requirements": [
@@ -14841,6 +15420,44 @@
       "dependencies": [],
       "consumers": [
         "AuthenticationService"
+      ]
+    },
+    {
+      "name": "DocumentRenderer",
+      "type": "integration port",
+      "module": "billing",
+      "responsibility": "Render approved immutable invoice/receipt PDF from purchase snapshot without external network or executable content.",
+      "objects": [
+        "Receipt"
+      ],
+      "persistence": "Returned PDF becomes generated financial_document FileAsset in private object storage",
+      "adapter": "Sandboxed PDF renderer adapter with static approved merchant/tax template",
+      "invariants": [
+        "Only approved immutable ReceiptSnapshot input; deterministic document serial/content hash; no external resources, scripts or child work."
+      ],
+      "methods": [
+        {
+          "signature": "render_purchase_document(snapshot:ReceiptSnapshot)->RenderedPdf",
+          "input": "ReceiptSnapshot: document ID/type/number/issued_at,merchant legal name/ABN/address,purchaser name,description,AUD amount/tax",
+          "output": "RenderedPdf: bytes,media_type application/pdf,sha256,size_bytes<=10MiB",
+          "purpose": "Generate immutable legal purchase artifact",
+          "errors": [
+            "RenderFailed",
+            "InvalidReceiptSnapshot"
+          ],
+          "name": "render_purchase_document"
+        }
+      ],
+      "requirements": [
+        "PAY-007",
+        "PAY-012",
+        "PAR-018"
+      ],
+      "chunks": [],
+      "authorization": "Typed explicit scope mandatory for all user-driven reads; worker identity is constructed only in trusted worker entrypoint.",
+      "dependencies": [],
+      "consumers": [
+        "BillingService"
       ]
     }
   ],
@@ -16133,7 +16750,7 @@
       ],
       "ownership": "Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances.",
       "request": "API_STUDENT_SELFRequest",
-      "response": "TeachingStudentView",
+      "response": "StudentSelfProfileView",
       "service": "StudentProfileService.get_student_self",
       "objects": [
         "StudentProfile",
@@ -16176,7 +16793,7 @@
       ],
       "ownership": "Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances.",
       "request": "API_STUDENT_PREFERREDRequest",
-      "response": "TeachingStudentView",
+      "response": "StudentSelfProfileView",
       "service": "StudentProfileService.update_preferred_name",
       "objects": [
         "StudentProfile",
@@ -16347,14 +16964,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "LRN-001",
@@ -16397,14 +17018,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "LRN-001",
@@ -16447,14 +17072,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "LRN-001",
@@ -16497,14 +17126,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "LRN-001",
@@ -16547,14 +17180,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "LRN-001",
@@ -16597,14 +17234,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "LRN-001",
@@ -16647,14 +17288,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "LRN-001",
@@ -24114,7 +24759,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24127,7 +24773,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAR-017",
@@ -24183,7 +24830,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24196,7 +24844,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAR-017",
@@ -24248,7 +24897,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24261,7 +24911,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAR-017",
@@ -24309,7 +24960,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24322,7 +24974,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAR-017",
@@ -24370,7 +25023,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24383,7 +25037,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAR-017",
@@ -24472,7 +25127,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24485,7 +25141,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-024",
@@ -24524,7 +25181,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24537,7 +25195,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-024",
@@ -24579,7 +25238,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24592,7 +25252,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-024",
@@ -24633,7 +25294,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24646,7 +25308,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-025",
@@ -24691,7 +25354,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24704,7 +25368,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-025",
@@ -24749,7 +25414,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24762,7 +25428,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-025",
@@ -24809,7 +25476,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -24822,7 +25490,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-025",
@@ -24994,7 +25663,8 @@
       "objects": [
         "Payment",
         "Refund",
-        "Receipt"
+        "Receipt",
+        "FinancialExport"
       ],
       "ports": [
         "PaymentRepository",
@@ -25035,7 +25705,8 @@
       "objects": [
         "Payment",
         "Refund",
-        "Receipt"
+        "Receipt",
+        "FinancialExport"
       ],
       "ports": [
         "PaymentRepository",
@@ -25081,14 +25752,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "ADM-007",
@@ -25125,14 +25800,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "ADM-007",
@@ -25171,14 +25850,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "ADM-007",
@@ -26606,7 +27289,7 @@
         "admin:education_admin",
         "admin:operations_admin"
       ],
-      "ownership": "FileAccessPolicy derives released curriculum, own submission, guardian link, teaching assignment or scoped admin purpose.",
+      "ownership": "FileAccessPolicy derives released curriculum, own submission, guardian link, teaching assignment or scoped admin purpose. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required.",
       "request": "API_FILE_GETRequest",
       "response": "FileAssetView",
       "service": "FileService.get_asset",
@@ -26662,7 +27345,7 @@
         "admin:education_admin",
         "admin:operations_admin"
       ],
-      "ownership": "FileAccessPolicy validates ready state and linked resource scope; submission parents read only authorized child; internal files never learner-readable.",
+      "ownership": "FileAccessPolicy validates ready state and linked resource scope; submission parents read only authorized child; internal files never learner-readable. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required.",
       "request": "API_FILE_DOWNLOADRequest",
       "response": "DownloadTicketView",
       "service": "FileService.create_download",
@@ -26719,7 +27402,7 @@
         "admin:education_admin",
         "admin:operations_admin"
       ],
-      "ownership": "No referenced submitted work/published resource/certificate deletion; retention and legal hold apply.",
+      "ownership": "No referenced submitted work/published resource/certificate deletion; retention and legal hold apply. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required.",
       "request": "API_FILE_DELETERequest",
       "response": "Empty",
       "service": "FileService.delete_asset",
@@ -26971,7 +27654,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -26984,7 +27668,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-025",
@@ -27029,7 +27714,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -27042,7 +27728,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-025",
@@ -27768,7 +28455,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -27781,7 +28469,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAY-004",
@@ -27822,7 +28511,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -27835,7 +28525,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAY-004",
@@ -27876,7 +28567,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -27889,7 +28581,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAY-002",
@@ -28028,7 +28721,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -28041,7 +28735,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "PAY-002",
@@ -28881,7 +29576,8 @@
       "objects": [
         "Payment",
         "Refund",
-        "Receipt"
+        "Receipt",
+        "FinancialExport"
       ],
       "ports": [
         "PaymentRepository",
@@ -28906,7 +29602,7 @@
         "INVALID_STATE"
       ],
       "success_status": null,
-      "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks."
+      "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks. After bounded retries exhaust, atomically set failed and sanitized failure_code. Explicit authorized job retry sets processing and clears failure; never return a download for failed state."
     },
     {
       "id": "API-ADMIN-ASSIGNMENT-CLOSE",
@@ -29055,14 +29751,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "WEB-009"
@@ -29098,14 +29798,18 @@
         "Course",
         "TeacherProfile",
         "PublicationPolicy",
-        "ContactEnquiry"
+        "ContactEnquiry",
+        "Cohort",
+        "Price"
       ],
       "ports": [
         "ContentRepository",
         "CourseRepository",
         "UserRepository",
         "NotificationRepository",
-        "UnitOfWork"
+        "UnitOfWork",
+        "DeliveryRepository",
+        "PaymentRepository"
       ],
       "requirements": [
         "WEB-009"
@@ -29145,7 +29849,8 @@
         "WebhookInbox",
         "CapacityPolicy",
         "BillingMembership",
-        "Receipt"
+        "Receipt",
+        "ReconciliationException"
       ],
       "ports": [
         "PaymentRepository",
@@ -29158,7 +29863,8 @@
         "SettingsRepository",
         "IntegrationRepository",
         "FileRepository",
-        "ObjectStorageProvider"
+        "ObjectStorageProvider",
+        "DocumentRenderer"
       ],
       "requirements": [
         "ADM-025",
@@ -29191,6 +29897,262 @@
       ],
       "success_status": 200,
       "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks."
+    },
+    {
+      "id": "JOB-PAYMENT-DISCOVERY",
+      "method": "WORKER",
+      "route": "worker:discover_provider_transactions",
+      "purpose": "Discover provider-side payments/refunds and reconcile missing local references",
+      "roles": [
+        "system"
+      ],
+      "ownership": "Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege.",
+      "request": "JOB_PAYMENT_DISCOVERYRequest",
+      "response": "JobView",
+      "service": "BillingService.discover_provider_transactions",
+      "objects": [
+        "Payment",
+        "Price",
+        "Money",
+        "Enrolment",
+        "WebhookInbox",
+        "CapacityPolicy",
+        "BillingMembership",
+        "Receipt",
+        "ReconciliationException"
+      ],
+      "ports": [
+        "PaymentRepository",
+        "EnrolmentRepository",
+        "DeliveryRepository",
+        "FamilyRepository",
+        "PaymentGateway",
+        "UnitOfWork",
+        "Clock",
+        "SettingsRepository",
+        "IntegrationRepository",
+        "FileRepository",
+        "ObjectStorageProvider",
+        "DocumentRenderer"
+      ],
+      "requirements": [
+        "PAY-009",
+        "PAY-005",
+        "ADM-025"
+      ],
+      "topic": "billing",
+      "consumer": [
+        "worker"
+      ],
+      "errors": [
+        "UNAUTHENTICATED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "VALIDATION_ERROR",
+        "VERSION_CONFLICT",
+        "INVALID_STATE"
+      ],
+      "success_status": null,
+      "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks."
+    },
+    {
+      "id": "API-ADMIN-REPORT-EXPORT-STATUS",
+      "method": "GET",
+      "route": "/api/v1/admin/reports/finance/exports/{export_id}",
+      "purpose": "Read own authorized financial report export status",
+      "roles": [
+        "admin:finance_admin"
+      ],
+      "ownership": "Authenticated finance_admin with active account and recent MFA, requesting the export or explicitly authorized finance oversight; status read permits every defined ExportView state and never requires a ready asset. Deny parent, student, teacher and non-finance admin.",
+      "request": "API_ADMIN_REPORT_EXPORT_STATUSRequest",
+      "response": "ExportView",
+      "service": "ReportingService.get_finance_export",
+      "objects": [
+        "Payment",
+        "Refund",
+        "Receipt",
+        "FinancialExport"
+      ],
+      "ports": [
+        "PaymentRepository",
+        "UnitOfWork",
+        "Clock",
+        "FileRepository",
+        "ObjectStorageProvider"
+      ],
+      "requirements": [
+        "PAY-010",
+        "ADM-027"
+      ],
+      "topic": "financial_reporting",
+      "consumer": [
+        "admin"
+      ],
+      "errors": [
+        "UNAUTHENTICATED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "VALIDATION_ERROR"
+      ],
+      "success_status": 200,
+      "transaction": "Read-only scoped projection"
+    },
+    {
+      "id": "API-ADMIN-REPORT-EXPORT-DOWNLOAD",
+      "method": "POST",
+      "route": "/api/v1/admin/reports/finance/exports/{export_id}/download",
+      "purpose": "Download ready private financial report export under finance scope",
+      "roles": [
+        "admin:finance_admin"
+      ],
+      "ownership": "Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Ready generated financial_export; initiated by this principal or explicitly privileged finance oversight; no generic teaching file grant.",
+      "request": "API_ADMIN_REPORT_EXPORT_DOWNLOADRequest",
+      "response": "DownloadTicketView",
+      "service": "ReportingService.download_finance_export",
+      "objects": [
+        "Payment",
+        "Refund",
+        "Receipt",
+        "FinancialExport"
+      ],
+      "ports": [
+        "PaymentRepository",
+        "UnitOfWork",
+        "Clock",
+        "FileRepository",
+        "ObjectStorageProvider"
+      ],
+      "requirements": [
+        "PAY-010",
+        "ADM-027"
+      ],
+      "topic": "financial_reporting",
+      "consumer": [
+        "admin"
+      ],
+      "errors": [
+        "UNAUTHENTICATED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "VALIDATION_ERROR",
+        "VERSION_CONFLICT",
+        "INVALID_STATE",
+        "EXPORT_NOT_READY",
+        "EXPORT_EXPIRED"
+      ],
+      "success_status": 200,
+      "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks."
+    },
+    {
+      "id": "API-ADMIN-RECONCILIATION-EXCEPTIONS",
+      "method": "GET",
+      "route": "/api/v1/admin/reconciliation-exceptions",
+      "purpose": "Inspect provider transactions unmatched to local financial records",
+      "roles": [
+        "admin:finance_admin"
+      ],
+      "ownership": "Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.",
+      "request": "API_ADMIN_RECONCILIATION_EXCEPTIONSRequest",
+      "response": "ReconciliationExceptionViewPage",
+      "service": "BillingService.list_reconciliation_exceptions",
+      "objects": [
+        "Payment",
+        "Price",
+        "Money",
+        "Enrolment",
+        "WebhookInbox",
+        "CapacityPolicy",
+        "BillingMembership",
+        "Receipt",
+        "ReconciliationException"
+      ],
+      "ports": [
+        "PaymentRepository",
+        "EnrolmentRepository",
+        "DeliveryRepository",
+        "FamilyRepository",
+        "PaymentGateway",
+        "UnitOfWork",
+        "Clock",
+        "SettingsRepository",
+        "IntegrationRepository",
+        "FileRepository",
+        "ObjectStorageProvider",
+        "DocumentRenderer"
+      ],
+      "requirements": [
+        "PAY-009",
+        "ADM-025",
+        "ENR-007"
+      ],
+      "topic": "billing",
+      "consumer": [
+        "admin"
+      ],
+      "errors": [
+        "UNAUTHENTICATED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "VALIDATION_ERROR"
+      ],
+      "success_status": 200,
+      "transaction": "Read-only scoped projection"
+    },
+    {
+      "id": "API-ADMIN-RECONCILIATION-EXCEPTION-RETRY",
+      "method": "POST",
+      "route": "/api/v1/admin/reconciliation-exceptions/{exception_id}/reconciliation",
+      "purpose": "Recheck provider truth and resolve only verified matching or reversed transaction",
+      "roles": [
+        "admin:finance_admin"
+      ],
+      "ownership": "Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. No manual invented payment ownership; unresolved cases remain open for documented operational repair.",
+      "request": "API_ADMIN_RECONCILIATION_EXCEPTION_RETRYRequest",
+      "response": "Accepted",
+      "service": "BillingService.retry_reconciliation_exception",
+      "objects": [
+        "Payment",
+        "Price",
+        "Money",
+        "Enrolment",
+        "WebhookInbox",
+        "CapacityPolicy",
+        "BillingMembership",
+        "Receipt",
+        "ReconciliationException"
+      ],
+      "ports": [
+        "PaymentRepository",
+        "EnrolmentRepository",
+        "DeliveryRepository",
+        "FamilyRepository",
+        "PaymentGateway",
+        "UnitOfWork",
+        "Clock",
+        "SettingsRepository",
+        "IntegrationRepository",
+        "FileRepository",
+        "ObjectStorageProvider",
+        "DocumentRenderer"
+      ],
+      "requirements": [
+        "PAY-009",
+        "ADM-025"
+      ],
+      "topic": "billing",
+      "consumer": [
+        "admin"
+      ],
+      "errors": [
+        "UNAUTHENTICATED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "VALIDATION_ERROR",
+        "VERSION_CONFLICT",
+        "INVALID_STATE"
+      ],
+      "success_status": 202,
+      "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks."
     }
   ],
   "schemas": [
@@ -29222,10 +30184,10 @@
         },
         {
           "name": "status_url",
-          "type": "url",
+          "type": "string",
           "required": true,
           "nullable": false,
-          "validation": "HTTPS URL; approved provider/storage host allowlist; no credentials",
+          "validation": "Allowlisted same-origin relative authorized job status path",
           "location": "body"
         }
       ],
@@ -33467,7 +34429,7 @@
         },
         {
           "name": "purpose",
-          "type": "enum(resource|submission|certificate|internal|public_asset)",
+          "type": "enum(resource|submission|certificate|internal|public_asset|financial_document|financial_export)",
           "required": true,
           "nullable": false,
           "validation": "Closed enum; reject unknown values",
@@ -34042,7 +35004,7 @@
     },
     {
       "name": "ExportView",
-      "description": "Family privacy export excludes third-party and staff-private content; generated file separately protected.",
+      "description": "Purpose-scoped export lifecycle metadata. Privacy exports require verified requester ownership; finance exports require finance_admin requester or explicit oversight. A separate authorized download operation returns a short-lived URL only while ready and unexpired.",
       "fields": [
         {
           "name": "id",
@@ -34054,7 +35016,7 @@
         },
         {
           "name": "status",
-          "type": "enum(requested|processing|ready|expired)",
+          "type": "enum(requested|processing|ready|failed|expired)",
           "required": true,
           "nullable": false,
           "validation": "Closed enum; reject unknown values",
@@ -34067,6 +35029,14 @@
           "nullable": true,
           "validation": "RFC3339 timezone-aware instant, UTC persisted",
           "location": "body"
+        },
+        {
+          "name": "failure_code",
+          "type": "enum(GENERATION_FAILED|LIMIT_EXCEEDED|STORAGE_UNAVAILABLE)",
+          "required": true,
+          "nullable": true,
+          "location": "body",
+          "validation": "Null except terminal failed state; sanitized code only, no provider details or file contents."
         }
       ],
       "additional_properties": false
@@ -39939,7 +40909,7 @@
           "type": "uuid[]",
           "required": true,
           "nullable": false,
-          "validation": "0\u20135; own ready submission-purpose assets only",
+          "validation": "0\u20135 own ready submission-purpose assets; each<=25MiB; sum<=100MiB; unknown, duplicate or unready assets rejected",
           "location": "body"
         },
         {
@@ -45467,6 +46437,342 @@
         }
       ],
       "additional_properties": false
+    },
+    {
+      "name": "JOB_PAYMENT_DISCOVERYRequest",
+      "description": "Discover provider-side payments/refunds and reconcile missing local references input",
+      "fields": [
+        {
+          "name": "from",
+          "type": "datetime",
+          "required": true,
+          "nullable": false,
+          "validation": "RFC3339 timezone-aware instant, UTC persisted",
+          "location": "body"
+        },
+        {
+          "name": "to",
+          "type": "datetime",
+          "required": true,
+          "nullable": false,
+          "validation": "<=24h range with overlap for eventual consistency",
+          "location": "body"
+        },
+        {
+          "name": "cursor",
+          "type": "token",
+          "required": false,
+          "nullable": false,
+          "validation": "opaque cryptographic token; max 512 characters; never logged",
+          "location": "body"
+        }
+      ],
+      "additional_properties": false
+    },
+    {
+      "name": "StudentSelfProfileView",
+      "description": "Own child profile only; no family identifiers, guardian contacts or financial fields.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "required": true,
+          "nullable": false,
+          "validation": "UUID v4/v7; opaque identifier; ownership checked after parse",
+          "location": "body"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "validation": "1\u201380",
+          "location": "body"
+        },
+        {
+          "name": "preferred_name",
+          "type": "string",
+          "required": true,
+          "nullable": true,
+          "validation": "1\u201380",
+          "location": "body"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "required": true,
+          "nullable": true,
+          "validation": "1\u201380",
+          "location": "body"
+        },
+        {
+          "name": "age_years",
+          "type": "integer",
+          "required": true,
+          "nullable": false,
+          "validation": "4\u201318",
+          "location": "body"
+        },
+        {
+          "name": "age_recorded_on",
+          "type": "date",
+          "required": true,
+          "nullable": false,
+          "validation": "ISO8601 calendar date",
+          "location": "body"
+        },
+        {
+          "name": "school_name",
+          "type": "string",
+          "required": true,
+          "nullable": true,
+          "validation": "1\u2013160",
+          "location": "body"
+        },
+        {
+          "name": "school_year",
+          "type": "enum(foundation|year_1|year_2|year_3|year_4|year_5|year_6|year_7|year_8|year_9|year_10|year_11|year_12|other|not_specified)",
+          "required": true,
+          "nullable": true,
+          "validation": "Closed enum; reject unknown values",
+          "location": "body"
+        },
+        {
+          "name": "interests",
+          "type": "enum(artificial_intelligence|coding|robotics|creative_design|games|data|online_safety)[]",
+          "required": true,
+          "nullable": false,
+          "validation": "Validate referenced schema recursively",
+          "location": "body"
+        },
+        {
+          "name": "prior_experience",
+          "type": "enum(none|some|experienced|prefer-not-to-say)",
+          "required": true,
+          "nullable": true,
+          "validation": "Closed enum; reject unknown values",
+          "location": "body"
+        },
+        {
+          "name": "version",
+          "type": "version",
+          "required": true,
+          "nullable": false,
+          "validation": "positive integer optimistic concurrency token",
+          "location": "body"
+        }
+      ],
+      "additional_properties": false
+    },
+    {
+      "name": "API_ADMIN_REPORT_EXPORT_STATUSRequest",
+      "description": "Read own authorized financial report export status input",
+      "fields": [
+        {
+          "name": "export_id",
+          "type": "uuid",
+          "required": true,
+          "nullable": false,
+          "validation": "Opaque UUID; authorization scoped lookup",
+          "location": "path"
+        }
+      ],
+      "additional_properties": false
+    },
+    {
+      "name": "API_ADMIN_REPORT_EXPORT_DOWNLOADRequest",
+      "description": "Download ready private financial report export under finance scope input",
+      "fields": [
+        {
+          "name": "export_id",
+          "type": "uuid",
+          "required": true,
+          "nullable": false,
+          "validation": "Opaque UUID; authorization scoped lookup",
+          "location": "path"
+        }
+      ],
+      "additional_properties": false
+    },
+    {
+      "name": "ReconciliationExceptionView",
+      "description": "Finance-only unknown/mismatched provider transaction evidence; no invented family/student owner.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "required": true,
+          "nullable": false,
+          "validation": "UUID v4/v7; opaque identifier; ownership checked after parse",
+          "location": "body"
+        },
+        {
+          "name": "provider_transaction_id",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "validation": "UTF-8, trimmed, 1\u2013200 characters unless otherwise specified",
+          "location": "body"
+        },
+        {
+          "name": "amount_minor",
+          "type": "money",
+          "required": true,
+          "nullable": false,
+          "validation": "integer minor units, nonnegative AUD; no floating point",
+          "location": "body"
+        },
+        {
+          "name": "currency",
+          "type": "enum(AUD)",
+          "required": true,
+          "nullable": false,
+          "validation": "Closed enum; reject unknown values",
+          "location": "body"
+        },
+        {
+          "name": "provider_status",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "validation": "UTF-8, trimmed, 1\u2013200 characters unless otherwise specified",
+          "location": "body"
+        },
+        {
+          "name": "payment_id",
+          "type": "uuid",
+          "required": true,
+          "nullable": true,
+          "validation": "UUID v4/v7; opaque identifier; ownership checked after parse",
+          "location": "body"
+        },
+        {
+          "name": "status",
+          "type": "enum(open|linked|provider_reversed)",
+          "required": true,
+          "nullable": false,
+          "validation": "Closed enum; reject unknown values",
+          "location": "body"
+        },
+        {
+          "name": "first_seen_at",
+          "type": "datetime",
+          "required": true,
+          "nullable": false,
+          "validation": "RFC3339 timezone-aware instant, UTC persisted",
+          "location": "body"
+        },
+        {
+          "name": "last_checked_at",
+          "type": "datetime",
+          "required": true,
+          "nullable": false,
+          "validation": "RFC3339 timezone-aware instant, UTC persisted",
+          "location": "body"
+        },
+        {
+          "name": "reason_code",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "validation": "UTF-8, trimmed, 1\u2013200 characters unless otherwise specified",
+          "location": "body"
+        },
+        {
+          "name": "version",
+          "type": "version",
+          "required": true,
+          "nullable": false,
+          "validation": "positive integer optimistic concurrency token",
+          "location": "body"
+        }
+      ],
+      "additional_properties": false
+    },
+    {
+      "name": "API_ADMIN_RECONCILIATION_EXCEPTIONSRequest",
+      "description": "Inspect provider transactions unmatched to local financial records input",
+      "fields": [
+        {
+          "name": "status",
+          "type": "enum(open|linked|provider_reversed)",
+          "required": false,
+          "nullable": false,
+          "validation": "Closed enum; reject unknown values",
+          "location": "query"
+        },
+        {
+          "name": "cursor",
+          "type": "token",
+          "required": false,
+          "nullable": false,
+          "validation": "opaque cryptographic token; max 512 characters; never logged",
+          "location": "query"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "required": false,
+          "nullable": false,
+          "validation": "1\u2013100; default 25",
+          "location": "query"
+        }
+      ],
+      "additional_properties": false
+    },
+    {
+      "name": "ReconciliationExceptionViewPage",
+      "description": "ReconciliationExceptionViewPage",
+      "fields": [
+        {
+          "name": "items",
+          "type": "ReconciliationExceptionView[]",
+          "required": true,
+          "nullable": false,
+          "validation": "Validate referenced schema recursively",
+          "location": "body"
+        },
+        {
+          "name": "page",
+          "type": "PageMeta",
+          "required": true,
+          "nullable": false,
+          "validation": "Validate referenced schema recursively",
+          "location": "body"
+        }
+      ],
+      "additional_properties": false
+    },
+    {
+      "name": "API_ADMIN_RECONCILIATION_EXCEPTION_RETRYRequest",
+      "description": "Recheck provider truth and resolve only verified matching or reversed transaction input",
+      "fields": [
+        {
+          "name": "exception_id",
+          "type": "uuid",
+          "required": true,
+          "nullable": false,
+          "validation": "Opaque UUID; authorization scoped lookup",
+          "location": "path"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "validation": "UTF-8, trimmed, 1\u2013200 characters unless otherwise specified",
+          "location": "body"
+        },
+        {
+          "name": "Idempotency-Key",
+          "type": "uuid",
+          "required": true,
+          "nullable": false,
+          "validation": "Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days",
+          "location": "header"
+        }
+      ],
+      "additional_properties": false
     }
   ],
   "settings": [
@@ -45587,7 +46893,7 @@
       "value_field": "number",
       "validation": "7",
       "privilege": "finance_admin",
-      "approval_gate": "HG-FINANCE+HG-LEGAL",
+      "approval_gate": "HG-MERCHANT+HG-LEGAL",
       "default": "7"
     },
     {
@@ -45603,7 +46909,7 @@
       "value_field": "text",
       "validation": "1\u2013200 trimmed legal business name",
       "privilege": "finance_admin",
-      "approval_gate": "HG-FINANCE",
+      "approval_gate": "HG-MERCHANT",
       "default": "unconfigured"
     },
     {
@@ -45611,7 +46917,7 @@
       "value_field": "text",
       "validation": "11 digits validated Australian Business Number or empty only when professionally approved",
       "privilege": "finance_admin",
-      "approval_gate": "HG-FINANCE",
+      "approval_gate": "HG-MERCHANT",
       "default": "unconfigured"
     },
     {
@@ -45619,7 +46925,7 @@
       "value_field": "text",
       "validation": "1\u2013500 approved invoice business address",
       "privilege": "finance_admin",
-      "approval_gate": "HG-FINANCE",
+      "approval_gate": "HG-MERCHANT",
       "default": "unconfigured"
     },
     {
@@ -45627,7 +46933,7 @@
       "value_field": "text",
       "validation": "enum inclusive,exclusive,exempt",
       "privilege": "finance_admin",
-      "approval_gate": "HG-FINANCE",
+      "approval_gate": "HG-MERCHANT",
       "default": "unconfigured"
     },
     {
@@ -45635,7 +46941,7 @@
       "value_field": "number",
       "validation": "0\u201310000; consistent with approved tax_treatment",
       "privilege": "finance_admin",
-      "approval_gate": "HG-FINANCE",
+      "approval_gate": "HG-MERCHANT",
       "default": "unconfigured"
     },
     {
@@ -45643,7 +46949,7 @@
       "value_field": "text",
       "validation": "UUID of approved effective refund/cancellation policy",
       "privilege": "finance_admin",
-      "approval_gate": "HG-FINANCE+HG-LEGAL",
+      "approval_gate": "HG-MERCHANT+HG-LEGAL",
       "default": "unconfigured"
     },
     {
@@ -45651,7 +46957,7 @@
       "value_field": "items",
       "validation": "Nonsecret provider-user references for approved licensed hosts; each maps active teacher ID",
       "privilege": "operations_admin",
-      "approval_gate": "HG-ZOOM",
+      "approval_gate": "HG-PROVIDERS",
       "default": "unconfigured"
     },
     {
@@ -45659,7 +46965,7 @@
       "value_field": "text",
       "validation": "Dedicated business calendar identifier; no learner personal calendar OAuth",
       "privilege": "operations_admin",
-      "approval_gate": "HG-INTEGRATIONS",
+      "approval_gate": "HG-PROVIDERS",
       "default": "unconfigured"
     },
     {
@@ -45667,7 +46973,7 @@
       "value_field": "text",
       "validation": "Verified Resend sender email under authenticated business domain",
       "privilege": "operations_admin",
-      "approval_gate": "HG-INTEGRATIONS",
+      "approval_gate": "HG-PROVIDERS",
       "default": "unconfigured"
     },
     {
@@ -45681,9 +46987,9 @@
     {
       "key": "enrolment_enabled",
       "value_field": "flag",
-      "validation": "boolean; true only when all legal/age/finance/provider launch gates satisfied",
+      "validation": "boolean; true only with approved legal, merchant, age, provider and staff gates and passing launch acceptance evidence",
       "privilege": "operations_admin",
-      "approval_gate": "HG-LAUNCH",
+      "approval_gate": "HG-LEGAL+HG-MERCHANT+HG-AGE+HG-PROVIDERS+HG-STAFF",
       "default": "false"
     },
     {
@@ -45691,7 +46997,7 @@
       "value_field": "flag",
       "validation": "boolean; true only approved legal/contact/age settings complete",
       "privilege": "operations_admin",
-      "approval_gate": "HG-LAUNCH",
+      "approval_gate": "HG-LEGAL+HG-AGE+HG-STAFF",
       "default": "false"
     },
     {
@@ -45748,8 +47054,8 @@
     },
     {
       "name": "students",
-      "columns": "id uuid PK;family_id uuid FK families;account_id uuid? FK accounts;first_name varchar(100);preferred_name varchar(100)?;last_name varchar(100)?;age_years smallint;age_recorded_on date;school_name varchar(200)?;school_year varchar(40)?;interests text[];prior_experience text?;status text;version bigint",
-      "constraints": "Name nonempty; age technical4\u201318; optional school nullable; UNIQUE(account_id) WHERE not null; age_recorded_on<=current date enforced service",
+      "columns": "id uuid PK;family_id uuid FK families;account_id uuid? FK accounts;first_name varchar(80);preferred_name varchar(80)?;last_name varchar(80)?;age_years smallint;age_recorded_on date;school_name varchar(160)?;school_year varchar(40)?;interests text[];prior_experience text?;status text;version bigint",
+      "constraints": "Name nonempty; age technical4\u201318; optional school nullable; UNIQUE(account_id) WHERE not null; age_recorded_on<=current date enforced service; school_year Foundation/Year1\u201312/other/not_specified enum; interests approved topic array<=10 unique; prior_experience includes prefer-not-to-say",
       "indexes": "family_id,status,id",
       "lifecycle": "Archive only after active enrolments resolved; retention-approved anonymization; no DOB inferred"
     },
@@ -45807,7 +47113,7 @@
       "columns": "id uuid PK;name varchar(200);email citext;message text;status text;version bigint",
       "constraints": "CHECK length(message)<=2000; status new/handled",
       "indexes": "status,created_at",
-      "lifecycle": "Proposed purge180d after handled unless support/legal hold"
+      "lifecycle": "Purge90d after closure unless approved support/legal hold"
     },
     {
       "name": "programs",
@@ -46056,16 +47362,16 @@
     },
     {
       "name": "events",
-      "columns": "id uuid PK;title text;description text;starts_at timestamptz;ends_at timestamptz;timezone text;audience_kind text;cohort_id uuid? FK cohorts;status text;version bigint",
-      "constraints": "end>start; cohort_id iff cohort audience",
-      "indexes": "status,starts_at; cohort_id",
+      "columns": "id uuid PK;title text;description text;starts_at timestamptz;ends_at timestamptz;timezone text;audience_kind text;audience_roles text[];course_id uuid? FK courses;cohort_id uuid? FK cohorts;status text;version bigint",
+      "constraints": "Audience kind public/role/course/cohort; public requires empty roles and null course/cohort; role requires nonempty allowed roles and null IDs; course requires course_id only; cohort requires cohort_id only; role filter contains only parent/student/teacher. end>start",
+      "indexes": "status,starts_at; cohort_id; course_id; audience_kind",
       "lifecycle": "Cancel rather than deleting published occurrence"
     },
     {
       "name": "announcements",
-      "columns": "id uuid PK;title text;body text;audience_kind text;cohort_id uuid? FK cohorts;status text;published_at timestamptz?;version bigint",
-      "constraints": "Audience closed enum; cohort ID iff cohort; no private student target/messaging",
-      "indexes": "status,published_at; cohort_id",
+      "columns": "id uuid PK;title text;body text;audience_kind text;audience_roles text[];course_id uuid? FK courses;cohort_id uuid? FK cohorts;status text;published_at timestamptz?;version bigint",
+      "constraints": "Audience kind public/role/course/cohort; public requires empty roles and null course/cohort; role requires nonempty allowed roles and null IDs; course requires course_id only; cohort requires cohort_id only; role filter contains only parent/student/teacher. Published body immutable until explicit withdrawal/correction",
+      "indexes": "status,published_at; cohort_id; course_id; audience_kind",
       "lifecycle": "Withdraw published content with retained audit"
     },
     {
@@ -46080,7 +47386,7 @@
       "columns": "id uuid PK;notification_id uuid FK notifications;channel text;dedupe_key text;provider_message_id text?;status text;attempt_count integer;next_attempt_at timestamptz?;sent_at timestamptz?;last_error_code text?;version bigint",
       "constraints": "UNIQUE(dedupe_key); local retention exceeds provider24h; attempts>=0",
       "indexes": "status,next_attempt_at; notification_id",
-      "lifecycle": "Proposed delivery state12months, minimal dedupe identifiers retained as long as replay sources"
+      "lifecycle": "Redacted delivery metadata90d; deduplication key safe hash1year"
     },
     {
       "name": "file_assets",
@@ -46161,8 +47467,8 @@
     },
     {
       "name": "privacy_exports",
-      "columns": "id uuid PK;request_id uuid? FK privacy_requests;requested_by uuid FK accounts;purpose text;asset_id uuid? FK file_assets;status text;expires_at timestamptz?",
-      "constraints": "Access export requires verified request; finance export requires finance scope; immutable purpose",
+      "columns": "id uuid PK;request_id uuid? FK privacy_requests;requested_by uuid FK accounts;purpose text;asset_id uuid? FK file_assets;status text;expires_at timestamptz?;report_from date?;report_to date?;job_id uuid? FK background_jobs;version bigint;created_at timestamptz;failure_code text?",
+      "constraints": "Access export requires verified request; finance export requires finance scope; immutable purpose; financial_export purpose requires null privacy request, nonnull report_from/report_to/job_id, range<=366days and finance-authorized requester; ready requires asset; status IN(requested,processing,ready,failed,expired); failure_code is nonnull only for failed and constrained to GENERATION_FAILED,LIMIT_EXCEEDED,STORAGE_UNAVAILABLE",
       "indexes": "requested_by,created_at; expires_at",
       "lifecycle": "Export download expires24h, object purged7d unless decision hold"
     },
@@ -46172,6 +47478,34 @@
       "constraints": "Immutable decision; no purge without approved policy and no active hold",
       "indexes": "resource_type,resource_id; executed_at",
       "lifecycle": "Retain minimal execution evidence after source anonymization"
+    },
+    {
+      "name": "reconciliation_exceptions",
+      "columns": "id uuid PK;provider_transaction_id text;amount_minor bigint;currency char(3);provider_status text;payment_id uuid? FK payments;status text;first_seen_at timestamptz;last_checked_at timestamptz;reason_code text;version bigint",
+      "constraints": "UNIQUE(provider_transaction_id); open/linked/provider_reversed; nonnegative AUD amount; no invented family association",
+      "indexes": "status,first_seen_at; payment_id",
+      "lifecycle": "Retain financial reconciliation evidence with approved financial retention"
+    },
+    {
+      "name": "mfa_factors",
+      "columns": "id uuid PK;account_id uuid FK accounts;secret_ciphertext bytea;encryption_key_version text;status text;last_accepted_step bigint?;activated_at timestamptz?;revoked_at timestamptz?;version bigint",
+      "constraints": "Partial UNIQUE active factor(account_id); pending/active/revoked; last timestep monotonic under row lock; seed never plaintext",
+      "indexes": "account_id,status",
+      "lifecycle": "Revoke factor on verified compromise; erase encrypted seed on final closure while retaining safe audit"
+    },
+    {
+      "name": "mfa_recovery_codes",
+      "columns": "id uuid PK;factor_id uuid FK mfa_factors;code_hash bytea;consumed_at timestamptz?",
+      "constraints": "UNIQUE(code_hash); only high entropy random values issued; single-use consume locked",
+      "indexes": "factor_id,consumed_at",
+      "lifecycle": "Consume hash immediately; retain consumed marker without usable secret until factor rotates"
+    },
+    {
+      "name": "mfa_challenges",
+      "columns": "id uuid PK;account_id uuid FK accounts;token_hash bytea;purpose text;browser_binding_hash bytea;expires_at timestamptz;attempts integer;consumed_at timestamptz?;factor_id uuid? FK mfa_factors",
+      "constraints": "UNIQUE(token_hash); challenge/setup purpose; attempts0\u20135; expiry5m challenge or10m setup; consumed cannot replay",
+      "indexes": "account_id,purpose; expires_at",
+      "lifecycle": "Destroy credential hash on consumption/expiry; safe metadata30d"
     }
   ]
 }

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Validate complete planning references, coverage and contract boundaries without network or writes."""
 from pathlib import Path
-import json,re,sys
-from reconcile_state import validate_plan,Blocked
+import argparse,json,re,sys
+from reconcile_state import validate_plan,Blocked,Repository,mandatory_witnesses,witness_normalization,plan_digest,safe_path
 ROOT=Path(__file__).resolve().parents[1]
 EXPECTED={
 'product':'PRODUCT_DEFINITION LAUNCH_SCOPE OUT_OF_SCOPE FUNCTIONAL_REQUIREMENTS NON_FUNCTIONAL_REQUIREMENTS ROLE_CAPABILITIES USER_JOURNEYS DATA_REQUIREMENTS LAUNCH_ACCEPTANCE_CRITERIA FUTURE_CONSIDERATIONS SCOPE_LOCK',
@@ -14,7 +14,7 @@ def require(ok,msg):
 def read(path):return json.loads((ROOT/path).read_text())
 def unique(rows,key,label):
  values=[x[key] for x in rows];require(len(values)==len(set(values)),label+' identifiers duplicate');return set(values)
-def validate():
+def validate(bootstrap=False):
  for directory,names in EXPECTED.items():
   for name in names.split():require((ROOT/'docs'/directory/(name+'.md')).is_file(),'Missing required document '+directory+'/'+name)
  req=read('docs/product/requirements.json');ids=unique(req,'id','Requirement')
@@ -82,11 +82,24 @@ def validate():
   fm=content.split('---',2)[1];require(re.search(r'^name: [a-z0-9-]+$',fm,re.M) and re.search(r'^description: .+',fm,re.M),'Invalid skill identity '+str(p))
  # No bootstrap business implementation may be smuggled into app/package/infra skeleton.
  for base in ['apps','packages','infra']:
-  if read('docs/product/scope-lock.json')['status']=='DRAFT':
+  if bootstrap:
    require(all(p.name=='README.md' for p in (ROOT/base).rglob('*') if p.is_file()),'Draft bootstrap contains application/runtime implementation under '+base)
  lock=read('docs/product/scope-lock.json');require(re.fullmatch(r'[0-9]+\.[0-9]+',lock['scope_version']) and type(lock['architecture_version']) is int and lock['architecture_version']>=1,'Invalid scope/architecture version')
- return {'validation':'PASS','requirements':len(ids),'planned_requirement_coverage':'100%','implementation_coverage':'0%','phases':len({c['id'][3:6] for c in chunks}),'chunks':len(chunks),'objects':len(objs),'services':len(svcs),'ports':len(ports),'api_and_worker_operations':len(apis),'schemas':len(schemas),'frontend_components':len(comps),'frontend_routes':len(f['routes']),'skills':len(skills),'application_implementation_started':False}
+ witnesses=lock['plan_artifacts'];paths=unique(witnesses,'path','Scope witness')
+ require('docs/product/scope-lock.json' not in paths,'Scope cannot witness itself')
+ require(mandatory_witnesses(Repository(ROOT))<=paths,'Required scope witnesses missing')
+ for artifact in witnesses:
+  path=safe_path(artifact['path'])
+  require(artifact.get('normalization')==witness_normalization(path),'Incorrect witness normalization '+path)
+  resolved=(ROOT/path).resolve();require(resolved.is_relative_to(ROOT),'Witness escapes repository')
+  require(plan_digest(resolved.read_bytes(),artifact)==artifact['sha256'],'Stale scope witness '+path)
+ result={'validation':'PASS','requirements':len(ids),'planned_requirement_coverage':'100%','phases':len({c['id'][3:6] for c in chunks}),'chunks':len(chunks),'objects':len(objs),'services':len(svcs),'ports':len(ports),'api_and_worker_operations':len(apis),'schemas':len(schemas),'frontend_components':len(comps),'frontend_routes':len(f['routes']),'skills':len(skills),'scope_witnesses':len(paths)}
+ if bootstrap:result.update(implementation_coverage='0%',application_implementation_started=False)
+ return result
 if __name__=='__main__':
- try:print(json.dumps(validate(),indent=2))
+ parser=argparse.ArgumentParser(description=__doc__)
+ parser.add_argument('--bootstrap',action='store_true',help='Additionally prove initial planning contains no application implementation')
+ args=parser.parse_args()
+ try:print(json.dumps(validate(bootstrap=args.bootstrap),indent=2))
  except (ValueError,KeyError,TypeError,OSError,Blocked) as exc:
   print(json.dumps({'validation':'FAIL','reason':str(exc)},indent=2));sys.exit(1)

@@ -19,7 +19,7 @@ HTTP 202 durable operation accepted; poll authorized job.
 |---|---|---|---|---|---|
 | job_id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
 | status | enum(queued\|running) | True | False | body | Closed enum; reject unknown values |
-| status_url | url | True | False | body | HTTPS URL; approved provider/storage host allowlist; no credentials |
+| status_url | string | True | False | body | Allowlisted same-origin relative authorized job status path |
 
 ## Error
 
@@ -101,8 +101,8 @@ GuardianView
 | id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
 | user_id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
 | family_id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
-| first_name | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| last_name | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| first_name | string | True | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| last_name | string | True | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | phone | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | email | email | True | False | body | normalized verified deliverable address; max 254 characters |
 | essential_contact | enum(email) | True | False | body | Closed enum; reject unknown values |
@@ -138,8 +138,8 @@ StudentSummary
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
-| first_name | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| preferred_name | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| first_name | string | True | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| preferred_name | string | True | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | age_years | integer | True | False | body | 4–18 proposed technical input; approved launch bands enforced separately |
 | age_recorded_on | date | True | False | body | ISO8601 calendar date |
 | status | enum(active\|archived) | True | False | body | Closed enum; reject unknown values |
@@ -152,15 +152,15 @@ StudentProfileView
 |---|---|---|---|---|---|
 | id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
 | family_id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
-| first_name | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| preferred_name | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| last_name | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| first_name | string | True | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| preferred_name | string | True | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| last_name | string | True | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | age_years | integer | True | False | body | 4–18 |
 | age_recorded_on | date | True | False | body | ISO8601 calendar date |
-| school_name | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| school_year | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| interests | string[] | True | False | body | 0–10, each max 60 |
-| prior_experience | enum(none\|some\|experienced) | True | True | body | Closed enum; reject unknown values |
+| school_name | string | True | True | body | Optional trimmed Unicode1–160 characters; blank normalizes null; never required |
+| school_year | enum(foundation\|year_1\|year_2\|year_3\|year_4\|year_5\|year_6\|year_7\|year_8\|year_9\|year_10\|year_11\|year_12\|other\|not_specified) | True | True | body | Closed school-year catalog; nullable and optional at registration |
+| interests | enum(artificial_intelligence\|coding\|robotics\|creative_design\|games\|data\|online_safety)[] | True | False | body | 0–10 unique approved topics; closed catalog; optional at registration |
+| prior_experience | enum(none\|some\|experienced\|prefer-not-to-say) | True | True | body | Optional closed educational-experience enum |
 | status | enum(active\|archived) | True | False | body | Closed enum; reject unknown values |
 | version | version | True | False | body | positive integer optimistic concurrency token |
 
@@ -171,13 +171,13 @@ Purpose-limited teaching projection: excludes family ID, school name, last name,
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
-| first_name | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| preferred_name | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| first_name | string | True | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| preferred_name | string | True | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | age_years | integer | True | False | body | 4–18 |
 | age_recorded_on | date | True | False | body | ISO8601 calendar date |
-| school_year | string | True | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| interests | string[] | True | False | body | Validate referenced schema recursively |
-| prior_experience | enum(none\|some\|experienced) | True | True | body | Closed enum; reject unknown values |
+| school_year | enum(foundation\|year_1\|year_2\|year_3\|year_4\|year_5\|year_6\|year_7\|year_8\|year_9\|year_10\|year_11\|year_12\|other\|not_specified) | True | True | body | Closed school-year catalog; nullable and optional at registration |
+| interests | enum(artificial_intelligence\|coding\|robotics\|creative_design\|games\|data\|online_safety)[] | True | False | body | 0–10 unique approved topics; closed catalog; optional at registration |
+| prior_experience | enum(none\|some\|experienced\|prefer-not-to-say) | True | True | body | Optional closed educational-experience enum |
 
 ## StudentCredentialsView
 
@@ -237,9 +237,10 @@ PolicyView
 | version_label | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | title | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | sanitized_html | text | True | False | body | UTF-8, max 10000 characters; plain text unless explicitly sanitized rich text |
-| published_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| published_at | datetime | True | True | body | RFC3339 timezone-aware instant, UTC persisted |
 | requires_acknowledgement | boolean | True | False | body | strict JSON boolean |
 | effective_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| version | version | True | False | body | positive integer optimistic concurrency token |
 
 ## AcknowledgementView
 
@@ -264,7 +265,7 @@ PublicPageView
 | slug | string | True | False | body | home,about,how-classes-work,parents,faq,contact,age-groups only |
 | title | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | sanitized_html | text | True | False | body | UTF-8, max 10000 characters; plain text unless explicitly sanitized rich text |
-| published_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| published_at | datetime | True | True | body | RFC3339 timezone-aware instant, UTC persisted |
 | version | version | True | False | body | positive integer optimistic concurrency token |
 
 ## ContactReceipt
@@ -571,7 +572,7 @@ No internal attendance notes are exposed to parents or students.
 
 ## QuizView
 
-Administrative/teacher authoring projection only.
+Authoring quiz definition; correct keys and approved explanation included only to authorized curriculum/teaching scope. LearnerQuizView excludes both until own attempt submitted.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -598,6 +599,7 @@ Never included in learner schema.
 | options | QuizOption[] | True | False | body | Validate referenced schema recursively |
 | correct_option_ids | uuid[] | True | False | body | Validate referenced schema recursively |
 | points | integer | True | False | body | 1–100 |
+| explanation | text | True | False | body | Approved explanation shown after learner submission; immutable with published quiz |
 
 ## QuizOption
 
@@ -659,7 +661,7 @@ Result null until release; answers only own selections, never correct-answer key
 
 ## ReleasedQuizResult
 
-No correct-answer exposure at launch; teacher can explain via released feedback.
+Immediate formative result for submitted own attempt: score plus per-question correctness and approved explanation. Never an unsubmitted quiz answer-key endpoint.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -667,6 +669,7 @@ No correct-answer exposure at launch; teacher can explain via released feedback.
 | max_score | integer | True | False | body | strict integer |
 | passed | boolean | True | False | body | strict JSON boolean |
 | released_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| questions | ReleasedQuestionFeedback[] | True | False | body | Validate referenced schema recursively |
 
 ## AssignmentView
 
@@ -739,7 +742,7 @@ FeedbackView
 
 ## ProgressView
 
-Deterministic required item completion plus at least80% attended delivered sessions; cancelled sessions excluded; present/late count attended, excused does not. Empty delivered denominator is not eligible until cohort completed.
+Derived source counts remain unchanged. Eligibility is standard policy OR active evidenced education-admin override; private override evidence is never learner/parent projected.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -758,6 +761,7 @@ Deterministic required item completion plus at least80% attended delivered sessi
 | attended_sessions | integer | True | False | body | strict integer |
 | attendance_percent | integer | True | False | body | 0–100 |
 | completion_eligible | boolean | True | False | body | strict JSON boolean |
+| completion_basis | enum(incomplete\|standard\|admin_override) | True | False | body | Closed enum; reject unknown values |
 
 ## CertificateView
 
@@ -909,11 +913,13 @@ EventView
 
 ## Audience
 
-cohort_id required iff cohort. Public permitted for Events/marketing only; announcements never reveal private audiences.
+Discriminated target: public has empty roles and null IDs; role has nonempty role allowlist and null IDs; course has course_id only; cohort has cohort_id only. Course/cohort recipients must have current educational relation and be in role filter. Global student role announcements permitted only approved operational education notice, never marketing. Public announcements contain no private relations.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| kind | enum(public\|all_parents\|cohort\|staff) | True | False | body | Closed enum; reject unknown values |
+| kind | enum(public\|role\|course\|cohort) | True | False | body | Closed enum; reject unknown values |
+| roles | enum(parent\|student\|teacher)[] | True | False | body | Nonempty except public; optional audience roles are explicit inclusion filter |
+| course_id | uuid | True | True | body | UUID v4/v7; opaque identifier; ownership checked after parse |
 | cohort_id | uuid | True | True | body | UUID v4/v7; opaque identifier; ownership checked after parse |
 
 ## AnnouncementView
@@ -954,7 +960,7 @@ Object keys and bucket credentials never returned.
 | filename | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | media_type | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | size_bytes | integer | True | False | body | strict integer |
-| purpose | enum(resource\|submission\|certificate\|internal\|public_asset) | True | False | body | Closed enum; reject unknown values |
+| purpose | enum(resource\|submission\|certificate\|internal\|public_asset\|financial_document\|financial_export) | True | False | body | Closed enum; reject unknown values |
 | status | enum(quarantined\|scanning\|ready\|rejected\|deleted) | True | False | body | Closed enum; reject unknown values |
 | created_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
 
@@ -997,7 +1003,7 @@ Never returns credential value; public config uses separate schema.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| key | string | True | False | body | Closed catalog key |
+| key | enum(child_age_min\|child_age_max\|approved_child_interests\|support_email\|safeguarding_email\|business_phone\|policy_privacy_id\|policy_terms_id\|policy_child_safety_id\|required_consent_policy_ids\|retention_matrix_version\|retention_child_months\|retention_contact_days\|retention_delivery_days\|retention_finance_years\|retention_certificate_years\|merchant_legal_name\|merchant_abn\|merchant_address\|tax_treatment\|tax_rate_basis_points\|refund_policy_id\|zoom_host_assignments\|google_calendar_id\|email_from_address\|approved_video_hosts\|enrolment_enabled\|public_publication_enabled\|retention_purge_enabled) | True | False | body | Closed key catalog in SETTINGS_CATALOG |
 | value | SettingValue | True | False | body | Type validation; no unknown fields |
 | approved | boolean | True | False | body | strict JSON boolean |
 | version | version | True | False | body | positive integer optimistic concurrency token |
@@ -1102,13 +1108,14 @@ Operations-admin; recipient email masked.
 
 ## ExportView
 
-Family privacy export excludes third-party and staff-private content; generated file separately protected.
+Purpose-scoped export lifecycle metadata. Privacy exports require verified requester ownership; finance exports require finance_admin requester or explicit oversight. A separate authorized download operation returns a short-lived URL only while ready and unexpired.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
-| status | enum(requested\|processing\|ready\|expired) | True | False | body | Closed enum; reject unknown values |
+| status | enum(requested\|processing\|ready\|failed\|expired) | True | False | body | Closed enum; reject unknown values |
 | expires_at | datetime | True | True | body | RFC3339 timezone-aware instant, UTC persisted |
+| failure_code | enum(GENERATION_FAILED\|LIMIT_EXCEEDED\|STORAGE_UNAVAILABLE) | True | True | body | Null except terminal failed state; sanitized code only, no provider details or file contents. |
 
 ## API_AUTH_REGISTERRequest
 
@@ -1116,8 +1123,8 @@ Register guardian and create family input
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| first_name | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| last_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| first_name | string | True | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| last_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | email | email | True | False | body | normalized verified deliverable address; max 254 characters |
 | password | password | True | False | body | 12–128 characters; breached-password screening; no silent truncation |
 | policy_ids | uuid[] | True | False | body | All required current policy versions |
@@ -1174,6 +1181,7 @@ Create pending TOTP enrolment input
 |---|---|---|---|---|---|
 | password | password | True | False | body | 12–128 characters; breached-password screening; no silent truncation |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
+| setup_token | token | False | False | body | Required for limited invited staff setup context; forbidden with unrelated full session |
 
 ## RecoveryCodeView
 
@@ -1222,7 +1230,6 @@ Revoke current session input
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
 
 ## API_ACCOUNT_PASSWORDRequest
 
@@ -1259,7 +1266,6 @@ Revoke selected own device input
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | session_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
 
 ## API_ACCOUNT_PROFILERequest
 
@@ -1288,8 +1294,8 @@ Update guardian contact/preferences input
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| first_name | string | False | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| last_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| first_name | string | False | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| last_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | phone | string | False | True | body | E164, nullable |
 | optional_email | boolean | False | False | body | strict JSON boolean |
 | If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
@@ -1317,14 +1323,14 @@ Register child with required name and age input
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| first_name | string | True | False | body | 1–100 |
+| first_name | string | True | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | age_years | integer | True | False | body | 4–18 |
-| preferred_name | string | False | True | body | 1–100 if provided |
-| last_name | string | False | True | body | 1–100 if provided |
-| school_name | string | False | True | body | 1–200 if provided |
-| school_year | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| interests | string[] | False | False | body | 0–10, each <=60 |
-| prior_experience | enum(none\|some\|experienced) | False | True | body | Closed enum; reject unknown values |
+| preferred_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| last_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| school_name | string | False | True | body | Optional trimmed Unicode1–160 characters; blank normalizes null; never required |
+| school_year | enum(foundation\|year_1\|year_2\|year_3\|year_4\|year_5\|year_6\|year_7\|year_8\|year_9\|year_10\|year_11\|year_12\|other\|not_specified) | False | True | body | Closed school-year catalog; nullable and optional at registration |
+| interests | enum(artificial_intelligence\|coding\|robotics\|creative_design\|games\|data\|online_safety)[] | False | False | body | 0–10 unique approved topics; closed catalog; optional at registration |
+| prior_experience | enum(none\|some\|experienced\|prefer-not-to-say) | False | True | body | Optional closed educational-experience enum |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
 
 ## API_STUDENT_GETRequest
@@ -1342,13 +1348,13 @@ Update optional child information input
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | student_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
-| first_name | string | False | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| preferred_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| last_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| school_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| school_year | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| interests | string[] | False | False | body | 0–10, <=60 each |
-| prior_experience | enum(none\|some\|experienced) | False | True | body | Closed enum; reject unknown values |
+| first_name | string | False | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| preferred_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| last_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| school_name | string | False | True | body | Optional trimmed Unicode1–160 characters; blank normalizes null; never required |
+| school_year | enum(foundation\|year_1\|year_2\|year_3\|year_4\|year_5\|year_6\|year_7\|year_8\|year_9\|year_10\|year_11\|year_12\|other\|not_specified) | False | True | body | Closed school-year catalog; nullable and optional at registration |
+| interests | enum(artificial_intelligence\|coding\|robotics\|creative_design\|games\|data\|online_safety)[] | False | False | body | 0–10 unique approved topics; closed catalog; optional at registration |
+| prior_experience | enum(none\|some\|experienced\|prefer-not-to-say) | False | True | body | Optional closed educational-experience enum |
 | If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
 
 ## API_STUDENT_AGERequest
@@ -1384,8 +1390,10 @@ Change own preferred display name input
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| preferred_name | string | True | False | body | 1–100 |
+| preferred_name | string | False | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| interests | enum(artificial_intelligence\|coding\|robotics\|creative_design\|games\|data\|online_safety)[] | False | False | body | 0–10 unique |
+| prior_experience | enum(none\|some\|experienced\|prefer-not-to-say) | False | True | body | Closed enum; reject unknown values |
 
 ## API_POLICY_LISTRequest
 
@@ -2122,11 +2130,11 @@ Correct student data with reason input
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | student_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
-| first_name | string | False | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| preferred_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| last_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| first_name | string | False | False | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| preferred_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
+| last_name | string | False | True | body | Trimmed Unicode1–80 characters; optional blank normalizes null; no markup |
 | age_years | integer | False | False | body | 4–18 |
-| school_name | string | False | True | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| school_name | string | False | True | body | Optional trimmed Unicode1–160 characters; blank normalizes null; never required |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
 
@@ -2149,7 +2157,7 @@ Invite teacher or constrained admin principal input
 | email | email | True | False | body | normalized verified deliverable address; max 254 characters |
 | display_name | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | role | enum(teacher\|admin) | True | False | body | Closed enum; reject unknown values |
-| admin_privileges | string[] | False | False | body | Allowed only admin;education,finance,identity,operations,security_audit |
+| admin_privileges | string[] | False | False | body | Closed list identity_admin,education_admin,finance_admin,operations_admin,audit_admin; incompatible teacher grants forbidden |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
 
@@ -2178,7 +2186,7 @@ Change admin privileges with audit and session revocation input
 |---|---|---|---|---|---|
 | account_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | role | enum(parent\|student\|teacher\|admin) | True | False | body | Closed enum; reject unknown values |
-| admin_privileges | string[] | True | False | body | Closed enum identifiers |
+| admin_privileges | string[] | True | False | body | Closed list identity_admin,education_admin,finance_admin,operations_admin,audit_admin; incompatible teacher grants forbidden |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
 
@@ -2963,7 +2971,7 @@ Save own draft work and ready scanned file links input
 |---|---|---|---|---|---|
 | submission_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | body | text | False | True | body | UTF-8, max 10000 characters; plain text unless explicitly sanitized rich text |
-| asset_ids | uuid[] | True | False | body | 0–5; own ready submission-purpose assets only |
+| asset_ids | uuid[] | True | False | body | 0–5 own ready submission-purpose assets; each<=25MiB; sum<=100MiB; unknown, duplicate or unready assets rejected |
 | If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
 
 ## API_STUDENT_SUBMISSION_SENDRequest
@@ -3445,6 +3453,9 @@ Recompute and record completion decision from evidence input
 |---|---|---|---|---|---|
 | enrolment_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| decision | enum(RECOMPUTE\|GRANT_OVERRIDE\|REVOKE_OVERRIDE) | True | False | body | Closed enum; reject unknown values |
+| evidence_references | string[] | False | False | body | 1–10 nonempty verified evidence references required iff GRANT_OVERRIDE; forbidden for RECOMPUTE |
+| override_id | uuid | False | False | body | Required iff REVOKE_OVERRIDE |
 
 ## API_ADMIN_CERTIFICATESRequest
 
@@ -4176,7 +4187,7 @@ Set validated key with approval evidence for launch-sensitive values input
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| key | string | True | False | path | Known allowlisted key |
+| key | enum(child_age_min\|child_age_max\|approved_child_interests\|support_email\|safeguarding_email\|business_phone\|policy_privacy_id\|policy_terms_id\|policy_child_safety_id\|required_consent_policy_ids\|retention_matrix_version\|retention_child_months\|retention_contact_days\|retention_delivery_days\|retention_certificate_years\|zoom_host_assignments\|google_calendar_id\|email_from_address\|approved_video_hosts\|enrolment_enabled\|public_publication_enabled\|retention_purge_enabled) | True | False | path | Closed key enum; key-specific type, value bounds and approval gate in SETTINGS_CATALOG |
 | value | SettingValue | True | False | body | Validate referenced schema recursively |
 | approval_reference | string | False | True | body | Required for age bands, policies, retention |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
@@ -4197,7 +4208,7 @@ Set approved merchant/tax/refund policy value input
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
-| key | string | True | False | path | Known allowlisted key |
+| key | enum(retention_finance_years\|merchant_legal_name\|merchant_abn\|merchant_address\|tax_treatment\|tax_rate_basis_points\|refund_policy_id) | True | False | path | Closed key enum; key-specific type, value bounds and approval gate in SETTINGS_CATALOG |
 | value | SettingValue | True | False | body | Validate referenced schema recursively |
 | approval_reference | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
@@ -4734,3 +4745,139 @@ Resolve late paid no-seat exception exactly once by allocation or refund input
 | payment_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | decision | enum(ALLOCATE\|REFUND) | True | False | body | Closed enum; reject unknown values |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| If-Match | version | True | False | header | Expected Payment aggregate version |
+| Idempotency-Key | uuid | True | False | header | Payment+decision request dedupe;90d retention; body mismatch409 |
+
+## AuthOutcomeView
+
+Discriminated outcome: authenticated has session and null challenge/setup; mfa_challenge has one purpose-bound 5-minute challenge_token and null session/setup; mfa_setup_required has a 10-minute limited setup_token and null session/challenge. Partial authentication grants no teaching/admin API access.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| status | enum(authenticated\|mfa_challenge\|mfa_setup_required) | True | False | body | Closed enum; reject unknown values |
+| session | SessionView | True | True | body | Validate referenced schema recursively |
+| challenge_token | token | True | True | body | opaque cryptographic token; max 512 characters; never logged |
+| setup_token | token | True | True | body | opaque cryptographic token; max 512 characters; never logged |
+| expires_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+
+## StaffSetupSessionView
+
+Invitation establishes limited 10-minute MFA setup session only. Permitted operations are enrol MFA, confirm MFA, logout; no role data APIs.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| account | AccountView | True | False | body | Validate referenced schema recursively |
+| setup_token | token | True | False | body | opaque cryptographic token; max 512 characters; never logged |
+| expires_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+
+## MfaActivationView
+
+Successful TOTP proof activates staff role session; setup credentials revoked atomically.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| session | SessionView | True | False | body | Validate referenced schema recursively |
+| recovery_codes | string[] | True | False | body | 10 single-use high-entropy codes shown once |
+
+## ReleasedQuestionFeedback
+
+Own submitted attempt only; explanation is immutable approved quiz-version text. No cross-quiz key or hidden correct_option_ids returned.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| question_id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
+| correct | boolean | True | False | body | strict JSON boolean |
+| awarded_points | integer | True | False | body | strict integer |
+| max_points | integer | True | False | body | strict integer |
+| explanation | text | True | False | body | UTF-8, max 10000 characters; plain text unless explicitly sanitized rich text |
+
+## JOB_PAYMENT_DISCOVERYRequest
+
+Discover provider-side payments/refunds and reconcile missing local references input
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| from | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| to | datetime | True | False | body | <=24h range with overlap for eventual consistency |
+| cursor | token | False | False | body | opaque cryptographic token; max 512 characters; never logged |
+
+## StudentSelfProfileView
+
+Own child profile only; no family identifiers, guardian contacts or financial fields.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
+| first_name | string | True | False | body | 1–80 |
+| preferred_name | string | True | True | body | 1–80 |
+| last_name | string | True | True | body | 1–80 |
+| age_years | integer | True | False | body | 4–18 |
+| age_recorded_on | date | True | False | body | ISO8601 calendar date |
+| school_name | string | True | True | body | 1–160 |
+| school_year | enum(foundation\|year_1\|year_2\|year_3\|year_4\|year_5\|year_6\|year_7\|year_8\|year_9\|year_10\|year_11\|year_12\|other\|not_specified) | True | True | body | Closed enum; reject unknown values |
+| interests | enum(artificial_intelligence\|coding\|robotics\|creative_design\|games\|data\|online_safety)[] | True | False | body | Validate referenced schema recursively |
+| prior_experience | enum(none\|some\|experienced\|prefer-not-to-say) | True | True | body | Closed enum; reject unknown values |
+| version | version | True | False | body | positive integer optimistic concurrency token |
+
+## API_ADMIN_REPORT_EXPORT_STATUSRequest
+
+Read own authorized financial report export status input
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| export_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
+
+## API_ADMIN_REPORT_EXPORT_DOWNLOADRequest
+
+Download ready private financial report export under finance scope input
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| export_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
+
+## ReconciliationExceptionView
+
+Finance-only unknown/mismatched provider transaction evidence; no invented family/student owner.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
+| provider_transaction_id | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| amount_minor | money | True | False | body | integer minor units, nonnegative AUD; no floating point |
+| currency | enum(AUD) | True | False | body | Closed enum; reject unknown values |
+| provider_status | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| payment_id | uuid | True | True | body | UUID v4/v7; opaque identifier; ownership checked after parse |
+| status | enum(open\|linked\|provider_reversed) | True | False | body | Closed enum; reject unknown values |
+| first_seen_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| last_checked_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| reason_code | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| version | version | True | False | body | positive integer optimistic concurrency token |
+
+## API_ADMIN_RECONCILIATION_EXCEPTIONSRequest
+
+Inspect provider transactions unmatched to local financial records input
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| status | enum(open\|linked\|provider_reversed) | False | False | query | Closed enum; reject unknown values |
+| cursor | token | False | False | query | opaque cryptographic token; max 512 characters; never logged |
+| limit | integer | False | False | query | 1–100; default 25 |
+
+## ReconciliationExceptionViewPage
+
+ReconciliationExceptionViewPage
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| items | ReconciliationExceptionView[] | True | False | body | Validate referenced schema recursively |
+| page | PageMeta | True | False | body | Validate referenced schema recursively |
+
+## API_ADMIN_RECONCILIATION_EXCEPTION_RETRYRequest
+
+Recheck provider truth and resolve only verified matching or reversed transaction input
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| exception_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
+| reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
+| Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |

@@ -64,8 +64,8 @@ Every FK receives the listed lookup/index or a covering composite index. The map
 
 | Aspect | Plan |
 | --- | --- |
-| Columns | id uuid PK;family_id uuid FK families;account_id uuid? FK accounts;first_name varchar(100);preferred_name varchar(100)?;last_name varchar(100)?;age_years smallint;age_recorded_on date;school_name varchar(200)?;school_year varchar(40)?;interests text[];prior_experience text?;status text;version bigint |
-| Constraints / keys | Name nonempty; age technical4–18; optional school nullable; UNIQUE(account_id) WHERE not null; age_recorded_on<=current date enforced service |
+| Columns | id uuid PK;family_id uuid FK families;account_id uuid? FK accounts;first_name varchar(80);preferred_name varchar(80)?;last_name varchar(80)?;age_years smallint;age_recorded_on date;school_name varchar(160)?;school_year varchar(40)?;interests text[];prior_experience text?;status text;version bigint |
+| Constraints / keys | Name nonempty; age technical4–18; optional school nullable; UNIQUE(account_id) WHERE not null; age_recorded_on<=current date enforced service; school_year Foundation/Year1–12/other/not_specified enum; interests approved topic array<=10 unique; prior_experience includes prefer-not-to-say |
 | Indexes | family_id,status,id |
 | Lifecycle / deletion | Archive only after active enrolments resolved; retention-approved anonymization; no DOB inferred |
 
@@ -139,7 +139,7 @@ Every FK receives the listed lookup/index or a covering composite index. The map
 | Columns | id uuid PK;name varchar(200);email citext;message text;status text;version bigint |
 | Constraints / keys | CHECK length(message)<=2000; status new/handled |
 | Indexes | status,created_at |
-| Lifecycle / deletion | Proposed purge180d after handled unless support/legal hold |
+| Lifecycle / deletion | Purge90d after closure unless approved support/legal hold |
 
 ## programs
 
@@ -460,18 +460,18 @@ Every FK receives the listed lookup/index or a covering composite index. The map
 
 | Aspect | Plan |
 | --- | --- |
-| Columns | id uuid PK;title text;description text;starts_at timestamptz;ends_at timestamptz;timezone text;audience_kind text;cohort_id uuid? FK cohorts;status text;version bigint |
-| Constraints / keys | end>start; cohort_id iff cohort audience |
-| Indexes | status,starts_at; cohort_id |
+| Columns | id uuid PK;title text;description text;starts_at timestamptz;ends_at timestamptz;timezone text;audience_kind text;audience_roles text[];course_id uuid? FK courses;cohort_id uuid? FK cohorts;status text;version bigint |
+| Constraints / keys | Audience kind public/role/course/cohort; public requires empty roles and null course/cohort; role requires nonempty allowed roles and null IDs; course requires course_id only; cohort requires cohort_id only; role filter contains only parent/student/teacher. end>start |
+| Indexes | status,starts_at; cohort_id; course_id; audience_kind |
 | Lifecycle / deletion | Cancel rather than deleting published occurrence |
 
 ## announcements
 
 | Aspect | Plan |
 | --- | --- |
-| Columns | id uuid PK;title text;body text;audience_kind text;cohort_id uuid? FK cohorts;status text;published_at timestamptz?;version bigint |
-| Constraints / keys | Audience closed enum; cohort ID iff cohort; no private student target/messaging |
-| Indexes | status,published_at; cohort_id |
+| Columns | id uuid PK;title text;body text;audience_kind text;audience_roles text[];course_id uuid? FK courses;cohort_id uuid? FK cohorts;status text;published_at timestamptz?;version bigint |
+| Constraints / keys | Audience kind public/role/course/cohort; public requires empty roles and null course/cohort; role requires nonempty allowed roles and null IDs; course requires course_id only; cohort requires cohort_id only; role filter contains only parent/student/teacher. Published body immutable until explicit withdrawal/correction |
+| Indexes | status,published_at; cohort_id; course_id; audience_kind |
 | Lifecycle / deletion | Withdraw published content with retained audit |
 
 ## notifications
@@ -490,7 +490,7 @@ Every FK receives the listed lookup/index or a covering composite index. The map
 | Columns | id uuid PK;notification_id uuid FK notifications;channel text;dedupe_key text;provider_message_id text?;status text;attempt_count integer;next_attempt_at timestamptz?;sent_at timestamptz?;last_error_code text?;version bigint |
 | Constraints / keys | UNIQUE(dedupe_key); local retention exceeds provider24h; attempts>=0 |
 | Indexes | status,next_attempt_at; notification_id |
-| Lifecycle / deletion | Proposed delivery state12months, minimal dedupe identifiers retained as long as replay sources |
+| Lifecycle / deletion | Redacted delivery metadata90d; deduplication key safe hash1year |
 
 ## file_assets
 
@@ -595,8 +595,8 @@ Every FK receives the listed lookup/index or a covering composite index. The map
 
 | Aspect | Plan |
 | --- | --- |
-| Columns | id uuid PK;request_id uuid? FK privacy_requests;requested_by uuid FK accounts;purpose text;asset_id uuid? FK file_assets;status text;expires_at timestamptz? |
-| Constraints / keys | Access export requires verified request; finance export requires finance scope; immutable purpose |
+| Columns | id uuid PK;request_id uuid? FK privacy_requests;requested_by uuid FK accounts;purpose text;asset_id uuid? FK file_assets;status text;expires_at timestamptz?;report_from date?;report_to date?;job_id uuid? FK background_jobs;version bigint;created_at timestamptz;failure_code text? |
+| Constraints / keys | Access export requires verified request; finance export requires finance scope; immutable purpose; financial_export purpose requires null privacy request, nonnull report_from/report_to/job_id, range<=366days and finance-authorized requester; ready requires asset |
 | Indexes | requested_by,created_at; expires_at |
 | Lifecycle / deletion | Export download expires24h, object purged7d unless decision hold |
 
@@ -609,6 +609,42 @@ Every FK receives the listed lookup/index or a covering composite index. The map
 | Indexes | resource_type,resource_id; executed_at |
 | Lifecycle / deletion | Retain minimal execution evidence after source anonymization |
 
+## reconciliation_exceptions
+
+| Aspect | Plan |
+| --- | --- |
+| Columns | id uuid PK;provider_transaction_id text;amount_minor bigint;currency char(3);provider_status text;payment_id uuid? FK payments;status text;first_seen_at timestamptz;last_checked_at timestamptz;reason_code text;version bigint |
+| Constraints / keys | UNIQUE(provider_transaction_id); open/linked/provider_reversed; nonnegative AUD amount; no invented family association |
+| Indexes | status,first_seen_at; payment_id |
+| Lifecycle / deletion | Retain financial reconciliation evidence with approved financial retention |
+
+## mfa_factors
+
+| Aspect | Plan |
+| --- | --- |
+| Columns | id uuid PK;account_id uuid FK accounts;secret_ciphertext bytea;encryption_key_version text;status text;last_accepted_step bigint?;activated_at timestamptz?;revoked_at timestamptz?;version bigint |
+| Constraints / keys | Partial UNIQUE active factor(account_id); pending/active/revoked; last timestep monotonic under row lock; seed never plaintext |
+| Indexes | account_id,status |
+| Lifecycle / deletion | Revoke factor on verified compromise; erase encrypted seed on final closure while retaining safe audit |
+
+## mfa_recovery_codes
+
+| Aspect | Plan |
+| --- | --- |
+| Columns | id uuid PK;factor_id uuid FK mfa_factors;code_hash bytea;consumed_at timestamptz? |
+| Constraints / keys | UNIQUE(code_hash); only high entropy random values issued; single-use consume locked |
+| Indexes | factor_id,consumed_at |
+| Lifecycle / deletion | Consume hash immediately; retain consumed marker without usable secret until factor rotates |
+
+## mfa_challenges
+
+| Aspect | Plan |
+| --- | --- |
+| Columns | id uuid PK;account_id uuid FK accounts;token_hash bytea;purpose text;browser_binding_hash bytea;expires_at timestamptz;attempts integer;consumed_at timestamptz?;factor_id uuid? FK mfa_factors |
+| Constraints / keys | UNIQUE(token_hash); challenge/setup purpose; attempts0–5; expiry5m challenge or10m setup; consumed cannot replay |
+| Indexes | account_id,purpose; expires_at |
+| Lifecycle / deletion | Destroy credential hash on consumption/expiry; safe metadata30d |
+
 
 ## Migration and rollback plan
 
@@ -617,3 +653,5 @@ Build schema in dependency order: identities/families; file metadata; curriculum
 Every migration has forward validation, compatible rollback or documented restore/forward-fix plan, and staging upgrade from previous released schema. Validate row counts, FK integrity, uniqueness and negative scope fixtures after migration. Backfills use bounded batches with restartable checkpoints. Never drop live child/finance history to make a migration pass. Schema downgrade that would lose accepted user data is forbidden; use compatible app rollback and a reviewed forward fix. Backup/restore evidence is required before production-impacting schema changes.
 
 Retention periods above are proposed configurable operational defaults for professional/human approval, not legal claims. Until retention approval exists the purge worker remains disabled and alerts the launch gate. Retention holds override every expiry. Backup retention/version purging must align with the approved matrix and restored data must reapply approved deletion tombstones before production access.
+
+Export lifecycle constraint: privacy_exports.status is requested/processing/ready/failed/expired; terminal failed exposes only GENERATION_FAILED, LIMIT_EXCEEDED or STORAGE_UNAVAILABLE. failure_code is null in every other state. Bounded retry exhaustion persists failure; authorized job retry returns to processing. The created_at column supports requester/time lookup.
