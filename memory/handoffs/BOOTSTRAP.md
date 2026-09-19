@@ -7,3 +7,9 @@ Planning is complete: 219 launch requirements, 12 phases, 62 PLANNED chunks, 100
 The actual planning PR number is recorded in docs/product/scope-lock.json and memory/progress.json after creation. Scope remains DRAFT. The human reviews scope, architecture, object model, frontend/backend mappings and chunk plan, then merges remotely only if approved. Production human gates remain separate launch prerequisites.
 
 After that merge, a fresh `next chunk` follows AGENTS.md: synchronize master, run read-only reconciliation, obtain effective LOCKED plus the deterministic candidate, load only that manifest/context/skills and create one feature branch. The initial candidate is ZE-P01-C01 only if fresh evidence confirms readiness. Never treat this cache or conversation as completion or approval evidence. Stop after the next chunk PR handoff; no automatic merge.
+
+## Current publication blocker
+
+The validated feature branch is pushed to origin. The GitHub connector returned HTTP 403 (Resource not accessible by integration) for PR creation. The in-app GitHub browser is signed out; a usable authenticated CLI session is absent. The user has been asked to sign in so the agent can finish creating the already-authorized PR. Prepared title/body/base/head are in docs/planning/BOOTSTRAP_PR_DESCRIPTION.md. No PR exists yet; do not invent its number or mark the scope approved.
+
+Once authenticated, create exactly one PR against master, attach its URL to this Codex task, record its actual number in scope-lock.json and memory/progress.json on this feature branch, commit/push that metadata and inspect the final GitHub checks. All planning reviews are already complete; do not restart design or implement a product chunk.

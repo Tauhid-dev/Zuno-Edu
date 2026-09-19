@@ -24,3 +24,7 @@ The final eight regression tests cover missing API/component owners, missing API
 All 62 chunks remain PLANNED. The real planning PR number is recorded in scope-lock.json and compact memory through a follow-up feature-branch commit after creation; its final PR checks are reported in the PR. Scope stays DRAFT until fresh remote reconciliation verifies the human merge and exact authority witnesses. No automatic merge is performed.
 
 No live payment, meeting, email, storage, application, database, browser, accessibility or performance result is claimed. Those remain required implementation and launch evidence. HG-LEGAL, HG-MERCHANT, HG-AGE, HG-PROVIDERS and HG-STAFF remain explicit production human gates.
+
+## Publication status
+
+The feature branch has been pushed. PR creation through the GitHub connector returned HTTP 403; browser authentication is required to finish the authorized handoff. GitHub PR checks have therefore not run yet. This access blocker does not invalidate the completed local planning reviews/tests and does not authorize implementation. The prepared PR content is saved alongside this record.
