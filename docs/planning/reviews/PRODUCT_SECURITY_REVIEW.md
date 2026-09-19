@@ -91,3 +91,18 @@ The typed setting catalogue rejects unlisted keys and mismatched value shapes. S
 This is a final planning consistency/security review, not an executed penetration test or proof of live provider/production readiness. Required negative authorization,concurrency,malicious-upload,session/MFA and production checks remain implementation/launch gates. No application feature was implemented in this review.
 
 Backend catalogue SHA-256 at this final consistency recheck: `61dddc7d3660fcc5ca50731b166e7c2187f5039dc233479a10065d4ea9ea9a31`.
+
+
+## Final least-privilege contract addendum — 2026-09-20
+
+Status: **PASS**. Reviewer: final_reviewer, independent of the correction authors. Unresolved Critical/High/Medium findings for this bounded security recheck: **0**. Reviewed backend catalog SHA-256: `a0025e16226e89d2460b4afb257aa6f41b5c088f8bf95d1122a5325cd3aba80b`; frontend catalog SHA-256: `4ee178ea7fafd96ad082969e7201f343331858b5e023ec97fc5f4b5405549f4b`.
+
+The final frontend-read corrections were rechecked at the API, service, repository projection and frontend binding boundaries. Identity-only account/family/retention projections do not expose financial amounts, credentials, MFA secrets or file content. Finance price-target lookup returns course/cohort naming and lifecycle context without curriculum, learner or identity-directory access. Education learner lookup remains cohort-scoped and excludes contact/family/financial data. Parents do not inherit the new admin family relationship projection, and teachers/students do not inherit any financial operations through component reuse.
+
+Mutation preconditions now come from their actual owning resources. Retention hold absence is distinct from the target's version, and hold changes serialize with purge. Guardian links and billing membership remain independent. Completion override history/evidence is education-admin-only and same-enrolment; source learning evidence is unchanged. First attendance/assessment/closure creation requires authorized absence and atomic conditional creation, while inaccessible resources never produce a permissive absence result.
+
+Login and invitation MFA setup use the same purpose-bound limited context, with no full-session prerequisite or portal access before verification. The last active identity administrator cannot be lost through concurrent suspension/grant removal. Upload context is purpose-specific and rechecked against current ownership, privilege and lifecycle; standalone admin asset creation is limited to permitted internal/public assets. Generic file routes continue to reject generated finance purposes.
+
+Public schedule rendering uses only the public DTO branch. Download reuse accepts a freshly issued ticket or an authorized issued URL without manufacturing metadata or introducing a financial client into shared components. Signed links and setup tokens remain transient. The independent mapping check found no authorization drift in 540 mappings and no financial component in the transitive teacher/student composition graph.
+
+This is a contract/security design recheck, not a penetration test or proof of application enforcement. The affected manifests require the corresponding role-denial, stale-token, concurrent-first-write, upload-race, limited-MFA and projection-field tests during implementation; live approval and launch evidence remain separate gates.

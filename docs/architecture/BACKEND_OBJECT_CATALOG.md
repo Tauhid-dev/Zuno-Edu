@@ -14,7 +14,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Credential, Session, RoleGrant
 - **Persistence:** accounts
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03, ZE-P02-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -34,7 +34,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account
 - **Persistence:** credentials
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -53,7 +53,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account
 - **Persistence:** sessions
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -67,13 +67,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Module:** identity
 - **Responsibility:** Teacher principal cannot also have admin privileges; privileges only approved closed enum
 - **Attributes:** role:Role;admin_privileges:frozenset[Privilege]
-- **Invariants:** Teacher principal cannot also have admin privileges; privileges only approved closed enum
+- **Invariants:** Teacher principal cannot also have admin privileges; privileges only approved closed enum, RoleGrant is owned by Account; RoleGrantView.version is Account.version, never a separate counter.
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** Account
 - **Collaborators:** Account
 - **Persistence:** accounts.admin_privileges
 - **Requirements:** ADM-006
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03, ZE-P02-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -92,7 +92,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account, Family
 - **Persistence:** guardians
 - **Requirements:** AUTH-011, PAR-002, PAR-021, STU-019
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03, ZE-P02-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -111,12 +111,12 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Guardian, GuardianStudent, BillingMembership, StudentProfile
 - **Persistence:** families
 - **Requirements:** PAR-006
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
 | link_guardian | Link guardian | link:GuardianStudent,evidence:VerificationRef | GuardianLinked | InvalidState, InvariantViolation, VersionConflict |
-| revoke_link | Revoke link | link_id:uuid,reason:Reason | GuardianRevoked | InvalidState, InvariantViolation, VersionConflict |
+| revoke_link | Revoke link | guardian_id:uuid,student_id:uuid,reason:Reason | GuardianRevoked | InvalidState, InvariantViolation, VersionConflict |
 | grant_billing | Grant billing | member:BillingMembership | BillingGranted | InvalidState, InvariantViolation, VersionConflict |
 
 ## GuardianStudent
@@ -124,14 +124,14 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Type:** entity
 - **Module:** family
 - **Responsibility:** Guardian and child share family; unique active pair; verification required; immediate revocation
-- **Attributes:** guardian_id:uuid;student_id:uuid;family_id:uuid;verified_at:Instant;revoked_at:Instant?;verification_reference:string
+- **Attributes:** guardian_id:uuid;student_id:uuid;family_id:uuid;verified_at:Instant;revoked_at:Instant?;verification_reference:string;version:int
 - **Invariants:** Guardian and child share family; unique active pair; verification required; immediate revocation
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** Guardian, StudentProfile
 - **Collaborators:** Guardian, StudentProfile
 - **Persistence:** guardian_students
 - **Requirements:** PAR-006
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03, ZE-P02-C05, ZE-P08-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -143,14 +143,14 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Type:** entity
 - **Module:** family
 - **Responsibility:** Explicit financial visibility independent of child guardianship; primary verified parent receives initial membership
-- **Attributes:** family_id:uuid;guardian_id:uuid;granted_at:Instant;revoked_at:Instant?;approval_reference:string
+- **Attributes:** family_id:uuid;guardian_id:uuid;granted_at:Instant;revoked_at:Instant?;approval_reference:string;version:int
 - **Invariants:** Explicit financial visibility independent of child guardianship; primary verified parent receives initial membership
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** Family, Guardian
 - **Collaborators:** Family, Guardian
 - **Persistence:** billing_memberships
 - **Requirements:** AUTH-006, AUTH-007, AUTH-008, AUTH-009, AUTH-010, AUTH-012, TCH-016
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -169,7 +169,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** AgeSnapshot, GuardianStudent
 - **Persistence:** students
 - **Requirements:** ADM-004, PAR-005, TCH-009
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -189,7 +189,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** StudentProfile
 - **Persistence:** students.age_years+age_recorded_on
 - **Requirements:** ADM-004, PAR-005, TCH-009
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03, ZE-P06-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -208,7 +208,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account, TeacherAssignment
 - **Persistence:** teacher_profiles
 - **Requirements:** ADM-005, WEB-006
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03, ZE-P02-C04, ZE-P03-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -228,7 +228,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** PolicyAcknowledgement
 - **Persistence:** policy_documents
 - **Requirements:** WEB-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -246,7 +246,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** PolicyDocument, Guardian
 - **Persistence:** policy_acknowledgements
 - **Requirements:** PAR-004, SEC-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -264,7 +264,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** PublicationPolicy
 - **Persistence:** public_pages+public_page_revisions
 - **Requirements:** WEB-001, WEB-002, WEB-007, WEB-008, WEB-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -283,7 +283,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Notification
 - **Persistence:** contact_enquiries
 - **Requirements:** WEB-009
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -301,7 +301,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Course
 - **Persistence:** programs
 - **Requirements:** ADM-007, LRN-001, PAR-007, WEB-003, WEB-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C01, ZE-P03-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -321,7 +321,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Program, CurriculumRevision
 - **Persistence:** courses
 - **Requirements:** ADM-007, LRN-001, PAR-007, WEB-003, WEB-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C01, ZE-P03-C02, ZE-P06-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -340,8 +340,8 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Dependencies:** CourseModule, Lesson, LessonBlock, LearningResource, Quiz, Assignment
 - **Collaborators:** CourseModule, Lesson, LessonBlock, LearningResource, Quiz, Assignment
 - **Persistence:** curriculum_revisions
-- **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004, STU-003, STU-004, TCH-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-008, ADM-011, ASM-004, LRN-002, LRN-003, LRN-004, STU-003, STU-004, TCH-003
+- **Chunks:** ZE-P03-C02, ZE-P03-C03, ZE-P03-C04, ZE-P05-C01, ZE-P07-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -362,7 +362,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** CurriculumRevision, Lesson
 - **Persistence:** course_modules
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004, STU-003, STU-004, TCH-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C03, ZE-P03-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -382,7 +382,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** LessonBlock, CourseModule
 - **Persistence:** lessons
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004, STU-003, STU-004, TCH-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C03, ZE-P03-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -401,7 +401,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Lesson, LearningResource, Quiz, Assignment
 - **Persistence:** lesson_blocks
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004, STU-003, STU-004, TCH-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C03, ZE-P03-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -420,7 +420,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** FileAsset, CurriculumRevision
 - **Persistence:** learning_resources
 - **Requirements:** ADM-009, LRN-005, STU-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C03, ZE-P03-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -438,8 +438,8 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Dependencies:** Course, CurriculumRevision, ClassSession, Enrolment
 - **Collaborators:** Course, CurriculumRevision, ClassSession, Enrolment
 - **Persistence:** cohorts
-- **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-013, ADM-015, ADM-016, ADM-017, ADM-018, ADM-019, AUTH-010, CLS-001, CLS-005, NFR-012
+- **Chunks:** ZE-P03-C01, ZE-P05-C01, ZE-P05-C02, ZE-P06-C01, ZE-P06-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -460,7 +460,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Cohort, TeacherAssignment, IntegrationBinding
 - **Persistence:** class_sessions
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011, PAR-009, STU-013, TCH-005, TCH-006, WEB-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C02, ZE-P05-C03, ZE-P05-C04, ZE-P05-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -480,7 +480,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** TeacherProfile, Cohort, ClassSession
 - **Persistence:** teacher_assignments
 - **Requirements:** ADM-015, CLS-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C04, ZE-P05-C01, ZE-P05-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -498,8 +498,8 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Dependencies:** StudentProfile, Cohort, Payment
 - **Collaborators:** StudentProfile, Cohort, Payment
 - **Persistence:** enrolments
-- **Requirements:** ADM-016, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, PAR-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-016, ADM-017, ADM-018, ADM-019, AUTH-010, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, LRN-007, LRN-008, NFR-012, PAR-008
+- **Chunks:** ZE-P06-C01, ZE-P06-C02, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P07-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -515,13 +515,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Module:** delivery
 - **Responsibility:** One row per enrolled student/session; status valid; change reason audit; no sensitive note storage
 - **Attributes:** id:uuid;session_id:uuid;student_id:uuid;status:AttendanceStatus;minutes_attended:int?;recorded_by:uuid;version:int
-- **Invariants:** One row per enrolled student/session; status valid; change reason audit; no sensitive note storage
+- **Invariants:** One row per enrolled student/session; status valid; change reason audit; no sensitive note storage, First record uses conditional absence under UNIQUE(session_id,student_id), then version 1; amendments compare positive current version. Reads never create rows or manufacture versions.
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** ClassSession, Enrolment
 - **Collaborators:** ClassSession, Enrolment
 - **Persistence:** attendance_records
 - **Requirements:** ADM-017, CLS-010, PAR-010, STU-015, TCH-007, TCH-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -540,7 +540,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** QuizQuestion, CurriculumRevision
 - **Persistence:** quizzes
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003, STU-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -559,7 +559,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Quiz
 - **Persistence:** quiz_questions+quiz_options
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003, STU-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -577,7 +577,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Quiz, Enrolment
 - **Persistence:** quiz_attempts+quiz_answers
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003, STU-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -594,15 +594,14 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Invariants:** Curriculum-owned immutable definition; cohort closure is separate delivery rule; late accepted until cohort complete/closed
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** Submission, CurriculumRevision
-- **Collaborators:** Submission, CurriculumRevision
-- **Persistence:** assignments+assignment_delivery_rules
+- **Collaborators:** Submission, CurriculumRevision, AssignmentDeliveryRule
+- **Persistence:** assignments
 - **Requirements:** ADM-011, ASM-004, STU-008, TCH-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
 | validate_submission_window | Validate submission window | cohort:Cohort,now:Instant,closed:bool | SubmissionWindow | InvalidState, InvariantViolation, VersionConflict |
-| mark_delivery_closed | Mark delivery closed | cohort_id:uuid,reason:Reason | AssignmentClosed | InvalidState, InvariantViolation, VersionConflict |
 
 ## Submission
 
@@ -616,7 +615,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Assignment, FileAsset, Assessment
 - **Persistence:** submissions+submission_assets
 - **Requirements:** ASM-005, STU-009, STU-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C03, ZE-P07-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -629,14 +628,14 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Type:** aggregate
 - **Module:** assessment
 - **Responsibility:** Score bounded; ties specific submitted version; release deliberate; corrections preserve history and recompute completion
-- **Attributes:** id:uuid;submission_id:uuid;assessor_id:uuid;score:int?;max_score:int;rubric_comment:string?;status:AssessmentStatus;released_at:Instant?
-- **Invariants:** Score bounded; ties specific submitted version; release deliberate; corrections preserve history and recompute completion
+- **Attributes:** id:uuid;submission_id:uuid;assessor_id:uuid;score:int?;max_score:int;rubric_comment:string?;status:AssessmentStatus;released_at:Instant?;version:int
+- **Invariants:** Score bounded; ties specific submitted version; release deliberate; corrections preserve history and recompute completion, One assessment per frozen submission; first save requires absent-resource conditional, later writes compare current assessment version. Read returns explicit nullable state and never creates a row.
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** Submission, ReleasePolicy
 - **Collaborators:** Submission, ReleasePolicy
 - **Persistence:** assessments+assessment_revisions
 - **Requirements:** ADM-012, ASM-006, ASM-007, PAR-013, STU-011, TCH-011, TCH-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -656,7 +655,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** TeachingAccessPolicy, ReleasePolicy
 - **Persistence:** teacher_feedback+feedback_revisions
 - **Requirements:** ADM-019, ASM-008, PAR-012, STU-012, TCH-013
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -676,7 +675,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** StudentProgress, Lesson
 - **Persistence:** activity_completions
 - **Requirements:** LRN-006, STU-006
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -687,14 +686,14 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Type:** projection aggregate
 - **Module:** learning
 - **Responsibility:** Derived from authoritative evidence; no arbitrary percentage setter; ignore cancelled sessions; >=80% delivered attendance and all required items
-- **Attributes:** enrolment_id:uuid;required_counts:RequiredItemCounts;completed_counts:RequiredItemCounts;attendance:AttendanceCounts;status:ProgressStatus;source_version:int;completion_basis:CompletionBasis;active_override_id:uuid?;overrides:tuple[CompletionOverride]
-- **Invariants:** Derived counts and percentage cannot be manually rewritten. Standard evidence or explicit active evidenced completion override determines certificate eligibility.
+- **Attributes:** enrolment_id:uuid;required_counts:RequiredItemCounts;completed_counts:RequiredItemCounts;attendance:AttendanceCounts;status:ProgressStatus;source_version:int;completion_basis:CompletionBasis;active_override_id:uuid?;overrides:tuple[CompletionOverride];version:int
+- **Invariants:** Derived counts and percentage cannot be manually rewritten. Standard evidence or explicit active evidenced completion override determines certificate eligibility., Initialize version 1 with an active enrolment; every recompute and override change increments this single aggregate version. CompletionReviewView exposes it only as progress_version. Lock progress before override so grant/revoke and source recomputation serialize.
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** ActivityCompletion, Assessment, QuizAttempt, AttendanceRecord, CompletionPolicy, CompletionOverride
 - **Collaborators:** ActivityCompletion, Assessment, QuizAttempt, AttendanceRecord, CompletionPolicy, CompletionOverride
 - **Persistence:** student_progress
-- **Requirements:** ADM-018, LRN-007, LRN-008, PAR-011, STU-016, TCH-014
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-018, AUTH-010, LRN-007, LRN-008, NFR-012, PAR-011, STU-016, TCH-014
+- **Chunks:** ZE-P07-C05, ZE-P07-C06
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -715,7 +714,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** StudentProgress, FileAsset
 - **Persistence:** certificates
 - **Requirements:** ADM-020, LRN-009, LRN-010, PAR-014, STU-017
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C06
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -735,7 +734,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Price, Payment, Refund
 - **Persistence:** amount_minor+currency columns
 - **Requirements:** ADM-024, PAY-001
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -755,7 +754,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Money, Course, Cohort
 - **Persistence:** prices
 - **Requirements:** ADM-024, PAY-001
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C01, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -774,7 +773,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Enrolment, Money, Refund, Receipt
 - **Persistence:** payments+payment_events
 - **Requirements:** ADM-025, PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -794,7 +793,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Payment, Enrolment
 - **Persistence:** refunds
 - **Requirements:** ADM-026, PAY-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -814,7 +813,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Payment, FileAsset
 - **Persistence:** purchase_documents
 - **Requirements:** ADM-025, PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -833,7 +832,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** AudiencePolicy, IntegrationBinding
 - **Persistence:** events
 - **Requirements:** ADM-021, PAR-015
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C04, ZE-P08-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -853,7 +852,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** AudiencePolicy, Notification
 - **Persistence:** announcements
 - **Requirements:** COM-008, STU-018
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P08-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -873,7 +872,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** NotificationDelivery, Account
 - **Persistence:** notifications
 - **Requirements:** ADM-022, COM-007, PAR-016, TCH-015
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P08-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -891,7 +890,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Notification
 - **Persistence:** notification_deliveries
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009, PAR-003, PAR-015, STU-018
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P08-C01
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -904,14 +903,14 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Type:** aggregate
 - **Module:** files
 - **Responsibility:** Quarantine unavailable; immutable promotion only after successful actual-type/checksum/malware validation; key never public; hold prevents purge
-- **Attributes:** id:uuid;owner_id:uuid;purpose:FilePurpose;context_id:uuid;staging_key:string;immutable_key:string?;mime:string;size:int;checksum:string;status:FileStatus;hold:bool
-- **Invariants:** Quarantine unavailable; immutable promotion only after successful actual-type/checksum/malware validation; key never public; hold prevents purge, Generated financial_document/financial_export purposes require BillingScope/FinanceScope and cannot pass generic teaching/learning file routes.
+- **Attributes:** id:uuid;owner_id:uuid;purpose:FilePurpose;context_id:uuid;staging_key:string;immutable_key:string?;mime:string;size:int;checksum:string;status:FileStatus;hold:bool;version:int
+- **Invariants:** Quarantine unavailable; immutable promotion only after successful actual-type/checksum/malware validation; key never public; hold prevents purge, Generated financial_document/financial_export purposes require BillingScope/FinanceScope and cannot pass generic teaching/learning file routes., purpose, context_id and owner_id are immutable after reservation; internal/public_asset context_id equals owning operations-admin account ID; upload alone never makes public.
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** FileAccessPolicy
 - **Collaborators:** FileAccessPolicy
 - **Persistence:** file_assets
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C05, ZE-P04-C01, ZE-P04-C02, ZE-P07-C03, ZE-P08-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -933,7 +932,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account
 - **Persistence:** audit_records
 - **Requirements:** ADM-029, SEC-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -951,7 +950,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** RoleGrant
 - **Persistence:** application_settings
 - **Requirements:** ADM-028
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P08-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -970,7 +969,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** ClassSession, Event
 - **Persistence:** integration_bindings
 - **Requirements:** OPS-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P05-C03, ZE-P05-C04, ZE-P08-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -990,7 +989,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Payment
 - **Persistence:** webhook_inbox
 - **Requirements:** PAY-004, PAY-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P08-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1009,7 +1008,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** BackgroundJob
 - **Persistence:** outbox_events
 - **Requirements:** OPS-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P08-C01, ZE-P08-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1028,7 +1027,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** OutboxEvent
 - **Persistence:** background_jobs
 - **Requirements:** OPS-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P08-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1049,7 +1048,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Family, GuardianStudent, FileAsset
 - **Persistence:** privacy_requests+retention_holds
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C05, ZE-P08-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1070,7 +1069,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Family, GuardianStudent, BillingMembership
 - **Persistence:** none; pure policy
 - **Requirements:** AUTH-006, AUTH-007, AUTH-008, AUTH-009, AUTH-010, AUTH-012, TCH-016
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03, ZE-P06-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1089,7 +1088,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** TeacherAssignment, Enrolment
 - **Persistence:** none; pure policy
 - **Requirements:** AUTH-006, AUTH-007, AUTH-008, AUTH-009, AUTH-010, AUTH-012, TCH-016
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C04, ZE-P05-C03, ZE-P05-C05, ZE-P07-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1107,7 +1106,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** CurriculumRevision, LessonBlock, FileAsset
 - **Persistence:** none; pure policy
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004, STU-003, STU-004, TCH-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C01, ZE-P03-C02, ZE-P03-C03, ZE-P03-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1125,7 +1124,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Enrolment, CurriculumRevision, Assessment, TeacherFeedback
 - **Persistence:** none; pure policy
 - **Requirements:** AUTH-006, AUTH-007, AUTH-008, AUTH-009, AUTH-010, AUTH-012, TCH-016
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C01, ZE-P07-C02, ZE-P07-C03, ZE-P07-C04
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1143,7 +1142,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** ClassSession, TeacherAssignment, Cohort
 - **Persistence:** none; pure policy
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011, PAR-009, STU-013, TCH-005, TCH-006, WEB-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1161,7 +1160,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Cohort, Enrolment
 - **Persistence:** none; pure policy
 - **Requirements:** ADM-016, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, PAR-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1179,7 +1178,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** ActivityCompletion, QuizAttempt, Assessment, AttendanceRecord
 - **Persistence:** none; pure policy
 - **Requirements:** ADM-018, LRN-007, LRN-008, PAR-011, STU-016, TCH-014
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C05, ZE-P07-C06
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1197,7 +1196,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** GuardianStudent, TeacherAssignment, Enrolment
 - **Persistence:** none; pure policy
 - **Requirements:** COM-008, STU-018
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P08-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1210,13 +1209,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Module:** files
 - **Responsibility:** Ready state for download; owner draft for upload; release/guardian/assignment context; internal purpose excluded from learners
 - **Attributes:** no mutable attributes; explicit evaluation context
-- **Invariants:** Ready state for download; owner draft for upload; release/guardian/assignment context; internal purpose excluded from learners, Reject financial_document and financial_export on generic /files endpoints; financial-specific document/export services recheck billing membership or finance_admin before signed grant.
+- **Invariants:** Ready state for download; owner draft for upload; release/guardian/assignment context; internal purpose excluded from learners, Reject financial_document and financial_export on generic /files endpoints; financial-specific document/export services recheck billing membership or finance_admin before signed grant., submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here.
 - **Authorization:** Authorize at application boundary before invoking behavior; Use scoped relationships and purpose-specific projections; object IDs alone grant nothing.
 - **Dependencies:** FileAsset, Enrolment, GuardianStudent, TeacherAssignment
 - **Collaborators:** FileAsset, Enrolment, GuardianStudent, TeacherAssignment
 - **Persistence:** none; pure policy
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P04-C01, ZE-P04-C02
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1233,8 +1232,8 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Dependencies:** StudentProgress
 - **Collaborators:** StudentProgress, Certificate
 - **Persistence:** completion_overrides
-- **Requirements:** ADM-018, LRN-008, SEC-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-018, AUTH-010, LRN-007, LRN-008, NFR-012, SEC-007
+- **Chunks:** ZE-P07-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1253,7 +1252,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account, Session
 - **Persistence:** mfa_factors
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, TCH-001, ADM-001, SEC-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1273,7 +1272,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account, Session
 - **Persistence:** mfa_recovery_codes
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, TCH-001, ADM-001, SEC-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1291,7 +1290,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Account, Session
 - **Persistence:** mfa_challenges
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, TCH-001, ADM-001, SEC-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1310,7 +1309,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Payment
 - **Persistence:** reconciliation_exceptions
 - **Requirements:** PAY-009, ADM-025, ENR-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1328,7 +1327,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Collaborators:** Payment, Refund, FileAsset, BackgroundJob
 - **Persistence:** privacy_exports with purpose=financial_export
 - **Requirements:** ADM-027, PAY-010, FILE-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C05
 
 | Public method | Purpose | Inputs | Output | Domain failures |
 |---|---|---|---|---|
@@ -1336,3 +1335,39 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | expire | Expire download authority and schedule artifact cleanup | Current instant | FinancialExportExpired | InvalidState |
 | start_generation | Start or explicitly retry an authorized generation job | Matching current job ID | ExportProcessing | InvalidState, VersionConflict |
 | fail | Persist bounded-retry exhaustion without leaking provider details | GENERATION_FAILED, LIMIT_EXCEEDED or STORAGE_UNAVAILABLE | ExportFailed | InvalidState, VersionConflict |
+
+## RetentionHold
+
+- **Type:** aggregate
+- **Module:** privacy
+- **Responsibility:** Audited legal retention decision for one typed resource, with a version independent of that resource.
+- **Attributes:** id:uuid;resource_type:RetentionResourceType;resource_id:uuid;held:bool;reason:Reason;approval_reference:string;actor_id:uuid;version:int
+- **Invariants:** Unique (resource_type,resource_id); verify target existence under identity-purpose scope before changes., No row is represented read-only as version 0; first write must compare against absence and inserts version 1. Persisted versions are positive; released rows are retained, never reset to absence., Every hold mutation and resource purge acquires the same transaction-scoped typed-resource lock, including applicable family/student ancestor hold locks in deterministic order. Purge rechecks all holds before deletion; concurrent hold changes cannot be bypassed.
+- **Authorization:** Active administrator with identity_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Explicit identity-purpose projection only.
+- **Dependencies:** See Code Blueprint implementation ownership
+- **Collaborators:** See Code Blueprint implementation ownership
+- **Persistence:** retention_holds
+- **Requirements:** AUTH-010, NFR-012, SEC-002, SEC-008, SEC-009, SEC-010
+- **Chunks:** ZE-P02-C05
+
+| Public method | Purpose | Inputs | Output | Domain failures |
+|---|---|---|---|---|
+| set_state | Validate evidence and change held state with audit | held:bool,reason:Reason,approval:ApprovalReference,actor:Principal | RetentionHoldChanged | InvalidState, InvariantViolation, VersionConflict |
+
+## AssignmentDeliveryRule
+
+- **Type:** aggregate
+- **Module:** assessment
+- **Responsibility:** Per-cohort assignment submission closure and resolved due time, independently versioned from published assignment definition.
+- **Attributes:** assignment_id:uuid;cohort_id:uuid;due_at:Instant?;closed:bool;reason:Reason?;version:int
+- **Invariants:** Assignment must belong to cohort pinned revision; definition remains immutable., No row means default open delivery rule and derived due time, never a fabricated positive version. First explicit change requires conditional absence; later changes compare current delivery rule version., Closure and submission finalization lock the same cohort/assignment delivery key so work cannot finalize after a concurrent closure. Cohort completion/closure still blocks submissions independently.
+- **Authorization:** Active administrator with education_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Cohort-scoped educational projection only.
+- **Dependencies:** Assignment, Cohort
+- **Collaborators:** Assignment, Cohort
+- **Persistence:** assignment_delivery_rules
+- **Requirements:** ADM-011, ASM-004
+- **Chunks:** ZE-P07-C02
+
+| Public method | Purpose | Inputs | Output | Domain failures |
+|---|---|---|---|---|
+| set_closed | Change one delivery submission window with audited reason | closed:bool,reason:Reason | AssignmentDeliveryClosureChanged | InvalidState, InvariantViolation, VersionConflict |

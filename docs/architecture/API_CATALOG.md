@@ -17,7 +17,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -35,7 +35,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -53,7 +53,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -71,7 +71,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE, INVALID_CREDENTIALS, ACCOUNT_SUSPENDED
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -89,7 +89,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE, INVALID_CREDENTIALS, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -99,7 +99,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** POST /api/v1/account/mfa/enrolment
 - **Purpose:** Create pending TOTP enrolment
 - **Roles:** teacher, admin
-- **Ownership / assignment / state:** Full staff session with recent password reauthentication OR unexpired staff-invitation MFA setup token; setup context permits only MFA setup operations.
+- **Ownership / assignment / state:** Full staff session with recent password reauthentication OR unexpired purpose-bound MFA setup token returned by password-verified login (mfa_setup_required) or staff invitation acceptance. Server resolves teacher/admin account identity from the token, never a browser-selected role. Limited context permits only enrolment/confirmation; it grants no full session or privileged page access. Enforce token expiry, purpose, account binding, single-use activation and attempt limits.
 - **Request:** API_AUTH_MFA_ENROLRequest
 - **Response:** MfaSetupView
 - **Application operation:** AuthenticationService.enrol_mfa
@@ -107,7 +107,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, TCH-001
 - **Consumers:** teacher, admin
@@ -125,7 +125,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, TCH-001
 - **Consumers:** teacher, admin
@@ -143,7 +143,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -161,7 +161,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -179,7 +179,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001
 - **Consumers:** parent, student, teacher, admin
@@ -197,7 +197,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001
 - **Consumers:** parent, student, teacher, admin
@@ -215,7 +215,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-003, ADM-006, AUTH-011, PAR-002, PAR-021
 - **Consumers:** parent, teacher, admin
@@ -233,7 +233,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-003, ADM-006, AUTH-011, PAR-002, PAR-021
 - **Consumers:** parent, teacher, admin
@@ -251,7 +251,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-003, ADM-006, AUTH-011, PAR-002, PAR-021
 - **Consumers:** parent, teacher, admin
@@ -269,7 +269,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-003, ADM-006, AUTH-011, PAR-002, PAR-021, STU-019
 - **Consumers:** parent, student, teacher, admin
@@ -287,7 +287,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-006
 - **Consumers:** parent
@@ -305,7 +305,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** AUTH-011, PAR-002, PAR-021
 - **Consumers:** parent
@@ -323,7 +323,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-011, PAR-002, PAR-021
 - **Consumers:** parent
@@ -341,7 +341,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-011, PAR-002, PAR-021
 - **Consumers:** parent
@@ -359,7 +359,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-011, PAR-002, PAR-021
 - **Consumers:** parent
@@ -377,7 +377,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-005
 - **Consumers:** parent
@@ -395,7 +395,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-005
 - **Consumers:** parent
@@ -413,7 +413,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-005
 - **Consumers:** parent
@@ -431,7 +431,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-005
 - **Consumers:** parent
@@ -449,7 +449,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-005
 - **Consumers:** parent
@@ -467,7 +467,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-004, PAR-005, TCH-009
 - **Consumers:** student
@@ -485,7 +485,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-004, PAR-005, TCH-009
 - **Consumers:** student
@@ -503,7 +503,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, FamilyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** SEC-003
 - **Consumers:** public
@@ -521,7 +521,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, FamilyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-004, SEC-003
 - **Consumers:** parent
@@ -539,7 +539,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, FamilyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, POLICY_VERSION_STALE
 - **Requirements:** PAR-004, SEC-003
 - **Consumers:** parent
@@ -557,7 +557,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
 - **Consumers:** public
@@ -575,7 +575,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
 - **Consumers:** public
@@ -593,7 +593,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
 - **Consumers:** public
@@ -611,7 +611,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
 - **Consumers:** public
@@ -629,7 +629,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
 - **Consumers:** public
@@ -647,7 +647,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
 - **Consumers:** public
@@ -665,7 +665,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
 - **Consumers:** public
@@ -683,7 +683,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -701,7 +701,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -719,7 +719,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -737,7 +737,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -755,7 +755,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -773,7 +773,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -791,7 +791,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -809,7 +809,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -827,7 +827,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, PUBLISH_VALIDATION_FAILED, LAUNCH_CONFIGURATION_REQUIRED
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -845,7 +845,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -863,7 +863,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -881,7 +881,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -899,7 +899,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -917,7 +917,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, PUBLISH_VALIDATION_FAILED, ASSET_NOT_READY
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -935,7 +935,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -953,7 +953,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -971,7 +971,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -989,7 +989,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1007,7 +1007,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1025,7 +1025,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1043,7 +1043,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1061,7 +1061,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1079,7 +1079,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1097,7 +1097,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1115,7 +1115,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1133,7 +1133,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1151,7 +1151,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1169,7 +1169,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004
 - **Consumers:** admin
@@ -1187,7 +1187,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007
 - **Consumers:** student
@@ -1205,7 +1205,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, PAR-008
 - **Consumers:** parent
@@ -1223,7 +1223,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-002, LRN-003, LRN-004, STU-003, STU-004
 - **Consumers:** student
@@ -1241,7 +1241,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, CONTENT_UNRELEASED
 - **Requirements:** LRN-002, LRN-003, LRN-004, STU-003, STU-004
 - **Consumers:** student
@@ -1259,7 +1259,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-002, LRN-003, LRN-004, STU-003, STU-004
 - **Consumers:** student
@@ -1277,7 +1277,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-005
 - **Consumers:** teacher
@@ -1295,7 +1295,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-001, CLS-005
 - **Consumers:** teacher
@@ -1313,7 +1313,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-002, LRN-003, LRN-004, TCH-003
 - **Consumers:** teacher
@@ -1331,7 +1331,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-002, LRN-003, LRN-004, TCH-003
 - **Consumers:** teacher
@@ -1349,7 +1349,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CourseRepository, FileRepository, AssessmentRepository, UnitOfWork, Clock, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-002, LRN-003, LRN-004, TCH-003
 - **Consumers:** teacher
@@ -1367,7 +1367,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-005
 - **Consumers:** teacher
@@ -1385,7 +1385,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-005
 - **Consumers:** teacher
@@ -1403,7 +1403,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-006
 - **Consumers:** admin
@@ -1413,15 +1413,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** GET /api/v1/admin/families/{family_id}
 - **Purpose:** Read authorized get family
 - **Roles:** admin:identity_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged.
 - **Request:** API_ADMIN_FAMILYRequest
-- **Response:** FamilyView
+- **Response:** AdminFamilyRelationshipsView
 - **Application operation:** FamilyService.get_family_admin
 - **Domain objects:** Family, Guardian, GuardianStudent, FamilyOwnershipPolicy, BillingMembership
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-006
 - **Consumers:** admin
@@ -1439,7 +1439,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-004
 - **Consumers:** admin
@@ -1457,7 +1457,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-004
 - **Consumers:** admin
@@ -1475,7 +1475,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-005, ADM-015, CLS-005
 - **Consumers:** admin
@@ -1493,7 +1493,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-005, ADM-015, CLS-005
 - **Consumers:** admin
@@ -1503,15 +1503,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** POST /api/v1/admin/students/{student_id}/guardians
 - **Purpose:** Link verified guardian to same family child
 - **Roles:** admin:identity_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Verification evidence reference mandatory; no cross-family transfer implicit.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Verification evidence reference mandatory; no cross-family transfer implicit. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged.
 - **Request:** API_ADMIN_GUARDIAN_LINKRequest
-- **Response:** FamilyView
+- **Response:** AdminFamilyRelationshipsView
 - **Application operation:** FamilyService.create_guardian_link
 - **Domain objects:** Family, Guardian, GuardianStudent, FamilyOwnershipPolicy, BillingMembership
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Resolve same-family identities; lock Family, compare Family.version, then insert/reactivate exact relationship under unique pair constraint and increment relationship.version (initial 1) plus Family.version. Commit audit and outbox atomically; Idempotency-Key replay precedes stale-token handling.
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-006
 - **Consumers:** admin
@@ -1521,15 +1521,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** DELETE /api/v1/admin/students/{student_id}/guardians/{guardian_id}
 - **Purpose:** Revoke guardian child access
 - **Roles:** admin:identity_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. At least one verified active guardian remains or safeguarding override is documented.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. At least one verified active guardian remains or safeguarding override is documented. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged.
 - **Request:** API_ADMIN_GUARDIAN_REVOKERequest
-- **Response:** FamilyView
+- **Response:** AdminFamilyRelationshipsView
 - **Application operation:** FamilyService.revoke_guardian_link
 - **Domain objects:** Family, Guardian, GuardianStudent, FamilyOwnershipPolicy, BillingMembership
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Resolve identity scope and same-family keys; lock Family then exact GuardianStudent row; compare row version, recheck membership/last-guardian invariants, revoke and increment row version plus Family.version atomically with audit and outbox.
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-006
 - **Consumers:** admin
@@ -1547,7 +1547,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-004
 - **Consumers:** admin
@@ -1565,7 +1565,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** StudentRepository, FamilyRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ACTIVE_ENROLMENT_EXISTS
 - **Requirements:** ADM-004
 - **Consumers:** admin
@@ -1583,7 +1583,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, INCOMPATIBLE_ROLE
 - **Requirements:** ADM-003, ADM-006, AUTH-011
 - **Consumers:** admin
@@ -1601,7 +1601,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C01
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, WEB-011
 - **Consumers:** public
@@ -1619,7 +1619,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-003, ADM-006, AUTH-011
 - **Consumers:** admin
@@ -1629,7 +1629,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/admin/accounts/{account_id}/roles
 - **Purpose:** Change admin privileges with audit and session revocation
 - **Roles:** admin:identity_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Cannot self-escalate; no last identity-admin removal; teacher/admin principal incompatibility.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Cannot self-escalate; no last identity-admin removal; teacher/admin principal incompatibility. Compare If-Match against the same Account.version returned by AccountView and RoleGrantView; role and status changes each increment that counter. Under a shared identity-admin membership lock, reject any change leaving zero active identity administrators with LAST_ADMIN, including concurrent suspensions/removals.
 - **Request:** API_ADMIN_ROLE_UPDATERequest
 - **Response:** RoleGrantView
 - **Application operation:** AccountService.set_role_grants
@@ -1637,7 +1637,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, INCOMPATIBLE_ROLE, LAST_ADMIN
 - **Requirements:** ADM-003, ADM-006, AUTH-011
 - **Consumers:** admin
@@ -1647,7 +1647,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/admin/accounts/{account_id}/status
 - **Purpose:** Suspend or reactivate account and revoke affected sessions
 - **Roles:** admin:identity_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Compare If-Match against the same Account.version returned by AccountView and RoleGrantView; role and status changes each increment that counter. Under a shared identity-admin membership lock, reject any change leaving zero active identity administrators with LAST_ADMIN, including concurrent suspensions/removals.
 - **Request:** API_ADMIN_ACCOUNT_STATUSRequest
 - **Response:** AccountView
 - **Application operation:** AccountService.set_account_status
@@ -1655,8 +1655,8 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
-- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
+- **Implementation chunk:** ZE-P02-C04
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, LAST_ADMIN
 - **Requirements:** ADM-003, ADM-006, AUTH-011
 - **Consumers:** admin
 
@@ -1673,7 +1673,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-005, ADM-015, CLS-005
 - **Consumers:** admin
@@ -1691,7 +1691,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-005, ADM-015, CLS-005
 - **Consumers:** admin
@@ -1709,7 +1709,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ACTIVE_ASSIGNMENT_EXISTS
 - **Requirements:** ADM-005, ADM-015, CLS-005
 - **Consumers:** admin
@@ -1727,7 +1727,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-005
 - **Consumers:** teacher
@@ -1745,7 +1745,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1763,7 +1763,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1781,7 +1781,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1799,7 +1799,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, CAPACITY_BELOW_COMMITMENTS
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1817,7 +1817,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, LAUNCH_CONFIGURATION_REQUIRED
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1835,7 +1835,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 202
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1853,7 +1853,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1871,7 +1871,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, SCHEDULE_CONFLICT
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1889,7 +1889,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CourseRepository, UserRepository, UnitOfWork, Clock
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
 - **Consumers:** admin
@@ -1907,7 +1907,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011
 - **Consumers:** admin
@@ -1925,7 +1925,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, SCHEDULE_CONFLICT, DST_AMBIGUOUS
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011
 - **Consumers:** admin
@@ -1943,7 +1943,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, SCHEDULE_CONFLICT, DST_AMBIGUOUS
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011
 - **Consumers:** admin
@@ -1961,7 +1961,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011
 - **Consumers:** admin
@@ -1979,7 +1979,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-002, CLS-003, CLS-004, CLS-011, PAR-009
 - **Consumers:** parent
@@ -1997,7 +1997,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-002, CLS-003, CLS-004, CLS-011, PAR-009
 - **Consumers:** parent
@@ -2015,7 +2015,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-002, CLS-003, CLS-004, CLS-011, STU-013
 - **Consumers:** student
@@ -2033,7 +2033,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-002, CLS-003, CLS-004, CLS-011, STU-013
 - **Consumers:** student
@@ -2051,7 +2051,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-002, CLS-003, CLS-004, CLS-011, TCH-005, TCH-006
 - **Consumers:** teacher
@@ -2069,7 +2069,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-002, CLS-003, CLS-004, CLS-011, TCH-005, TCH-006
 - **Consumers:** teacher
@@ -2087,7 +2087,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, SCHEDULE_CONFLICT, RESCHEDULE_WINDOW_CLOSED, DST_AMBIGUOUS
 - **Requirements:** CLS-002, CLS-003, CLS-004, CLS-011, TCH-005, TCH-006
 - **Consumers:** teacher
@@ -2105,7 +2105,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, SCHEDULE_CONFLICT, RESCHEDULE_WINDOW_CLOSED, DST_AMBIGUOUS
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011
 - **Consumers:** admin
@@ -2123,7 +2123,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011
 - **Consumers:** admin
@@ -2141,7 +2141,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011
 - **Consumers:** admin
@@ -2159,7 +2159,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, IntegrationRepository, LiveClassProvider, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, JOIN_WINDOW_CLOSED, PROVIDER_UNAVAILABLE
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009, TCH-004
 - **Consumers:** teacher
@@ -2177,7 +2177,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, IntegrationRepository, LiveClassProvider, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, JOIN_WINDOW_CLOSED, PROVIDER_UNAVAILABLE
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009, STU-014
 - **Consumers:** student
@@ -2195,7 +2195,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, IntegrationRepository, LiveClassProvider, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, JOIN_WINDOW_CLOSED, PROVIDER_UNAVAILABLE
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009
 - **Consumers:** parent
@@ -2213,7 +2213,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-016, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007
 - **Consumers:** admin
@@ -2231,7 +2231,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-016, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007
 - **Consumers:** admin
@@ -2249,7 +2249,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-016, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007
 - **Consumers:** admin
@@ -2267,7 +2267,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, PAR-008
 - **Consumers:** parent
@@ -2277,7 +2277,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** GET /api/v1/teacher/sessions/{session_id}/attendance
 - **Purpose:** Read authorized session attendance roster
 - **Roles:** teacher
-- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance.
+- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. With exact student_id filter, first authorize that student in the session cohort, then return one persisted row or an empty items array. Empty items means no record yet, not permission to infer a version. Read never creates virtual AttendanceRecord IDs/versions; UI shows unrecorded from absence.
 - **Request:** API_TEACHER_ATTENDANCERequest
 - **Response:** AttendanceViewPage
 - **Application operation:** AttendanceService.list_teacher_attendance
@@ -2285,7 +2285,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AttendanceRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-010, TCH-007, TCH-008
 - **Consumers:** teacher
@@ -2295,15 +2295,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/teacher/sessions/{session_id}/students/{student_id}/attendance
 - **Purpose:** Record or amend attendance
 - **Roles:** teacher
-- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. Student enrolled in this session cohort.
+- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. Student enrolled in this session cohort. First-write concurrency requires exactly one If-None-Match:* for absent AttendanceRecord, or If-Match current AttendanceRecord.version for existing row; never a definition, submission or other aggregate token.
 - **Request:** API_TEACHER_ATTENDANCE_RECORDRequest
 - **Response:** AttendanceView
 - **Application operation:** AttendanceService.record_teacher_attendance
 - **Domain objects:** AttendanceRecord, ClassSession, TeachingAccessPolicy
 - **Repository / ports:** AttendanceRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Authorize current teaching/education scope and student enrolment in session cohort. Serialize on (session_id,student_id) using the same session/cohort state lock as roster changes, check exact absence or row version, insert version 1 or update/increment current version under UNIQUE(session_id,student_id). Concurrent create/update returns VERSION_CONFLICT; no overwrite. Commit reason/audit/progress outbox atomically.
+- **Implementation chunk:** ZE-P05-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** CLS-010, TCH-007, TCH-008
 - **Consumers:** teacher
@@ -2313,7 +2313,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** GET /api/v1/admin/sessions/{session_id}/attendance
 - **Purpose:** Read authorized session attendance roster
 - **Roles:** admin:education_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. With exact student_id filter, first authorize that student in the session cohort, then return one persisted row or an empty items array. Empty items means no record yet, not permission to infer a version. Read never creates virtual AttendanceRecord IDs/versions; UI shows unrecorded from absence.
 - **Request:** API_ADMIN_ATTENDANCERequest
 - **Response:** AttendanceViewPage
 - **Application operation:** AttendanceService.list_admin_attendance
@@ -2321,7 +2321,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AttendanceRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-017, CLS-010
 - **Consumers:** admin
@@ -2331,15 +2331,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/admin/sessions/{session_id}/students/{student_id}/attendance
 - **Purpose:** Record or amend attendance
 - **Roles:** admin:education_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Student enrolled in this session cohort.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Student enrolled in this session cohort. First-write concurrency requires exactly one If-None-Match:* for absent AttendanceRecord, or If-Match current AttendanceRecord.version for existing row; never a definition, submission or other aggregate token.
 - **Request:** API_ADMIN_ATTENDANCE_RECORDRequest
 - **Response:** AttendanceView
 - **Application operation:** AttendanceService.record_admin_attendance
 - **Domain objects:** AttendanceRecord, ClassSession, TeachingAccessPolicy
 - **Repository / ports:** AttendanceRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Authorize current teaching/education scope and student enrolment in session cohort. Serialize on (session_id,student_id) using the same session/cohort state lock as roster changes, check exact absence or row version, insert version 1 or update/increment current version under UNIQUE(session_id,student_id). Concurrent create/update returns VERSION_CONFLICT; no overwrite. Commit reason/audit/progress outbox atomically.
+- **Implementation chunk:** ZE-P05-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-017, CLS-010
 - **Consumers:** admin
@@ -2357,7 +2357,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AttendanceRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-010, PAR-010
 - **Consumers:** parent
@@ -2375,7 +2375,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AttendanceRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-010, STU-015
 - **Consumers:** student
@@ -2393,7 +2393,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003
 - **Consumers:** admin
@@ -2411,7 +2411,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003
 - **Consumers:** admin
@@ -2429,7 +2429,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003
 - **Consumers:** admin
@@ -2447,7 +2447,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003
 - **Consumers:** admin
@@ -2465,7 +2465,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003
 - **Consumers:** admin
@@ -2483,7 +2483,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003
 - **Consumers:** admin
@@ -2501,7 +2501,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-001, ASM-002, ASM-003, STU-007
 - **Consumers:** student
@@ -2519,7 +2519,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-001, ASM-002, ASM-003, STU-007
 - **Consumers:** student
@@ -2537,7 +2537,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ATTEMPT_LIMIT_REACHED
 - **Requirements:** ASM-001, ASM-002, ASM-003, STU-007
 - **Consumers:** student
@@ -2555,7 +2555,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-001, ASM-002, ASM-003, STU-007
 - **Consumers:** student
@@ -2573,7 +2573,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ATTEMPT_ALREADY_SUBMITTED
 - **Requirements:** ASM-001, ASM-002, ASM-003, STU-007
 - **Consumers:** student
@@ -2591,7 +2591,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-001, ASM-002, ASM-003
 - **Consumers:** teacher
@@ -2609,7 +2609,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003
 - **Consumers:** admin
@@ -2627,7 +2627,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-001, ASM-002, ASM-003
 - **Consumers:** parent
@@ -2645,7 +2645,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-011, ASM-004
 - **Consumers:** admin
@@ -2663,7 +2663,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-011, ASM-004
 - **Consumers:** admin
@@ -2681,7 +2681,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-011, ASM-004
 - **Consumers:** admin
@@ -2699,7 +2699,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-011, ASM-004
 - **Consumers:** admin
@@ -2717,7 +2717,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE
 - **Requirements:** ADM-011, ASM-004
 - **Consumers:** admin
@@ -2735,7 +2735,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-004, STU-008
 - **Consumers:** student
@@ -2753,7 +2753,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-004
 - **Consumers:** parent
@@ -2771,7 +2771,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-004, TCH-010
 - **Consumers:** teacher
@@ -2789,7 +2789,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-005, STU-009, STU-010
 - **Consumers:** student
@@ -2807,7 +2807,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-005, STU-009, STU-010
 - **Consumers:** student
@@ -2825,7 +2825,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ASSET_NOT_READY
 - **Requirements:** ASM-005, STU-009, STU-010
 - **Consumers:** student
@@ -2843,7 +2843,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ASSIGNMENT_CLOSED, ASSET_NOT_READY
 - **Requirements:** ASM-005, STU-009, STU-010
 - **Consumers:** student
@@ -2861,7 +2861,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-005, STU-009, STU-010
 - **Consumers:** student
@@ -2879,7 +2879,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-005
 - **Consumers:** parent
@@ -2897,7 +2897,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-005
 - **Consumers:** teacher
@@ -2915,7 +2915,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-005
 - **Consumers:** teacher
@@ -2933,7 +2933,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-006, ASM-007, TCH-011, TCH-012
 - **Consumers:** teacher
@@ -2943,15 +2943,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/teacher/submissions/{submission_id}/assessment
 - **Purpose:** Save draft marking against frozen submission
 - **Roles:** teacher
-- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance.
+- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. First-write concurrency requires exactly one If-None-Match:* for absent Assessment, or If-Match current Assessment.version for existing row; never a definition, submission or other aggregate token.
 - **Request:** API_TEACHER_ASSESSMENTRequest
 - **Response:** AssessmentView
 - **Application operation:** AssessmentService.save_teacher_assessment
 - **Domain objects:** Assessment, Submission, ReleasePolicy, TeachingAccessPolicy
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Authorize frozen submission and current teacher assignment/education privilege, lock submission then matching assessment. If-None-Match:* requires no assessment under UNIQUE(submission_id), inserts version 1 plus first immutable assessment revision. If-Match requires existing exact version and creates audited correction revision before increment. Released-state rules still apply; concurrent save never silently overwrites.
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-006, ASM-007, TCH-011, TCH-012
 - **Consumers:** teacher
@@ -2961,15 +2961,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** GET /api/v1/teacher/submissions/{submission_id}/assessment
 - **Purpose:** Read permitted draft/released marking
 - **Roles:** teacher
-- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance.
+- **Ownership / assignment / state:** Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. Return AssessmentStateView only after authorizing an existing frozen submission. assessment=null proves absence; never confuse unauthorized/missing submission with a creatable assessment.
 - **Request:** API_TEACHER_ASSESSMENT_GETRequest
-- **Response:** AssessmentView
+- **Response:** AssessmentStateView
 - **Application operation:** AssessmentService.get_teacher_assessment
 - **Domain objects:** Assessment, Submission, ReleasePolicy, TeachingAccessPolicy
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-006, ASM-007, TCH-011, TCH-012
 - **Consumers:** teacher
@@ -2987,7 +2987,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-006, ASM-007, TCH-011, TCH-012
 - **Consumers:** teacher
@@ -3005,7 +3005,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-006, ASM-007, TCH-011, TCH-012
 - **Consumers:** teacher
@@ -3023,7 +3023,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-008, TCH-013
 - **Consumers:** teacher
@@ -3041,7 +3041,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-008, TCH-013
 - **Consumers:** teacher
@@ -3059,7 +3059,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-008, TCH-013
 - **Consumers:** teacher
@@ -3077,7 +3077,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-008, TCH-013
 - **Consumers:** teacher
@@ -3095,7 +3095,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ASM-008, TCH-013
 - **Consumers:** teacher
@@ -3113,7 +3113,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-007, LRN-008, TCH-014
 - **Consumers:** teacher
@@ -3131,7 +3131,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-005
 - **Consumers:** admin
@@ -3149,7 +3149,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, FileRepository, EnrolmentRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-005
 - **Consumers:** admin
@@ -3167,7 +3167,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-012, ASM-006, ASM-007
 - **Consumers:** admin
@@ -3177,15 +3177,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/admin/submissions/{submission_id}/assessment
 - **Purpose:** Save draft marking against frozen submission
 - **Roles:** admin:education_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. First-write concurrency requires exactly one If-None-Match:* for absent Assessment, or If-Match current Assessment.version for existing row; never a definition, submission or other aggregate token.
 - **Request:** API_ADMIN_ASSESSMENTRequest
 - **Response:** AssessmentView
 - **Application operation:** AssessmentService.save_admin_assessment
 - **Domain objects:** Assessment, Submission, ReleasePolicy, TeachingAccessPolicy
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Authorize frozen submission and current teacher assignment/education privilege, lock submission then matching assessment. If-None-Match:* requires no assessment under UNIQUE(submission_id), inserts version 1 plus first immutable assessment revision. If-Match requires existing exact version and creates audited correction revision before increment. Released-state rules still apply; concurrent save never silently overwrites.
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-012, ASM-006, ASM-007
 - **Consumers:** admin
@@ -3195,15 +3195,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** GET /api/v1/admin/submissions/{submission_id}/assessment
 - **Purpose:** Read permitted draft/released marking
 - **Roles:** admin:education_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Return AssessmentStateView only after authorizing an existing frozen submission. assessment=null proves absence; never confuse unauthorized/missing submission with a creatable assessment.
 - **Request:** API_ADMIN_ASSESSMENT_GETRequest
-- **Response:** AssessmentView
+- **Response:** AssessmentStateView
 - **Application operation:** AssessmentService.get_admin_assessment
 - **Domain objects:** Assessment, Submission, ReleasePolicy, TeachingAccessPolicy
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-012, ASM-006, ASM-007
 - **Consumers:** admin
@@ -3221,7 +3221,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-012, ASM-006, ASM-007
 - **Consumers:** admin
@@ -3239,7 +3239,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-012, ASM-006, ASM-007
 - **Consumers:** admin
@@ -3257,7 +3257,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-019, ASM-008
 - **Consumers:** admin
@@ -3275,7 +3275,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-019, ASM-008
 - **Consumers:** admin
@@ -3293,7 +3293,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-019, ASM-008
 - **Consumers:** admin
@@ -3311,7 +3311,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-019, ASM-008
 - **Consumers:** admin
@@ -3329,7 +3329,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-019, ASM-008
 - **Consumers:** admin
@@ -3347,7 +3347,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-018, LRN-007, LRN-008
 - **Consumers:** admin
@@ -3365,7 +3365,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-006, ASM-007, STU-011
 - **Consumers:** student
@@ -3383,7 +3383,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-008, STU-012
 - **Consumers:** student
@@ -3401,7 +3401,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-007, LRN-008, STU-016
 - **Consumers:** student
@@ -3419,7 +3419,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CertificateRepository, ProgressRepository, EnrolmentRepository, FileRepository, CertificateRenderer, UnitOfWork, Clock, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C06
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-009, LRN-010, STU-017
 - **Consumers:** student
@@ -3437,7 +3437,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-006, ASM-007, PAR-013
 - **Consumers:** parent
@@ -3455,7 +3455,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ASM-008, PAR-012
 - **Consumers:** parent
@@ -3473,7 +3473,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-007, LRN-008, PAR-011
 - **Consumers:** parent
@@ -3491,7 +3491,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CertificateRepository, ProgressRepository, EnrolmentRepository, FileRepository, CertificateRenderer, UnitOfWork, Clock, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C06
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-009, LRN-010, PAR-014
 - **Consumers:** parent
@@ -3509,7 +3509,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-007, LRN-008, STU-016
 - **Consumers:** student
@@ -3527,7 +3527,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** LRN-007, LRN-008, STU-016
 - **Consumers:** student
@@ -3545,7 +3545,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** LRN-007, LRN-008, STU-016
 - **Consumers:** student
@@ -3555,15 +3555,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** POST /api/v1/admin/enrolments/{enrolment_id}/completion-review
 - **Purpose:** Record standard or evidenced exceptional course completion decision
 - **Roles:** admin:education_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. education_admin may recompute standard eligibility, grant override with verified evidence and reason, or revoke prior override. Source learning records and attendance remain immutable.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. education_admin may recompute standard eligibility, grant override with verified evidence and reason, or revoke prior override. Source learning records and attendance remain immutable. If-Match is StudentProgress.version from API-ADMIN-COMPLETION-HISTORY. REVOKE_OVERRIDE must name the same enrolment current active override; reject foreign, inactive or stale state.
 - **Request:** API_ADMIN_COMPLETION_REVIEWRequest
 - **Response:** ProgressView
 - **Application operation:** ProgressService.review_completion
 - **Domain objects:** StudentProgress, CompletionPolicy, Enrolment, ActivityCompletion, CompletionOverride
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Lock enrolment/StudentProgress before its active override; compare progress_version for every decision. Apply evidence policy, update override row/version where relevant, increment StudentProgress.version for every decision and recompute, and persist audit/outbox in one UnitOfWork. Concurrent source recomputation uses the same progress lock/version. Response remains shared ProgressView; UI rereads protected history to obtain a new token.
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, COMPLETION_NOT_ELIGIBLE, EVIDENCE_REQUIRED
 - **Requirements:** ADM-018, LRN-007, LRN-008
 - **Consumers:** admin
@@ -3581,7 +3581,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CertificateRepository, ProgressRepository, EnrolmentRepository, FileRepository, CertificateRenderer, UnitOfWork, Clock, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C06
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-020, LRN-009, LRN-010
 - **Consumers:** admin
@@ -3599,7 +3599,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CertificateRepository, ProgressRepository, EnrolmentRepository, FileRepository, CertificateRenderer, UnitOfWork, Clock, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C06
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, COMPLETION_NOT_ELIGIBLE
 - **Requirements:** ADM-020, LRN-009, LRN-010
 - **Consumers:** admin
@@ -3617,7 +3617,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CertificateRepository, ProgressRepository, EnrolmentRepository, FileRepository, CertificateRenderer, UnitOfWork, Clock, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C06
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-020, LRN-009, LRN-010
 - **Consumers:** admin
@@ -3635,7 +3635,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CertificateRepository, ProgressRepository, EnrolmentRepository, FileRepository, CertificateRenderer, UnitOfWork, Clock, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C06
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-020, LRN-009, LRN-010
 - **Consumers:** admin
@@ -3653,7 +3653,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, COHORT_FULL, AGE_RECONFIRMATION_REQUIRED, AGE_INELIGIBLE, ALREADY_ENROLLED, LAUNCH_CONFIGURATION_REQUIRED, PROVIDER_UNAVAILABLE
 - **Requirements:** PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** parent
@@ -3671,7 +3671,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, COHORT_FULL, PROVIDER_UNAVAILABLE
 - **Requirements:** PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** parent
@@ -3689,7 +3689,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** parent
@@ -3707,7 +3707,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** parent
@@ -3725,7 +3725,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** parent
@@ -3743,7 +3743,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, PaymentGateway, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAY-008
 - **Consumers:** parent
@@ -3761,7 +3761,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-024, PAY-001
 - **Consumers:** admin
@@ -3779,7 +3779,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, OVERLAPPING_PRICE_WINDOW
 - **Requirements:** ADM-024, PAY-001
 - **Consumers:** admin
@@ -3797,7 +3797,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-024, PAY-001
 - **Consumers:** admin
@@ -3815,7 +3815,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-025, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** admin
@@ -3833,7 +3833,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-025, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** admin
@@ -3851,7 +3851,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 202
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-025, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** admin
@@ -3869,7 +3869,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-025, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** admin
@@ -3887,7 +3887,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, PaymentGateway, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-026, PAY-008
 - **Consumers:** admin
@@ -3905,7 +3905,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, PaymentGateway, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, REFUND_EXCEEDS_BALANCE
 - **Requirements:** ADM-026, PAY-008
 - **Consumers:** admin
@@ -3923,7 +3923,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, PaymentGateway, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, PROVIDER_OUTCOME_UNKNOWN
 - **Requirements:** ADM-026, PAY-008
 - **Consumers:** admin
@@ -3941,7 +3941,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, UnitOfWork, Clock, FileRepository, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-027, PAY-010
 - **Consumers:** admin
@@ -3959,7 +3959,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, UnitOfWork, Clock, FileRepository, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-027, PAY-010
 - **Consumers:** admin
@@ -3977,7 +3977,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -3995,7 +3995,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -4013,7 +4013,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-007, LRN-001
 - **Consumers:** admin
@@ -4031,7 +4031,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, FamilyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** SEC-003
 - **Consumers:** admin
@@ -4049,7 +4049,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, FamilyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** SEC-003
 - **Consumers:** admin
@@ -4067,7 +4067,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, FamilyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, HUMAN_APPROVAL_REQUIRED
 - **Requirements:** SEC-003
 - **Consumers:** admin
@@ -4085,7 +4085,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4103,7 +4103,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4121,7 +4121,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4139,7 +4139,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4157,7 +4157,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4175,7 +4175,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009, PAR-003, PAR-015
 - **Consumers:** parent
@@ -4193,7 +4193,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009, STU-018
 - **Consumers:** student
@@ -4211,7 +4211,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** teacher
@@ -4229,7 +4229,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4247,7 +4247,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4265,7 +4265,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4283,7 +4283,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4301,7 +4301,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** admin
@@ -4319,7 +4319,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009, PAR-003, PAR-015
 - **Consumers:** parent
@@ -4337,7 +4337,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009, STU-018
 - **Consumers:** student
@@ -4355,7 +4355,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** teacher
@@ -4373,7 +4373,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CommunicationRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C02
 - **Errors:** NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** public
@@ -4391,7 +4391,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** NotificationRepository, EmailProvider, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-022, COM-007, PAR-016, TCH-015
 - **Consumers:** parent, student, teacher, admin
@@ -4409,7 +4409,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** NotificationRepository, EmailProvider, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-022, COM-007, PAR-016, TCH-015
 - **Consumers:** parent, student, teacher, admin
@@ -4427,7 +4427,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** NotificationRepository, EmailProvider, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-022, COM-007
 - **Consumers:** admin
@@ -4445,7 +4445,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** NotificationRepository, EmailProvider, UnitOfWork, Clock
 - **Success status:** 202
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-022, COM-007
 - **Consumers:** admin
@@ -4463,7 +4463,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAR-006
 - **Consumers:** parent
@@ -4481,7 +4481,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** LRN-007, LRN-008, STU-016
 - **Consumers:** student
@@ -4499,7 +4499,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** UserRepository, DeliveryRepository, UnitOfWork
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CLS-005
 - **Consumers:** teacher
@@ -4517,7 +4517,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4527,7 +4527,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** POST /api/v1/files/uploads
 - **Purpose:** Reserve validated private upload ticket
 - **Roles:** student, admin:education_admin, admin:operations_admin
-- **Ownership / assignment / state:** Student own draft submission only; admin matching purpose privilege. No parent upload feature.
+- **Ownership / assignment / state:** Student own draft submission only; admin matching purpose privilege. No parent upload feature. Resolve current FileUploadContext from purpose + context_id: submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. Recheck immutable owner/purpose/context on confirmation and deletion; publication/release or submission finalization races reject mutation. Scan promotion checks context still permits the asset before exposing it.
 - **Request:** API_FILE_UPLOADRequest
 - **Response:** UploadTicketView
 - **Application operation:** FileService.create_upload
@@ -4535,7 +4535,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, FILE_TYPE_DENIED, FILE_TOO_LARGE
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** student, admin
@@ -4545,7 +4545,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** POST /api/v1/files/{asset_id}/upload-confirmation
 - **Purpose:** Confirm upload and queue independent scanning
 - **Roles:** student, admin:education_admin, admin:operations_admin
-- **Ownership / assignment / state:** Upload owner and same original scope; uploaded object metadata/checksum must match ticket.
+- **Ownership / assignment / state:** Upload owner and same original scope; uploaded object metadata/checksum must match ticket. Resolve current FileUploadContext from purpose + context_id: submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. Recheck immutable owner/purpose/context on confirmation and deletion; publication/release or submission finalization races reject mutation. Scan promotion checks context still permits the asset before exposing it.
 - **Request:** API_FILE_CONFIRMRequest
 - **Response:** FileAssetView
 - **Application operation:** FileService.confirm_upload
@@ -4553,7 +4553,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, UPLOAD_MISMATCH
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** student, admin
@@ -4571,7 +4571,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** parent, student, teacher, admin
@@ -4589,7 +4589,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ASSET_NOT_READY
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** parent, student, teacher, admin
@@ -4599,7 +4599,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** DELETE /api/v1/files/{asset_id}
 - **Purpose:** Delete eligible unreferenced owned draft asset
 - **Roles:** student, admin:education_admin, admin:operations_admin
-- **Ownership / assignment / state:** No referenced submitted work/published resource/certificate deletion; retention and legal hold apply. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required.
+- **Ownership / assignment / state:** No referenced submitted work/published resource/certificate deletion; retention and legal hold apply. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required. If-Match uses current FileAsset.version obtained from API-FILE-GET, upload confirmation or permitted asset listing; delete is owner-draft/purpose scoped and still checks linked resource state. Resolve current FileUploadContext from purpose + context_id: submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. Recheck immutable owner/purpose/context on confirmation and deletion; publication/release or submission finalization races reject mutation. Scan promotion checks context still permits the asset before exposing it.
 - **Request:** API_FILE_DELETERequest
 - **Response:** Empty
 - **Application operation:** FileService.delete_asset
@@ -4607,7 +4607,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE, LEGAL_HOLD
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** student, admin
@@ -4625,7 +4625,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** admin
@@ -4643,7 +4643,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CommunicationRepository, IntegrationRepository, CalendarProvider, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** CAL-001, CAL-002, CAL-003, CAL-004, CAL-005
 - **Consumers:** parent
@@ -4661,7 +4661,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4679,7 +4679,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, HUMAN_APPROVAL_REQUIRED
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4697,7 +4697,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-025, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** admin
@@ -4715,7 +4715,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, HUMAN_APPROVAL_REQUIRED
 - **Requirements:** ADM-025, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** admin
@@ -4733,7 +4733,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4751,7 +4751,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4769,7 +4769,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 202
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4787,7 +4787,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 202
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4805,7 +4805,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4823,7 +4823,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4841,7 +4841,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 202
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4859,7 +4859,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
 - **Consumers:** admin
@@ -4877,7 +4877,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** AuditRepository, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** ADM-029, SEC-007
 - **Consumers:** admin
@@ -4895,7 +4895,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** parent
@@ -4913,7 +4913,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** parent
@@ -4931,7 +4931,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** admin
@@ -4949,7 +4949,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, LEGAL_HOLD, ACTIVE_GUARDIAN_REQUIRED
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** admin
@@ -4967,7 +4967,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** parent
@@ -4977,15 +4977,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/admin/privacy/holds/{resource_id}
 - **Purpose:** Set or release audited retention hold
 - **Roles:** admin:identity_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.
+- **Ownership / assignment / state:** Active administrator with identity_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Explicit identity-purpose projection only. Typed target must exist; identity-admin can decide retention only, without payment/file content reads. If-Match compares exclusively the RetentionHold state returned by API-ADMIN-LEGAL-HOLD-STATE.
 - **Request:** API_ADMIN_LEGAL_HOLDRequest
 - **Response:** Empty
 - **Application operation:** PrivacyService.set_legal_hold
-- **Domain objects:** PrivacyRequest, GuardianStudent, FileAsset
+- **Domain objects:** FileAsset, GuardianStudent, PrivacyRequest, RetentionHold
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** 204
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Acquire deterministic typed-resource/ancestor transaction lock shared with purge; recheck target existence and expected hold version. Version 0 performs compare-absent INSERT with unique(type,id), mapping concurrent insertion to VERSION_CONFLICT. Existing row compares positive version and increments it; retain released rows. Audit decision and approval atomically. Response 204; reread state for updated hold_version.
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** admin
@@ -5003,7 +5003,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 204
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-004, PAY-005
 - **Consumers:** stripe
@@ -5021,7 +5021,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-004, PAY-005
 - **Consumers:** worker
@@ -5039,7 +5039,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** worker
@@ -5057,7 +5057,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007
 - **Consumers:** worker
@@ -5075,7 +5075,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, PaymentGateway, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-008
 - **Consumers:** worker
@@ -5093,7 +5093,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** worker
@@ -5111,7 +5111,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, IntegrationRepository, LiveClassProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009
 - **Consumers:** worker
@@ -5129,7 +5129,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, IntegrationRepository, LiveClassProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009
 - **Consumers:** worker
@@ -5147,7 +5147,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, EnrolmentRepository, IntegrationRepository, LiveClassProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009
 - **Consumers:** worker
@@ -5165,7 +5165,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CommunicationRepository, IntegrationRepository, CalendarProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** CAL-001, CAL-002, CAL-003, CAL-004, CAL-005
 - **Consumers:** worker
@@ -5183,7 +5183,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** DeliveryRepository, CommunicationRepository, IntegrationRepository, CalendarProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P05-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** CAL-001, CAL-002, CAL-003, CAL-004, CAL-005
 - **Consumers:** worker
@@ -5201,7 +5201,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** NotificationRepository, EmailProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** worker
@@ -5219,7 +5219,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** NotificationRepository, EmailProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** worker
@@ -5237,7 +5237,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** NotificationRepository, EmailProvider, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009
 - **Consumers:** worker
@@ -5255,7 +5255,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** worker
@@ -5273,7 +5273,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** worker
@@ -5291,7 +5291,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P04-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
 - **Consumers:** worker
@@ -5308,8 +5308,8 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Domain objects:** StudentProgress, CompletionPolicy, Enrolment, ActivityCompletion, CompletionOverride
 - **Repository / ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
 - **Success status:** None
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks. Enrolment-activated durable events first call ProgressRepository.initialize_for_enrolment idempotently before normal recompute; keep the event/job retryable until the persisted progress row exists. No activation event loss or read-time initialization.
+- **Implementation chunk:** ZE-P07-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** LRN-007, LRN-008
 - **Consumers:** worker
@@ -5327,7 +5327,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** CertificateRepository, ProgressRepository, EnrolmentRepository, FileRepository, CertificateRenderer, UnitOfWork, Clock, ObjectStorageProvider
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P07-C06
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** LRN-009, LRN-010
 - **Consumers:** worker
@@ -5345,7 +5345,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C04
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** worker
@@ -5363,7 +5363,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P02-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
 - **Consumers:** worker
@@ -5381,7 +5381,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P01-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** OPS-005
 - **Consumers:** worker
@@ -5399,7 +5399,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** SettingsRepository, IntegrationRepository, UnitOfWork, Clock
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P08-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** OPS-003
 - **Consumers:** worker
@@ -5417,7 +5417,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, UnitOfWork, Clock, FileRepository, ObjectStorageProvider
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks. After bounded retries exhaust, atomically set failed and sanitized failure_code. Explicit authorized job retry sets processing and clears failure; never return a download for failed state.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-010
 - **Consumers:** worker
@@ -5427,15 +5427,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** PUT /api/v1/admin/cohorts/{cohort_id}/assignments/{assignment_id}/closure
 - **Purpose:** Close/reopen assignment submissions for a delivery
 - **Roles:** admin:education_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. First-write concurrency requires exactly one If-None-Match:* for absent AssignmentDeliveryRule, or If-Match current AssignmentDeliveryRule.version for existing row; never a definition, submission or other aggregate token.
 - **Request:** API_ADMIN_ASSIGNMENT_CLOSERequest
-- **Response:** AssignmentView
+- **Response:** AssignmentClosureView
 - **Application operation:** AssignmentService.set_delivery_closure
-- **Domain objects:** Assignment, CurriculumRevision, ReleasePolicy
+- **Domain objects:** Assignment, CurriculumRevision, ReleasePolicy, AssignmentDeliveryRule
 - **Repository / ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Verify assignment belongs to selected cohort pinned revision; lock cohort then typed assignment/cohort delivery key shared by submission finalization. If-None-Match:* inserts only absent rule at version 1; If-Match updates exact current rule version and increments. Preserve due time, audit reason and commit outbox; immutable Assignment definition/version remains untouched.
+- **Implementation chunk:** ZE-P07-C02
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** ADM-011, ASM-004
 - **Consumers:** admin
@@ -5445,15 +5445,15 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Method/route:** POST /api/v1/admin/families/{family_id}/billing-members
 - **Purpose:** Grant verified adult family billing visibility separately from child links
 - **Roles:** admin:identity_admin
-- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Separate finance approval reference required; no teacher principal.
+- **Ownership / assignment / state:** Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Separate finance approval reference required; no teacher principal. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged.
 - **Request:** API_ADMIN_BILLING_MEMBERRequest
-- **Response:** FamilyView
+- **Response:** AdminFamilyRelationshipsView
 - **Application operation:** FamilyService.create_billing_membership
 - **Domain objects:** Family, Guardian, GuardianStudent, FamilyOwnershipPolicy, BillingMembership
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Resolve same-family identities; lock Family, compare Family.version, then insert/reactivate exact relationship under unique pair constraint and increment relationship.version (initial 1) plus Family.version. Commit audit and outbox atomically; Idempotency-Key replay precedes stale-token handling.
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-006
 - **Consumers:** admin
@@ -5470,8 +5470,8 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Domain objects:** Family, Guardian, GuardianStudent, FamilyOwnershipPolicy, BillingMembership
 - **Repository / ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
 - **Success status:** 204
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Transaction:** Resolve identity scope and same-family keys; lock Family then exact BillingMembership row; compare row version, recheck membership/last-guardian invariants, revoke and increment row version plus Family.version atomically with audit and outbox.
+- **Implementation chunk:** ZE-P02-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAR-006
 - **Consumers:** admin
@@ -5489,7 +5489,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** WEB-009
 - **Consumers:** admin
@@ -5507,7 +5507,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** ContentRepository, CourseRepository, UserRepository, NotificationRepository, UnitOfWork, DeliveryRepository, PaymentRepository
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P03-C01
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** WEB-009
 - **Consumers:** admin
@@ -5525,7 +5525,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C03
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, COHORT_FULL, REFUND_PENDING, EXCEPTION_ALREADY_RESOLVED
 - **Requirements:** ADM-025, PAR-017, PAR-018, PAR-019, PAR-020, PAY-002, PAY-003, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
 - **Consumers:** admin
@@ -5543,7 +5543,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** None
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-009, PAY-005, ADM-025
 - **Consumers:** worker
@@ -5561,7 +5561,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, UnitOfWork, Clock, FileRepository, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAY-010, ADM-027
 - **Consumers:** admin
@@ -5579,7 +5579,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, UnitOfWork, Clock, FileRepository, ObjectStorageProvider
 - **Success status:** 200
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, EXPORT_NOT_READY, EXPORT_EXPIRED
 - **Requirements:** PAY-010, ADM-027
 - **Consumers:** admin
@@ -5597,7 +5597,7 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 200
 - **Transaction:** Read-only scoped projection
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
 - **Requirements:** PAY-009, ADM-025, ENR-007
 - **Consumers:** admin
@@ -5615,7 +5615,169 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Repository / ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Success status:** 202
 - **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
-- **Implementation chunk:** Pending final chunk binding
+- **Implementation chunk:** ZE-P06-C05
 - **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE
 - **Requirements:** PAY-009, ADM-025
+- **Consumers:** admin
+
+## API-ADMIN-TEACHING-CANDIDATES
+
+- **Method/route:** GET /api/v1/admin/teaching-candidates
+- **Purpose:** Select active approved teachers for educational assignment using a minimal projection
+- **Roles:** admin:education_admin
+- **Ownership / assignment / state:** Active education_admin with recent MFA. Return only active teacher accounts/profiles with required staff activation approval; no identity directory, contacts, credentials, financial data or role administration. Candidate selection grants no assignment and write-time availability/status checks still apply.
+- **Request:** API_ADMIN_TEACHING_CANDIDATESRequest
+- **Response:** TeachingCandidateViewPage
+- **Application operation:** TeacherService.list_assignment_candidates
+- **Domain objects:** Account, TeacherProfile
+- **Repository / ports:** UserRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only education-scoped projection; filter active approved teachers in repository before paging.
+- **Implementation chunk:** ZE-P02-C04
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** ADM-015, CLS-005
+- **Consumers:** admin
+
+## API-ADMIN-ACCOUNTS
+
+- **Method/route:** GET /api/v1/admin/accounts
+- **Purpose:** Select named accounts for authorized identity lifecycle and role management
+- **Roles:** admin:identity_admin
+- **Ownership / assignment / state:** Authenticated active administrator with identity_admin and recent MFA. Read only the existing AccountView fields (id,role,display_name,email nullable,status,mfa_enabled,version); no credentials,password hashes,session tokens,MFA seed/recovery codes,child login alias,family details or billing data. Deny public,parent,student,teacher and administrators without identity_admin. Lookup does not grant a role change or status mutation; those existing writes reauthorize and use their own required version.
+- **Request:** API_ADMIN_ACCOUNTSRequest
+- **Response:** AccountViewPage
+- **Application operation:** AccountService.list_accounts
+- **Domain objects:** Account
+- **Repository / ports:** UserRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only identity-admin scoped directory; scope/filter before stable paging; explicitly project AccountView columns from accounts without credential/session/MFA-secret joins.
+- **Implementation chunk:** ZE-P02-C04
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** ADM-003, ADM-006, AUTH-010, AUTH-011, NFR-012
+- **Consumers:** admin
+
+## API-ADMIN-ACCOUNT
+
+- **Method/route:** GET /api/v1/admin/accounts/{account_id}
+- **Purpose:** Read selected account and current Account.version before lifecycle mutation
+- **Roles:** admin:identity_admin
+- **Ownership / assignment / state:** Authenticated active administrator with identity_admin and recent MFA. Read only the existing AccountView fields (id,role,display_name,email nullable,status,mfa_enabled,version); no credentials,password hashes,session tokens,MFA seed/recovery codes,child login alias,family details or billing data. Deny public,parent,student,teacher and administrators without identity_admin. Lookup does not grant a role change or status mutation; those existing writes reauthorize and use their own required version. Fetch current Account.version for API-ADMIN-ACCOUNT-STATUS If-Match; do not substitute RoleGrantView.version or a version from another account.
+- **Request:** API_ADMIN_ACCOUNTRequest
+- **Response:** AccountView
+- **Application operation:** AccountService.get_admin_account
+- **Domain objects:** Account
+- **Repository / ports:** UserRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only UserRepository.get_scoped with an identity-admin purpose scope; whitelist AccountView on response. Missing/inaccessible account returns safe404.
+- **Implementation chunk:** ZE-P02-C04
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** ADM-003, ADM-006, AUTH-010, AUTH-011, NFR-012
+- **Consumers:** admin
+
+## API-ADMIN-PRICE-TARGETS
+
+- **Method/route:** GET /api/v1/admin/price-targets
+- **Purpose:** Select named unpublished or unpriced course/cohort targets for finance-only price configuration
+- **Roles:** admin:finance_admin
+- **Ownership / assignment / state:** Authenticated active administrator with finance_admin and recent MFA. Return only target kind,course/cohort IDs,titles and lifecycle labels, including unpublished and unpriced courses/cohorts. Deny public,parent,student,teacher and non-finance administrators. Do not join or return curriculum revisions/modules/lessons/resources/answer keys,learner rosters,staff identity,private sessions or financial transactions. No education-admin capability is inferred or granted. Subsequent price creation validates selected course/cohort correspondence and existing pricing rules again.
+- **Request:** API_ADMIN_PRICE_TARGETSRequest
+- **Response:** PriceTargetViewPage
+- **Application operation:** BillingService.list_price_targets
+- **Domain objects:** Course, Cohort, Price
+- **Repository / ports:** PaymentRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only FinanceScope projection over courses/cohorts; UNION bounded course/cohort targets and stable ordering before paging. No INNER JOIN prices or publication predicate, so first-price configuration works for draft/unpriced targets; no education entity hydration.
+- **Implementation chunk:** ZE-P06-C01
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** ADM-024, PAY-001, AUTH-010, NFR-012
+- **Consumers:** admin
+
+## API-ADMIN-COMPLETION-HISTORY
+
+- **Method/route:** GET /api/v1/admin/enrolments/{enrolment_id}/completion-overrides
+- **Purpose:** Read exact completion override history and current progress mutation token
+- **Roles:** admin:education_admin
+- **Ownership / assignment / state:** Active administrator with education_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Cohort-scoped educational projection only. Enrolment must belong to an accessible existing cohort. Excludes identity/contact, payment and file content. Parent/student/teacher progress projections never contain override evidence. Completion review requires active/completed enrolment and initialized persisted StudentProgress; pending initialization returns INVALID_STATE and no guessed token.
+- **Request:** API_ADMIN_COMPLETION_HISTORYRequest
+- **Response:** CompletionReviewView
+- **Application operation:** ProgressService.get_completion_review
+- **Domain objects:** StudentProgress, CompletionOverride, Enrolment
+- **Repository / ports:** ProgressRepository, EnrolmentRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read enrolment and its StudentProgress/override history from one consistent snapshot; active_override_id and progress_version cannot be assembled from mismatching snapshots.
+- **Implementation chunk:** ZE-P07-C05
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, INVALID_STATE
+- **Requirements:** ADM-018, LRN-007, LRN-008, AUTH-010, NFR-012
+- **Consumers:** admin
+
+## API-ADMIN-LEGAL-HOLD-TARGETS
+
+- **Method/route:** GET /api/v1/admin/privacy/hold-targets
+- **Purpose:** Select existing retention targets without financial or file content access
+- **Roles:** admin:identity_admin
+- **Ownership / assignment / state:** Active administrator with identity_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Explicit identity-purpose projection only. List only typed identity references and existing ownership links; no payment/file domain object hydration or generic finance/file read grants. Filters apply before bounded stable pagination.
+- **Request:** API_ADMIN_LEGAL_HOLD_TARGETSRequest
+- **Response:** LegalHoldTargetViewPage
+- **Application operation:** PrivacyService.list_legal_hold_targets
+- **Domain objects:** RetentionHold
+- **Repository / ports:** PrivacyRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only PrivacyRepository explicit target reference whitelist, including targets with no hold row; no INNER JOIN to retention_holds and no missing-first-hold dead end.
+- **Implementation chunk:** ZE-P02-C05
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** SEC-002, SEC-008, SEC-009, SEC-010, AUTH-010, NFR-012
+- **Consumers:** admin
+
+## API-ADMIN-LEGAL-HOLD-STATE
+
+- **Method/route:** GET /api/v1/admin/privacy/holds/{resource_id}
+- **Purpose:** Read typed retention hold state and exact independent concurrency token
+- **Roles:** admin:identity_admin
+- **Ownership / assignment / state:** Active administrator with identity_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Explicit identity-purpose projection only. Verify target existence via the same typed projection; do not read or expose its financial/file contents. Never reuse target aggregate version as hold version.
+- **Request:** API_ADMIN_LEGAL_HOLD_STATERequest
+- **Response:** LegalHoldStateView
+- **Application operation:** PrivacyService.get_legal_hold_state
+- **Domain objects:** RetentionHold
+- **Repository / ports:** PrivacyRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only existing target + LEFT JOIN retention_holds on both type and ID; return explicit version-0 absence or existing positive hold version. No row creation on GET.
+- **Implementation chunk:** ZE-P02-C05
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** SEC-002, SEC-008, SEC-009, SEC-010, AUTH-010, NFR-012
+- **Consumers:** admin
+
+## API-ADMIN-COHORT-LEARNERS
+
+- **Method/route:** GET /api/v1/admin/cohorts/{cohort_id}/learners
+- **Purpose:** Select named cohort learners and exact enrolment references for education administration
+- **Roles:** admin:education_admin
+- **Ownership / assignment / state:** Active administrator with education_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Cohort-scoped educational projection only. Join only enrolments in path cohort to current first/preferred name; never access the identity directory or project contact/financial data. Downstream writes independently verify learner/enrolment/cohort match and actionable state. Empty feedback/assessment lists do not constrain the selector.
+- **Request:** API_ADMIN_COHORT_LEARNERSRequest
+- **Response:** EducationLearnerViewPage
+- **Application operation:** EnrolmentService.list_cohort_learners
+- **Domain objects:** Enrolment, Cohort
+- **Repository / ports:** EnrolmentRepository, DeliveryRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only cohort-scoped enrolment/student first/preferred-name projection. Scope and name filter before stable pagination; all education lifecycle states remain selectable for history, while each mutation separately enforces active state.
+- **Implementation chunk:** ZE-P06-C02
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** ADM-016, ADM-017, ADM-018, ADM-019, AUTH-010, NFR-012
+- **Consumers:** admin
+
+## API-ADMIN-ASSIGNMENT-CLOSURE
+
+- **Method/route:** GET /api/v1/admin/cohorts/{cohort_id}/assignments/{assignment_id}/closure
+- **Purpose:** Read separate delivery closure and exact mutation token
+- **Roles:** admin:education_admin
+- **Ownership / assignment / state:** Active administrator with education_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Cohort-scoped educational projection only. Assignment must belong to the selected cohort pinned curriculum revision; no curriculum mutation or definition token substitution.
+- **Request:** API_ADMIN_ASSIGNMENT_CLOSURERequest
+- **Response:** AssignmentClosureView
+- **Application operation:** AssignmentService.get_delivery_closure
+- **Domain objects:** AssignmentDeliveryRule, Assignment, CurriculumRevision
+- **Repository / ports:** AssessmentRepository, CourseRepository, DeliveryRepository, UnitOfWork
+- **Success status:** 200
+- **Transaction:** Read-only same-snapshot selected cohort/pinned assignment and optional delivery rule; absent rule remains absent and is returned explicitly.
+- **Implementation chunk:** ZE-P07-C02
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR
+- **Requirements:** ADM-011, ASM-004
 - **Consumers:** admin

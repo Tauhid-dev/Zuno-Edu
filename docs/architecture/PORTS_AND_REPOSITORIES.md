@@ -12,9 +12,9 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Objects:** Account, Credential, RoleGrant, TeacherProfile
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
 - **Persistence:** accounts,credentials,teacher_profiles
-- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
-- **Requirements:** ADM-001, ADM-005, ADM-006, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-006, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports., list_accounts requires IdentityAdminScope and projects only AccountView from accounts; get_scoped for admin detail requires the same purpose. Account.version is used for account-status preconditions; RoleGrantView.version is not substituted. No credential/session/MFA-secret join for these selectors.
+- **Requirements:** ADM-001, ADM-003, ADM-005, ADM-006, ADM-015, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, AUTH-010, AUTH-011, CLS-005, NFR-012, PAR-001, STU-001, TCH-001, WEB-006, WEB-011
+- **Chunks:** ZE-P02-C01, ZE-P02-C03, ZE-P02-C04, ZE-P03-C01, ZE-P05-C01
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -22,6 +22,9 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | get_scoped(id:uuid,scope:IdentityScope)->Account? | get scoped | id:uuid,scope:IdentityScope | Account? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | list_staff(scope:IdentityScope,filter:StaffFilter,page:Page)->Page[TeacherProfile] | list staff | scope:IdentityScope,filter:StaffFilter,page:Page | Page[TeacherProfile] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save(account:Account,expected_version:int)->None | save | account:Account,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| list_assignment_candidates(scope:EducationScope,query:DisplayNameQuery,page:Page)->Page[TeachingCandidateView] | Select only active approved teacher accounts/profiles before paging, projecting id and display_name only; never reuse the identity-admin full staff directory | Trusted education-admin scope, bounded name query and actor-bound page | Page[TeachingCandidateView] | NotFoundWithinScope, PersistenceUnavailable |
+| list_accounts(scope:IdentityAdminScope,filter:AccountDirectoryFilter,page:Page)->Page[AccountView] | Select account lifecycle targets by approved display/email search without loading credentials,session/MFA secrets or unrelated family/finance data | IdentityAdminScope from active administrator/current MFA; validated AccountDirectoryFilter(q,role,status); bounded Page(cursor,limit) | Page[AccountView], including current Account.version; whitelist only id,role,display_name,email,status,mfa_enabled,version | NotFoundWithinScope, PersistenceUnavailable |
+| lock_identity_admin_membership(scope:IdentityAdminScope)->tuple[Account] | Acquire a transaction-scoped singleton membership lock and return current active identity-admin candidates; every role/status write takes this lock before Account row locks, so concurrent mutations cannot remove/suspend the last active identity admin. | scope:IdentityAdminScope | tuple[Account] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## SessionRepository
 
@@ -33,7 +36,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** sessions,one_time_tokens
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03, ZE-P02-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -51,9 +54,9 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Objects:** Family, Guardian, GuardianStudent, BillingMembership, PolicyAcknowledgement
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
 - **Persistence:** families,guardians,guardian_students,billing_memberships,policy_acknowledgements
-- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
+- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports., Relationship mutations lock Family then exact relationship row. Creation compares Family.version; revocation compares GuardianStudent.version or BillingMembership.version. Every relationship change increments both the changed row and Family.version; parent projections remain filtered.
 - **Requirements:** AUTH-006, AUTH-007, AUTH-008, AUTH-009, AUTH-010, AUTH-011, AUTH-012, PAR-002, PAR-004, PAR-006, PAR-021, SEC-003, STU-019, TCH-016
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03, ZE-P02-C04, ZE-P02-C05, ZE-P04-C01, ZE-P04-C02, ZE-P06-C01, ZE-P06-C02, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P08-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -62,6 +65,8 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | resolve_billing_scope(principal:Principal,family_id:uuid)->BillingScope? | resolve billing scope | principal:Principal,family_id:uuid | BillingScope? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save(family:Family,expected_version:int)->None | save | family:Family,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | list_acknowledgements(scope:FamilyScope,page:Page)->Page[PolicyAcknowledgement] | list acknowledgements | scope:FamilyScope,page:Page | Page[PolicyAcknowledgement] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| get_admin_relationships(family_id:uuid,scope:IdentityAdminScope)->AdminFamilyRelationshipsView? | Read same-snapshot explicit family, named existing guardians/students, guardian-child links and independent billing memberships with their own current row versions; never return payment records. | family_id:uuid,scope:IdentityAdminScope | AdminFamilyRelationshipsView? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| lock_relationships(family_id:uuid,scope:IdentityAdminScope)->Family? | Lock Family before relationship rows, hydrate current GuardianStudent and BillingMembership versions, preserve last-guardian checks, and commit row versions plus family version in one UnitOfWork. | family_id:uuid,scope:IdentityAdminScope | Family? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## StudentRepository
 
@@ -73,7 +78,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** students
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-004, PAR-005, TCH-009
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03, ZE-P02-C05, ZE-P06-C02, ZE-P08-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -92,7 +97,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** public_pages,public_page_revisions,policy_documents,contact_enquiries
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** WEB-001, WEB-002, WEB-007, WEB-008, WEB-009, WEB-010, WEB-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C05, ZE-P03-C01
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -111,8 +116,8 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
 - **Persistence:** programs,courses,curriculum_revisions,course_modules,lessons,lesson_blocks,learning_resources
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
-- **Requirements:** ADM-007, ADM-008, ADM-009, LRN-001, LRN-002, LRN-003, LRN-004, LRN-005, PAR-007, STU-003, STU-004, STU-005, TCH-003, WEB-003, WEB-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-007, ADM-008, ADM-009, ADM-011, ASM-004, LRN-001, LRN-002, LRN-003, LRN-004, LRN-005, PAR-007, STU-003, STU-004, STU-005, TCH-003, WEB-003, WEB-004
+- **Chunks:** ZE-P03-C01, ZE-P03-C02, ZE-P03-C03, ZE-P03-C04, ZE-P05-C01, ZE-P07-C01, ZE-P07-C02, ZE-P07-C05
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -132,8 +137,8 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
 - **Persistence:** cohorts,class_sessions,teacher_assignments
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
-- **Requirements:** ADM-013, ADM-014, ADM-015, CLS-001, CLS-002, CLS-003, CLS-004, CLS-005, CLS-011, PAR-009, STU-013, TCH-005, TCH-006, WEB-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-011, ADM-013, ADM-014, ADM-015, ADM-016, ADM-017, ADM-018, ADM-019, ASM-004, AUTH-010, CLS-001, CLS-002, CLS-003, CLS-004, CLS-005, CLS-011, NFR-012, PAR-009, STU-013, TCH-005, TCH-006, WEB-005
+- **Chunks:** ZE-P02-C04, ZE-P03-C01, ZE-P03-C03, ZE-P03-C04, ZE-P04-C01, ZE-P04-C02, ZE-P05-C01, ZE-P05-C02, ZE-P05-C03, ZE-P05-C04, ZE-P05-C05, ZE-P06-C01, ZE-P06-C02, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P07-C02, ZE-P07-C03, ZE-P07-C04, ZE-P08-C02
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -151,10 +156,10 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Responsibility:** Aggregate persistence and purpose-scoped projection of Enrolment
 - **Objects:** Enrolment
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
-- **Persistence:** enrolments
+- **Persistence:** enrolments; read-only cohort learner projection joins students.id/first_name/preferred_name only
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
-- **Requirements:** ADM-016, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, PAR-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-016, ADM-017, ADM-018, ADM-019, AUTH-010, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, LRN-007, LRN-008, NFR-012, PAR-008
+- **Chunks:** ZE-P03-C03, ZE-P03-C04, ZE-P04-C01, ZE-P04-C02, ZE-P05-C02, ZE-P05-C03, ZE-P05-C05, ZE-P06-C01, ZE-P06-C02, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P07-C01, ZE-P07-C02, ZE-P07-C03, ZE-P07-C04, ZE-P07-C05, ZE-P07-C06
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -164,6 +169,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | get_child_cohort(student_id:uuid,cohort_id:uuid,scope:EnrolmentScope)->Enrolment? | get child cohort | student_id:uuid,cohort_id:uuid,scope:EnrolmentScope | Enrolment? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | lock_expired_holds(cutoff:Instant,batch_size:int)->tuple[Enrolment] | lock expired holds | cutoff:Instant,batch_size:int | tuple[Enrolment] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save(enrolment:Enrolment,expected_version:int)->None | save | enrolment:Enrolment,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| list_education_learners(cohort_id:uuid,scope:EducationAdminScope,query:DisplayNameQuery,page:Page)->Page[EducationLearnerView] | Join enrolments to students for first/preferred display name only after verifying explicit cohort education scope; never hydrate StudentProfile/Account/Family or payment records; scope before paging. | cohort_id:uuid,scope:EducationAdminScope,query:DisplayNameQuery,page:Page | Page[EducationLearnerView] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## AttendanceRepository
 
@@ -175,26 +181,27 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** attendance_records
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-017, CLS-010, PAR-010, STU-015, TCH-007, TCH-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C05, ZE-P07-C05
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
 | list_scoped(scope:AttendanceScope,filter:AttendanceFilter,page:Page)->Page[AttendanceRecord] | list scoped | scope:AttendanceScope,filter:AttendanceFilter,page:Page | Page[AttendanceRecord] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
-| get_for_update(session_id:uuid,student_id:uuid,scope:TeachingScope)->AttendanceRecord? | get for update | session_id:uuid,student_id:uuid,scope:TeachingScope | AttendanceRecord? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| get_for_update(session_id:uuid,student_id:uuid,scope:AttendanceWriteScope)->AttendanceRecord? | Read/lock exact current attendance row under active teaching or education-admin scope; absence is explicit and never creates data. | session_id:uuid,student_id:uuid,scope:AttendanceWriteScope | AttendanceRecord? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | summarize(enrolment_id:uuid,scope:ProgressScope)->AttendanceCounts | summarize | enrolment_id:uuid,scope:ProgressScope | AttendanceCounts | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save(record:AttendanceRecord,expected_version:int)->None | save | record:AttendanceRecord,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| save_conditional(record:AttendanceRecord,scope:AttendanceWriteScope,expected_version:int?)->None | Scope is active assigned teacher or education admin; expected_version None means require row absence for exact(session_id,student_id), otherwise require current positive version. Serialize with session/cohort and unique key; conflict never overwrites another marker. | record:AttendanceRecord,scope:AttendanceWriteScope,expected_version:int? | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## AssessmentRepository
 
 - **Type:** repository interface
 - **Module:** assessment
 - **Responsibility:** Aggregate persistence and purpose-scoped projection of Quiz,QuizQuestion,QuizAttempt,Assignment,Submission,Assessment,TeacherFeedback
-- **Objects:** Quiz, QuizQuestion, QuizAttempt, Assignment, Submission, Assessment, TeacherFeedback
+- **Objects:** Quiz, QuizQuestion, QuizAttempt, Assignment, Submission, Assessment, TeacherFeedback, AssignmentDeliveryRule
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
-- **Persistence:** quizzes,quiz_questions,quiz_options,quiz_attempts,quiz_answers,assignments,assignment_delivery_rules,submissions,submission_assets,assessments,assessment_revisions,teacher_feedback,feedback_revisions
+- **Persistence:** quizzes,quiz_questions,quiz_options,quiz_attempts,quiz_answers,assignments,assignment_delivery_rules,submissions,submission_assets,assessments,assessment_revisions,teacher_feedback,feedback_revisions; assignment_delivery_rules
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-010, ADM-011, ADM-012, ADM-019, ASM-001, ASM-002, ASM-003, ASM-004, ASM-005, ASM-006, ASM-007, ASM-008, PAR-012, PAR-013, STU-007, STU-008, STU-009, STU-010, STU-011, STU-012, TCH-010, TCH-011, TCH-012, TCH-013
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C03, ZE-P03-C04, ZE-P07-C01, ZE-P07-C02, ZE-P07-C03, ZE-P07-C04, ZE-P07-C05
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -205,6 +212,10 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | count_attempts(quiz_id:uuid,enrolment_id:uuid,locked:bool)->AttemptCount | count attempts | quiz_id:uuid,enrolment_id:uuid,locked:bool | AttemptCount | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save_definition(definition:AssessmentDefinition,revision_version:int)->None | save definition | definition:AssessmentDefinition,revision_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save_work(work:AssessmentAggregate,expected_version:int)->None | save work | work:AssessmentAggregate,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| get_assessment_state(submission_id:uuid,scope:MarkingScope)->AssessmentStateView? | Validate accessible frozen submission under active assigned teacher or education-admin scope, then return nullable current assessment; missing/inaccessible submission returns None. Read-only, no guessed initial version. | submission_id:uuid,scope:MarkingScope | AssessmentStateView? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| save_assessment_conditional(assessment:Assessment,scope:MarkingScope,expected_version:int?)->None | Lock frozen submission then assessment; None means require absence, positive value means require matching current assessment version; unique submission constraint plus row lock prevents concurrent first-save overwrite. Preserve immutable assessment revision/audit. | assessment:Assessment,scope:MarkingScope,expected_version:int? | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| get_delivery_closure(assignment_id:uuid,cohort_id:uuid,scope:EducationAdminScope)->AssignmentClosureView? | Validate assignment in cohort pinned revision; return existing delivery rule or explicit absence/default values without persisting a row. Never reuse immutable definition version. | assignment_id:uuid,cohort_id:uuid,scope:EducationAdminScope | AssignmentClosureView? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| save_delivery_rule_conditional(rule:AssignmentDeliveryRule,scope:EducationAdminScope,expected_version:int?)->None | Lock cohort/assignment delivery key shared with submission finalization; None requires exact pair absent, positive requires same rule current version; insert/increment version atomically with closure audit. | rule:AssignmentDeliveryRule,scope:EducationAdminScope,expected_version:int? | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## ProgressRepository
 
@@ -215,8 +226,8 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
 - **Persistence:** student_progress,activity_completions,completion_overrides
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
-- **Requirements:** ADM-018, LRN-006, LRN-007, LRN-008, PAR-011, STU-006, STU-016, TCH-014
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-018, AUTH-010, LRN-006, LRN-007, LRN-008, NFR-012, PAR-011, STU-006, STU-016, TCH-014
+- **Chunks:** ZE-P07-C05, ZE-P07-C06
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -229,6 +240,9 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | list_override_history(enrolment_id:uuid,scope:EducationAdminScope)->tuple[CompletionOverride] | Read evidence history for authorized education oversight only | enrolment_id:uuid,scope:EducationAdminScope | tuple[CompletionOverride] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save_override(override:CompletionOverride,scope:EducationAdminScope,expected_version:int)->None | Persist evidenced grant plus progress eligibility audit/outbox in same UnitOfWork | override:CompletionOverride,scope:EducationAdminScope,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | revoke_override(override_id:uuid,reason:Reason,scope:EducationAdminScope,expected_version:int)->None | Record audited revocation and enqueue progress/certificate eligibility review | override_id:uuid,reason:Reason,scope:EducationAdminScope,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| get_completion_review(enrolment_id:uuid,scope:EducationAdminScope)->CompletionReviewView? | Read current progress version and same-enrolment active/history overrides in one snapshot; private history never included in parent/student/teacher projections. | enrolment_id:uuid,scope:EducationAdminScope | CompletionReviewView? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| get_progress_for_update(enrolment_id:uuid,scope:ProgressMutationScope)->StudentProgress? | Acquire progress row lock before override rows for every recompute/grant/revoke. Scope is education-admin or trusted progress-worker only, never client supplied. | enrolment_id:uuid,scope:ProgressMutationScope | StudentProgress? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| initialize_for_enrolment(enrolment_id:uuid,scope:SystemProgressScope)->None | Idempotently insert StudentProgress version 1 with empty counts and no override when the enrolment activates; unique enrolment key prevents duplicates. Activation event persists atomically, and progress initialization must finish before completion review becomes available; later recomputations increment version. | enrolment_id:uuid,scope:SystemProgressScope | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## CertificateRepository
 
@@ -240,7 +254,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** certificates
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-020, LRN-009, LRN-010, PAR-014, STU-017
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C06
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -256,10 +270,10 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Responsibility:** Aggregate persistence and purpose-scoped projection of Price,Payment,Refund,Receipt
 - **Objects:** Price, Payment, Refund, Receipt, ReconciliationException, FinancialExport
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
-- **Persistence:** prices,payments,payment_events,refunds,purchase_documents,reconciliation_exceptions,privacy_exports(financial_export purpose)
-- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
-- **Requirements:** ADM-024, ADM-025, ADM-026, PAR-017, PAR-018, PAR-019, PAR-020, PAY-001, PAY-002, PAY-003, PAY-006, PAY-007, PAY-008, PAY-009, PAY-011, PAY-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Persistence:** prices,payments,payment_events,refunds,purchase_documents,reconciliation_exceptions,privacy_exports(financial_export purpose); courses/cohorts read-only identity/title/status projection for finance price targets; curriculum/delivery mutation ownership remains in their modules
+- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports., list_price_targets is FinanceScope only; read-only columns from courses/cohorts are IDs,titles,status,course association. It never requires a Price row/publication and never returns curriculum,rosters,staff data or sessions; this projection grants no education read/mutation rights.
+- **Requirements:** ADM-024, ADM-025, ADM-026, AUTH-010, NFR-012, PAR-017, PAR-018, PAR-019, PAR-020, PAY-001, PAY-002, PAY-003, PAY-006, PAY-007, PAY-008, PAY-009, PAY-011, PAY-012
+- **Chunks:** ZE-P03-C01, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -285,6 +299,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | get_finance_export(id:uuid,scope:FinanceScope,for_update:bool)->FinancialExport? | Load status/asset only for requesting finance admin or explicit finance oversight | id:uuid,scope:FinanceScope,for_update:bool | FinancialExport? | RepositoryConflict, NotFoundWithinScope, ExportLimitExceeded, PersistenceUnavailable |
 | save_finance_export(export:FinancialExport,scope:SystemFinanceScope,expected_version:int)->None | Store ready/expired state and verified private asset association | export:FinancialExport,scope:SystemFinanceScope,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, ExportLimitExceeded, PersistenceUnavailable |
 | iter_finance_rows(range:DateRange,scope:SystemFinanceScope,batch_size:int)->Iterator[FinanceReportRow] | Read bounded immutable financial snapshot rows; batches<=1000, report<=100000rows/100MiB, formula-safe formatting in report application use case | range:DateRange,scope:SystemFinanceScope,batch_size:int | Iterator[FinanceReportRow] | RepositoryConflict, NotFoundWithinScope, ExportLimitExceeded, PersistenceUnavailable |
+| list_price_targets(scope:FinanceScope,filter:PriceTargetFilter,page:Page)->Page[PriceTargetView] | Provide minimal named targets for first-time and future fee configuration, including draft/unpublished/unpriced targets without requiring education privileges | FinanceScope from active finance administrator/current MFA; validated PriceTargetFilter(kind,course_id,q); bounded Page(cursor,limit) | Page[PriceTargetView] with strict course/cohort discriminator, current titles/status and nullable cohort fields; no Price or education entity dump | NotFoundWithinScope, PersistenceUnavailable |
 
 ## CommunicationRepository
 
@@ -296,7 +311,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** events,announcements
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-021, COM-008, PAR-015, STU-018
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C04, ZE-P08-C02
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -314,7 +329,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** notifications,notification_deliveries
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-021, ADM-022, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-007, COM-008, COM-009, PAR-003, PAR-015, PAR-016, STU-018, TCH-015
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03, ZE-P03-C01, ZE-P08-C01
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -332,10 +347,10 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Responsibility:** Aggregate persistence and purpose-scoped projection of FileAsset
 - **Objects:** FileAsset
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
-- **Persistence:** file_assets,asset_links
-- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports., Generated financial_document/export metadata and private storage references remain financial scope only; no teaching/public scope grants.
+- **Persistence:** file_assets,asset_links; purpose-scoped upload-context reads/locks over submissions,enrolments,curriculum_revisions,accounts only
+- **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports., Generated financial_document/export metadata and private storage references remain financial scope only; no teaching/public scope grants., Upload context is closed by purpose: owned draft submission, writable educational revision, or own operations-admin account asset collection. Source rows and current privilege are rechecked; no arbitrary UUID/other account accepted. Only explicit public-content linkage makes ready public_asset public.
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C05, ZE-P03-C03, ZE-P03-C04, ZE-P04-C01, ZE-P04-C02, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P07-C03, ZE-P07-C06, ZE-P08-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -346,6 +361,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | lock_orphans(cutoff:Instant,batch_size:int)->tuple[FileAsset] | lock orphans | cutoff:Instant,batch_size:int | tuple[FileAsset] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save(asset:FileAsset,expected_version:int)->None | save | asset:FileAsset,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save_generated_asset(asset:FileAsset,proof:GeneratedArtifactProof,scope:SystemGeneratedFileScope,expected_version:int)->None | Persist generated ready metadata only after immutable object existence,size and SHA256 verified; atomic link to owning receipt/certificate/export | asset:FileAsset,proof:GeneratedArtifactProof,scope:SystemGeneratedFileScope,expected_version:int | None | RepositoryConflict, IntegrityMismatch, PersistenceUnavailable |
+| resolve_upload_context(purpose:UploadPurpose,context_id:uuid,scope:UploadActorScope,for_update:bool)->FileUploadContext? | Closed tagged context: own draft Submission with eligible enrolment; education-admin writable draft CurriculumRevision; or operations-admin own Account asset collection for internal/public_asset. Resolve exact source row/current status and MIME/size policy; return no context for mismatched kind, owner, revoked role or arbitrary ID. Confirmation/deletion locks the owning context to serialize with publication/submission finalization. | purpose:UploadPurpose,context_id:uuid,scope:UploadActorScope,for_update:bool | FileUploadContext? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## IntegrationRepository
 
@@ -357,7 +373,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** integration_bindings,webhook_inbox,outbox_events,background_jobs,idempotency_records
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** OPS-003, OPS-005, PAY-004, PAY-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P05-C03, ZE-P05-C04, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P08-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -379,7 +395,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** application_settings
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-028
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P08-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -398,7 +414,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** audit_records
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
 - **Requirements:** ADM-029, SEC-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C02
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -410,12 +426,12 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Type:** repository interface
 - **Module:** family
 - **Responsibility:** Aggregate persistence and purpose-scoped projection of PrivacyRequest
-- **Objects:** PrivacyRequest
+- **Objects:** PrivacyRequest, RetentionHold
 - **Adapter:** SQLAlchemy data-mapper adapter; PostgreSQL
-- **Persistence:** privacy_requests,retention_holds,privacy_exports,retention_decisions
+- **Persistence:** privacy_requests,retention_holds,privacy_exports,retention_decisions; minimal target identity projection over families,students,payments,file_assets and explicit ownership links only
 - **Invariants:** Every user read requires typed scope resolved from principal relationships; never optional unrestricted filter., Writes participate in UnitOfWork; domain objects have no ORM imports.
-- **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** AUTH-010, NFR-012, SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
+- **Chunks:** ZE-P02-C05, ZE-P08-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -424,6 +440,9 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 | has_hold(resource:RetentionResource)->bool | has hold | resource:RetentionResource | bool | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | save(request:PrivacyRequest,expected_version:int)->None | save | request:PrivacyRequest,expected_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 | record_retention_decision(decision:RetentionDecision)->None | record retention decision | decision:RetentionDecision | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| list_hold_targets(scope:IdentityAdminScope,resource_type:RetentionResourceType,family_id:uuid?,page:Page)->Page[LegalHoldTargetView] | Project only typed target IDs, display references and existing family/student ownership links; include targets without hold rows; no financial/file content, keys or URLs. | scope:IdentityAdminScope,resource_type:RetentionResourceType,family_id:uuid?,page:Page | Page[LegalHoldTargetView] | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| get_hold_state(resource_type:RetentionResourceType,resource_id:uuid,scope:IdentityAdminScope)->LegalHoldStateView? | Read typed target existence and independent hold state; absent hold row maps to hold_version 0 without creating data; missing target returns None. | resource_type:RetentionResourceType,resource_id:uuid,scope:IdentityAdminScope | LegalHoldStateView? | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
+| set_hold(hold:RetentionHold,scope:IdentityAdminScope,expected_hold_version:int)->None | Shared target/ancestor purge lock then exact CAS; expected 0 inserts only if absent; positive updates only matching current hold version; preserve released row and audit atomically. | hold:RetentionHold,scope:IdentityAdminScope,expected_hold_version:int | None | RepositoryConflict, NotFoundWithinScope, PersistenceUnavailable |
 
 ## PaymentGateway
 
@@ -435,7 +454,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Signature verification requires original bytes; authoritative server state; timeout unknown outcome reconciled; raw secrets never domain
 - **Requirements:** ADM-024, ADM-025, ADM-026, PAR-017, PAR-018, PAR-019, PAR-020, PAY-001, PAY-002, PAY-003, PAY-004, PAY-005, PAY-006, PAY-007, PAY-008, PAY-009, PAY-011, PAY-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -457,7 +476,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Waiting room true; join-before-host false; no recording; host start URL retrieved fresh, never stored
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009, STU-014, TCH-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -478,7 +497,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Dedicated business calendar; domain schedule authoritative; no child roster or meeting credentials; invalid token triggers full mirror reconcile
 - **Requirements:** CAL-001, CAL-002, CAL-003, CAL-004, CAL-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -496,7 +515,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Approved template ID and recipient; only needed variables; retry unknown outcome under same local delivery key; local dedupe beyond24h
 - **Requirements:** ADM-022, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-007, COM-008, COM-009, PAR-016, TCH-015
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P08-C01
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -512,7 +531,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Private buckets; unique staging+final keys; short-lived grants; no execution of child archives; metadata validated independently, Generated financial_document/export metadata and private storage references remain financial scope only; no teaching/public scope grants., Generated artifact spec contains purpose,media_type,size_bytes,sha256,content_disposition,metadata and creation intent ID. Only SystemGeneratedFileScope may write certificate/financial_document/financial_export. PDF<=10MiB; CSV<=100MiB; no browser-authorized generated writes. Verify HEAD/checksum after unknown outcome; cleanup uses recorded orphan intent and reference/retention checks, never bulk bucket deletion.
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P04-C01, ZE-P04-C02, ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P07-C06
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -534,7 +553,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Fail closed on unavailable/stale scanner; archive expansion size<=100MiB, ratio<=20, entries<=100; nested archives forbidden; reject encrypted/path traversal archives
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P04-C01, ZE-P04-C02
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -550,7 +569,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Salt per credential; benchmark memory/time parameters; never log inputs; constant-time library verifier
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -568,7 +587,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** At least256-bit entropy; hashed persistence; purpose-bound single-use tokens
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -586,7 +605,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** External adapter; authoritative references in PostgreSQL
 - **Invariants:** Static approved template, no network fetch or script execution; immutable learner/course/issue snapshots
 - **Requirements:** ADM-020, LRN-009, LRN-010, PAR-014, STU-017
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C06
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -602,7 +621,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** none
 - **Invariants:** No server-local timezone assumptions; injectable deterministic time
 - **Requirements:** ADM-001, ADM-003, ADM-004, ADM-006, ADM-007, ADM-008, ADM-010, ADM-012, ADM-013, ADM-014, ADM-015, ADM-016, ADM-017, ADM-018, ADM-019, ADM-020, ADM-021, ADM-022, ADM-023, ADM-024, ADM-025, ADM-026, ADM-027, ADM-028, ADM-029, ASM-001, ASM-002, ASM-003, ASM-005, ASM-006, ASM-007, ASM-008, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, AUTH-011, CAL-001, CAL-002, CAL-003, CAL-004, CAL-005, CLS-001, CLS-002, CLS-003, CLS-004, CLS-005, CLS-006, CLS-007, CLS-008, CLS-009, CLS-010, CLS-011, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-007, COM-008, COM-009, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007, LRN-001, LRN-002, LRN-003, LRN-004, LRN-007, LRN-008, LRN-009, LRN-010, OPS-003, OPS-005, OPS-008, PAR-001, PAR-002, PAR-003, PAR-004, PAR-005, PAR-006, PAR-008, PAR-009, PAR-010, PAR-011, PAR-012, PAR-013, PAR-014, PAR-015, PAR-016, PAR-017, PAR-018, PAR-019, PAR-020, PAR-021, PAY-001, PAY-002, PAY-003, PAY-004, PAY-005, PAY-006, PAY-007, PAY-008, PAY-009, PAY-010, PAY-011, PAY-012, SEC-001, SEC-002, SEC-003, SEC-007, SEC-008, SEC-009, SEC-010, STU-001, STU-003, STU-004, STU-007, STU-009, STU-010, STU-011, STU-012, STU-013, STU-014, STU-015, STU-016, STU-017, STU-018, STU-019, TCH-001, TCH-003, TCH-004, TCH-005, TCH-006, TCH-007, TCH-008, TCH-009, TCH-011, TCH-012, TCH-013, TCH-014, TCH-015, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P02-C01, ZE-P02-C02, ZE-P02-C03, ZE-P02-C04, ZE-P02-C05, ZE-P03-C02, ZE-P03-C03, ZE-P03-C04, ZE-P04-C01, ZE-P04-C02, ZE-P05-C01, ZE-P05-C02, ZE-P05-C03, ZE-P05-C04, ZE-P05-C05, ZE-P06-C01, ZE-P06-C02, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P07-C01, ZE-P07-C03, ZE-P07-C04, ZE-P07-C05, ZE-P07-C06, ZE-P08-C01, ZE-P08-C02, ZE-P08-C03, ZE-P08-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -618,8 +637,8 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Adapter:** SQLAlchemy transaction adapter
 - **Persistence:** Transaction infrastructure
 - **Invariants:** Atomic aggregate writes+audit+outbox; connection/session lifecycle outside domain; no network call inside lock-held transaction
-- **Requirements:** ADM-001, ADM-003, ADM-004, ADM-005, ADM-006, ADM-007, ADM-008, ADM-010, ADM-011, ADM-012, ADM-013, ADM-014, ADM-015, ADM-016, ADM-017, ADM-018, ADM-019, ADM-020, ADM-021, ADM-022, ADM-023, ADM-024, ADM-025, ADM-026, ADM-027, ADM-028, ASM-001, ASM-002, ASM-003, ASM-004, ASM-005, ASM-006, ASM-007, ASM-008, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, AUTH-011, CAL-001, CAL-002, CAL-003, CAL-004, CAL-005, CLS-001, CLS-002, CLS-003, CLS-004, CLS-005, CLS-006, CLS-007, CLS-008, CLS-009, CLS-010, CLS-011, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-007, COM-008, COM-009, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007, LRN-001, LRN-002, LRN-003, LRN-004, LRN-007, LRN-008, LRN-009, LRN-010, OPS-003, OPS-005, OPS-008, PAR-001, PAR-002, PAR-003, PAR-004, PAR-005, PAR-006, PAR-008, PAR-009, PAR-010, PAR-011, PAR-012, PAR-013, PAR-014, PAR-015, PAR-016, PAR-017, PAR-018, PAR-019, PAR-020, PAR-021, PAY-001, PAY-002, PAY-003, PAY-004, PAY-005, PAY-006, PAY-007, PAY-008, PAY-009, PAY-010, PAY-011, PAY-012, SEC-001, SEC-002, SEC-003, SEC-008, SEC-009, SEC-010, STU-001, STU-003, STU-004, STU-007, STU-008, STU-009, STU-010, STU-011, STU-012, STU-013, STU-014, STU-015, STU-016, STU-017, STU-018, STU-019, TCH-001, TCH-003, TCH-004, TCH-005, TCH-006, TCH-007, TCH-008, TCH-009, TCH-010, TCH-011, TCH-012, TCH-013, TCH-014, TCH-015, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-011, WEB-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-001, ADM-003, ADM-004, ADM-005, ADM-006, ADM-007, ADM-008, ADM-010, ADM-011, ADM-012, ADM-013, ADM-014, ADM-015, ADM-016, ADM-017, ADM-018, ADM-019, ADM-020, ADM-021, ADM-022, ADM-023, ADM-024, ADM-025, ADM-026, ADM-027, ADM-028, ASM-001, ASM-002, ASM-003, ASM-004, ASM-005, ASM-006, ASM-007, ASM-008, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, AUTH-010, AUTH-011, CAL-001, CAL-002, CAL-003, CAL-004, CAL-005, CLS-001, CLS-002, CLS-003, CLS-004, CLS-005, CLS-006, CLS-007, CLS-008, CLS-009, CLS-010, CLS-011, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-007, COM-008, COM-009, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007, LRN-001, LRN-002, LRN-003, LRN-004, LRN-007, LRN-008, LRN-009, LRN-010, NFR-012, OPS-003, OPS-005, OPS-008, PAR-001, PAR-002, PAR-003, PAR-004, PAR-005, PAR-006, PAR-008, PAR-009, PAR-010, PAR-011, PAR-012, PAR-013, PAR-014, PAR-015, PAR-016, PAR-017, PAR-018, PAR-019, PAR-020, PAR-021, PAY-001, PAY-002, PAY-003, PAY-004, PAY-005, PAY-006, PAY-007, PAY-008, PAY-009, PAY-010, PAY-011, PAY-012, SEC-001, SEC-002, SEC-003, SEC-008, SEC-009, SEC-010, STU-001, STU-003, STU-004, STU-007, STU-008, STU-009, STU-010, STU-011, STU-012, STU-013, STU-014, STU-015, STU-016, STU-017, STU-018, STU-019, TCH-001, TCH-003, TCH-004, TCH-005, TCH-006, TCH-007, TCH-008, TCH-009, TCH-010, TCH-011, TCH-012, TCH-013, TCH-014, TCH-015, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-011, WEB-012
+- **Chunks:** ZE-P01-C02, ZE-P02-C01, ZE-P02-C03, ZE-P02-C04, ZE-P02-C05, ZE-P03-C01, ZE-P03-C02, ZE-P03-C03, ZE-P03-C04, ZE-P04-C01, ZE-P04-C02, ZE-P05-C01, ZE-P05-C02, ZE-P05-C03, ZE-P05-C04, ZE-P05-C05, ZE-P06-C01, ZE-P06-C02, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05, ZE-P07-C01, ZE-P07-C02, ZE-P07-C03, ZE-P07-C04, ZE-P07-C05, ZE-P07-C06, ZE-P08-C01, ZE-P08-C02, ZE-P08-C03, ZE-P08-C04
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -637,7 +656,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** mfa_factors,mfa_recovery_codes,mfa_challenges
 - **Invariants:** Challenge consume, recovery code consume, timestep update and full-session issuance commit atomically.
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, SEC-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -660,7 +679,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** Managed encryption key outside database; ciphertext/reference persisted in mfa_factors
 - **Invariants:** TOTP30-second step,6 digits,SHA1 for authenticator compatibility, +/-1-step clock tolerance; server enforces returned accepted step>last step. Secret seed>=160 bits; recoverycodes>=128-bit entropy.
 - **Requirements:** AUTH-002, SEC-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
@@ -679,7 +698,7 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Persistence:** Returned PDF becomes generated financial_document FileAsset in private object storage
 - **Invariants:** Only approved immutable ReceiptSnapshot input; deterministic document serial/content hash; no external resources, scripts or child work.
 - **Requirements:** PAY-007, PAY-012, PAR-018
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|

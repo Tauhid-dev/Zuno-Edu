@@ -32,3 +32,13 @@ An aggregate is the smallest consistency boundary whose invariants must change t
 Global lock order prevents deadlocks: acquire required aggregate advisory keys sorted by stable `(module, id)` before row locks; never mix ad-hoc order from individual services. Cohort capacity uses the same cohort lock for checkout, hold expiry, capacity edit, payment activation and paid-exception allocation. Refund balance and paid-exception decision share the Payment lock. Recheck all predicates inside the transaction after lock acquisition. Version changes return409 and the current safe resource projection must be refetched; retries cannot discard a user's newer edits.
 
 Domain event handlers cross aggregate boundaries after commit unless a listed business invariant requires one local transaction. Outbox insertion always participates in the originating transaction. Providers cannot take part in a database transaction. Reserve intent, commit, call provider, then record verified outcome in a new transaction; unknown outcomes remain reconcilable and do not invent success.
+
+## Mutation ownership clarifications
+
+RetentionHold is the independent aggregate keyed by resource_type/resource_id. It is stored in retention_holds, carries its own positive persisted version and remains after release; absence is represented read-only by hold_version 0. Hold mutation and purge use common typed-resource/ancestor advisory keys before row locks.
+
+AssignmentDeliveryRule is the independent delivery aggregate keyed by assignment_id/cohort_id. Its version never reuses the immutable published assignment definition token. An absent rule has no persisted version; first writes use conditional absence, and closure shares a lock with submission finalization.
+
+Family keeps its root version and child link/membership row versions. Relationship creation compares the root version; revocation compares the exact child row version while holding the root lock. Both root and changed child increment atomically. Account owns RoleGrant's version; two independent counters must not be introduced.
+
+Attendance and assessment first writes assert absence under their unique keys before inserting version 1. Existing writes compare their own current version, and reads never create placeholder rows. StudentProgress initialization is a durable activation consumer; completion review remains unavailable until its persisted row exists. Every recompute/override change increments that same progress version while preserving private override evidence and immutable source work.

@@ -26,3 +26,19 @@ The application mints scope from current database relationships; a scope is neve
 File authorization follows explicit FK links to a resource, submission, certificate or published asset. The FileAsset owner is necessary for draft uploads but insufficient for making a resource public. Direct S3 access is private; every signed grant is a bearer credential with short expiry. Receipt/finance CSV downloads use BillingService/ReportingService grants under finance scope, not generic education file privileges. Privacy export construction splits educational and finance datasets by independently verified authority; an adult receives no other guardian's unrelated payments.
 
 Teacher financial prohibition is structural: teacher use cases do not depend on PaymentRepository, teacher API schemas do not contain finance DTOs, query scope never grants finance, frontend teacher modules do not import financial features, and negative tests try every finance operation class. Revoking a teacher assignment, guardian relation, billing membership or user session invalidates access on the next request even when earlier pages remain open.
+
+Education assignment candidate lookup uses API-ADMIN-TEACHING-CANDIDATES and UserRepository.list_assignment_candidates. The current education-admin scope can see only approved active teacher id/display_name references; private teacher contacts, account security, identity administration and financial data remain excluded. Search/pagination is scoped before projection. Assignment writes recheck teacher state, approval and conflicts; a prior candidate result is not authority.
+
+## Privileged selectors and mutation state
+
+| Projection | Exact authority and permitted data | Explicit exclusions |
+| --- | --- | --- |
+| AdminFamilyRelationshipsView | identity_admin; named existing family guardians/students, exact guardian-child pairs, independently approved billing memberships and each current row version | Payment amounts, transactions, receipts; no parent projection expansion |
+| CompletionReviewView | education_admin; one authorized enrolment's persisted progress_version, active override ID and audited override history | Guardian/contact/financial data; override evidence in parent/student/teacher progress |
+| LegalHoldTargetView / LegalHoldStateView | identity_admin; typed resource identity and already represented ownership references, then independent hold state/version and decision references | Amount/currency/provider identifiers; filename/MIME/file content/storage keys/signed URLs; finance/file read capability |
+| EducationLearnerView | education_admin; one cohort's student_id, first/preferred display name, enrolment_id, cohort_id and coarse educational state | Surname, age, school, contact/family/account data and payment/provider state; identity directory access |
+| AssignmentClosureView | education_admin; selected cohort's pinned assignment delivery rule, existence and separate version | Mutation of published assignment definition |
+
+Legal-hold target listings include records with no hold row. Optional family filtering follows existing resource ownership links and does not expose unrelated family data. Operational/public assets without a family association remain nullable references. A resource type and opaque display reference identify payment/file targets without exposing their contents. Repository methods whitelist these columns and never hydrate broader Payment/FileAsset objects for identity admins.
+
+Education learner selection is independent of existing feedback/assessment rows, so a first feedback can select an eligible learner from the cohort. Queries require an explicit cohort and filter before pagination. Downstream attendance, feedback, assessment and completion services recheck that learner/enrolment/cohort correspond and that the resource state permits the action. Existing teacher assigned-roster APIs remain the teacher source.

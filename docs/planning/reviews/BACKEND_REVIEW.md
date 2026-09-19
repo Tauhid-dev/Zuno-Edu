@@ -49,3 +49,30 @@ The final backend design gate is satisfied. Frontend route/component/API mapping
 ## Verification boundary
 
 This PASS closes BR-01 through BR-11 against the catalogue hash above and the matching reviewed backend documents. It is a planning/design review, not execution evidence for application tests, database migrations, live integrations or production readiness. Future chunks must implement and verify the specified positive and negative acceptance cases. New material changes to these contracts require review; this report cannot be used to approve an unreviewed later design implicitly.
+
+## Bounded addendum — educational teacher candidate lookup
+
+Date: 2026-09-13. Reviewer: independent product_inventory review agent. Status: **PASS** for the new lookup authorization and data boundary. No Critical or High finding introduced by this change.
+
+Reviewed `API-ADMIN-TEACHING-CANDIDATES`, `TeacherService.list_assignment_candidates`, `UserRepository.list_assignment_candidates`, `API_ADMIN_TEACHING_CANDIDATESRequest`, `TeachingCandidateView`/Page and the matching API/service/port/data-boundary/permission documentation. Canonical catalogue SHA-256 at this check: `9dbbca29f47a8317ffb8907aba6471cb010d8870142d4a3dd8b1ea14a6ad6126`.
+
+The lookup serves existing ADM-015/CLS-005 teacher-assignment requirements. It gives an active education_admin with recent MFA a bounded selector of approved active teachers, projecting only opaque teacher ID and display name. It does not reuse the identity-admin directory or return contacts, credential/account-security fields, financial data or role-administration controls. The query accepts bounded display-name search and pagination only; caller-controlled status/privilege filters and unknown fields are rejected. Repository filtering precedes pagination/projection and uses a trusted education scope.
+
+A candidate result does not confer assignment authority or preserve stale eligibility. Assignment writes must recheck teacher approval, status and scheduling constraints. Public, parent, student, teacher and administrators lacking education privilege do not receive this lookup. The existing identity directory retains identity_admin authorization. This is an explicit minimal educational projection, not a general privilege expansion.
+
+Required implementation proof: deny every other role/capability, exclude suspended/unapproved teachers, verify response contains only ID/name, reject unauthorized filters, scope search/cursors, and reject an assignment if teacher state/approval changes after selection. This planning addendum makes no claim that those future application tests have run.
+
+
+## Final contract closure addendum — 2026-09-20
+
+Status: **PASS** for the bounded backend/OOP corrections exposed by the independent frontend review. Reviewer: final_reviewer, independent of the catalog and correction authors. Unresolved Critical/High/Medium findings in this addendum: **0**. Reviewed backend catalog SHA-256: `a0025e16226e89d2460b4afb257aa6f41b5c088f8bf95d1122a5325cd3aba80b`. Inventory: 71 objects, 31 services, 34 ports, 321 operations, 486 schemas, 71 planned tables and 29 settings.
+
+The review followed each affected API through its request/response, application service, scoped repository port, domain owner and planned persistence. The account directory/detail preserves identity administration; the finance target selector exposes only naming/lifecycle fields needed for pricing; the education learner projection exposes only cohort-scoped educational references/names. These are purpose-specific projections, not role broadening or shared ORM serialization.
+
+File metadata now provides FileAsset.version. Admin family reads distinguish Family, GuardianStudent and BillingMembership tokens and exact relationships. Completion review has a protected same-enrolment history and persisted StudentProgress token; the existing durable recompute consumer initializes progress, and pending initialization returns INVALID_STATE without a fabricated version. Retention holds use an independent counter, explicit absent state and compare-and-set insertion under the lock shared with purge.
+
+First attendance/assessment/assignment-closure writes distinguish authorized absence from missing/inaccessible resources. Exactly one If-None-Match:* or positive If-Match is required, uniqueness and locking reject concurrent creation, and existing writes reject stale versions. AssignmentDeliveryRule owns delivery closure separately from the immutable Assignment definition. RoleGrantView.version is the owning Account.version; role changes and suspension preserve the last-active-identity-admin invariant under shared locking. MFA enrollment explicitly accepts purpose-bound limited tokens from both login and invitation, without treating a browser role as authority.
+
+Upload ownership is typed by purpose: own draft submission, writable curriculum revision, or the current operations administrator's own account asset collection. FileRepository resolves the current source and serializes lifecycle races; generated certificate/financial purposes are not browser-uploadable. Existing size, MIME, quarantine, release and generic-finance-denial rules remain intact.
+
+The frontend closure report records the exact bindings and separate validation. The plan validator passed on the final catalogs; this review makes no application/database/live-provider test claim. These corrections preserve the earlier reviewed OOP/service/port boundaries and close the narrow contract gaps before planning handoff.

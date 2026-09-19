@@ -26,6 +26,14 @@ def validate(bootstrap=False):
  objs=unique(b['objects'],'name','Object');svcs=unique(b['services'],'name','Service');ports=unique(b['ports'],'name','Port');apis=unique(b['operations'],'id','API');schemas=unique(b['schemas'],'name','Schema');comps=unique(f['components'],'name','Component')
  require(len({(a['method'],a['route']) for a in b['operations']})==len(apis),'Duplicate API method/route')
  api_map={a['id']:a for a in b['operations']};schema_map={s['name']:s for s in b['schemas']}
+ chunk_map={c['id']:c for c in chunks};component_map={c['name']:c for c in f['components']}
+ dependency_cache={}
+ def dependencies(cid):
+  # The registry validator has already rejected dependency cycles.
+  if cid not in dependency_cache:
+   dependency_cache[cid]=set(chunk_map[cid]['dependencies'])
+   for dep in chunk_map[cid]['dependencies']:dependency_cache[cid].update(dependencies(dep))
+  return dependency_cache[cid]
  for a in b['operations']:
   require(set(a['requirements'])<=ids and a['requirements'],'API requirement orphan '+a['id'])
   require(a['service'].split('.')[0] in svcs,'Unknown service '+a['id'])
@@ -33,6 +41,7 @@ def validate(bootstrap=False):
   require(a['request'] in schemas and a['response'] in schemas,'Unknown request/response '+a['id'])
   require(a['ownership'] and a['roles'] and a['consumer'],'Missing authorization/consumer '+a['id'])
   require(a.get('chunk') in chunk_ids,'Unowned API '+a['id'])
+  require(a['id'] in chunk_map[a['chunk']]['api_operations'],'API absent from implementation owner '+a['id'])
   path_fields={x['name'] for x in schema_map[a['request']]['fields'] if x['location']=='path'}
   require(set(re.findall(r'\{([^}]+)\}',a['route']))<=path_fields,'Undeclared path input '+a['id'])
   if a['service'].split('.')[0] in {'BillingService','RefundService','ReportingService'}:
@@ -53,6 +62,9 @@ def validate(bootstrap=False):
   require(set(c['requirements'])<=ids,'Unknown chunk requirement '+c['id']);coverage.update(c['requirements'])
   for path in c['required_context']+c['required_skills']+c['optional_skills']:require((ROOT/path).is_file(),'Missing context/skill '+c['id']+': '+path)
   require(set(c['api_operations'])<=apis and set(c['frontend_components'])<=comps,'Unknown chunk contract '+c['id'])
+  available=dependencies(c['id'])|{c['id']}
+  for oid in c['api_operations']:require(api_map[oid]['chunk'] in available,'Missing API prerequisite '+c['id']+': '+oid)
+  for name in c['frontend_components']:require(component_map[name]['chunk']==c['id'],'Incorrect component owner '+name)
   require(c['required_tests'] and c['acceptance_criteria'],'Untestable chunk '+c['id'])
   text=(ROOT/'docs/planning/chunks'/(c['id']+'.md')).read_text();front=json.loads(text.split('---',2)[1])
   for key in front:require(front[key]==c[key],'Manifest drift '+c['id']+': '+key)
@@ -62,20 +74,53 @@ def validate(bootstrap=False):
  mapped=set()
  for comp in f['components']:
   require(comp['chunk'] in chunk_ids and set(comp['requirements'])<=ids,'Untraced component '+comp['name'])
+  require(comp['name'] in chunk_map[comp['chunk']]['frontend_components'],'Component absent from implementation owner '+comp['name'])
+  require(set(comp.get('composition',[]))<=comps,'Unknown reused component '+comp['name'])
   require(set(comp['operations'])<=apis,'Unknown component API '+comp['name'])
+  available=dependencies(comp['chunk'])|{comp['chunk']}
+  for name in comp.get('composition',[]):require(component_map[name]['chunk'] in available,'Missing reused-component prerequisite '+comp['name']+': '+name)
   for oid in comp['operations']:
+   require(oid in chunk_map[comp['chunk']]['api_operations'],'Component API absent from chunk '+comp['name']+': '+oid)
    require((comp['name'],oid) in mapping_pairs,'Missing frontend/backend mapping '+comp['name']+': '+oid);mapped.add(oid)
+ component_closures={};visiting=set()
+ def component_closure(name):
+  require(name not in visiting,'Component composition cycle at '+name)
+  if name not in component_closures:
+   visiting.add(name);members={name}
+   for child in component_map[name].get('composition',[]):members.update(component_closure(child))
+   visiting.remove(name);component_closures[name]=members
+  return component_closures[name]
+ for name in comps:component_closure(name)
  for m in f['mappings']:
   require(m['component'] in comps and m['operation'] in apis,'Orphan frontend mapping')
-  a=api_map[m['operation']];require(m['service']==a['service'] and m['objects']==a['objects'] and m['ports']==a['ports'],'Stale frontend backend chain '+m['operation'])
+  a=api_map[m['operation']]
+  fields={'method':'method','api_route':'route','request':'request','response':'response','roles':'roles','authorization':'ownership','service':'service','objects':'objects','ports':'ports'}
+  require(all(m[key]==a[source] for key,source in fields.items()),'Stale frontend backend chain '+m['operation'])
  for a in b['operations']:
   if a['method']!='WORKER' and set(a['consumer'])&{'public','parent','student','teacher','admin'}:require(a['id'] in mapped,'HTTP API has no frontend consumer '+a['id'])
+ unique(f['routes'],'path','Frontend route')
+ expected_mappings=set()
+ # These are the documented layout roots, including the private session read.
+ layout_roots={'PublicLayout':[],'AuthLayout':[],'RoleAppShell':['ActorSessionProvider','AppShell']}
  for route in f['routes']:
   require(route['component'] in comps and set(route['operations'])<=apis,'Orphan frontend route '+route['path'])
+  require(route['layout'] in layout_roots,'Unknown frontend layout '+route['path'])
+  mounted=set(component_closure(route['component']))
+  for name in layout_roots[route['layout']]:mounted.update(component_closure(name))
+  require(set(route['mounted_components'])==mounted,'Stale route component closure '+route['path'])
+  operations={oid for name in mounted for oid in component_map[name]['operations']}
+  require(set(route['operations'])==operations,'Stale route operation closure '+route['path'])
+  expected_mappings.update((route['path'],name,oid) for name in mounted for oid in component_map[name]['operations'])
+ actual_mappings={(m['route'],m['component'],m['operation']) for m in f['mappings']}
+ require(len(actual_mappings)==len(f['mappings']),'Duplicate route frontend/backend mapping')
+ require(actual_mappings==expected_mappings,'Missing or stale route frontend/backend mapping')
  trace=read('docs/planning/traceability.json');require(unique(trace,'requirement','Traceability')==ids,'Traceability IDs differ')
  for t in trace:
   require(set(t['chunks'])<=chunk_ids and t['chunks'] and t['tests'] and t['verification'],'Incomplete trace '+t['requirement'])
   require(set(t['api'])<=apis,'Unknown trace API '+t['requirement'])
+  require(set(t['objects'])<=objs,'Unknown trace domain object '+t['requirement'])
+  require(set(t.get('frontend_components',[]))<=comps,'Unknown trace frontend component '+t['requirement'])
+  for path in t.get('design_documents',[]):require((ROOT/path).is_file(),'Missing trace design '+path)
  skills=list((ROOT/'skills').glob('*/*/SKILL.md'));require(len(skills)>=46,'Required skill inventory incomplete')
  for p in skills:
   content=p.read_text();require(content.startswith('---\n'),'Skill frontmatter missing '+str(p))

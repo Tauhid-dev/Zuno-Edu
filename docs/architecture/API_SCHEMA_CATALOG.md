@@ -217,14 +217,14 @@ Explicitly published teacher profile only.
 
 ## RoleGrantView
 
-RoleGrantView
+RoleGrant value object projected from Account.admin_privileges. version is the current owning Account.version; there is no independent role counter.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | user_id | uuid | True | False | body | UUID v4/v7; opaque identifier; ownership checked after parse |
 | role | enum(parent\|student\|teacher\|admin) | True | False | body | Closed enum; reject unknown values |
 | admin_privileges | string[] | True | False | body | Closed identifiers: identity_admin,education_admin,finance_admin,operations_admin,audit_admin |
-| version | version | True | False | body | positive integer optimistic concurrency token |
+| version | version | True | False | body | Current owning Account.version for user_id; same counter as AccountView.version; every status or role change increments it |
 
 ## PolicyView
 
@@ -673,7 +673,7 @@ Immediate formative result for submitted own attempt: score plus per-question co
 
 ## AssignmentView
 
-AssignmentView
+Published/draft curriculum definition projection; version is the owning curriculum definition token only, never the separate delivery closure token. closed/due_at are read-only delivery-resolved convenience values when used in learner context; admin closure writes use AssignmentClosureView.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -686,7 +686,7 @@ AssignmentView
 | max_score | integer | True | False | body | 1–1000 |
 | max_files | integer | True | False | body | 1–5 |
 | status | enum(draft\|ready) | True | False | body | Closed enum; reject unknown values |
-| version | version | True | False | body | positive integer optimistic concurrency token |
+| version | version | True | False | body | Current curriculum definition version; immutable after publication; never use for per-cohort closure mutation |
 | rubric | text | True | False | body | UTF-8, max 10000 characters; plain text unless explicitly sanitized rich text |
 | passing_score | integer | True | False | body | 0–max_score |
 | allow_resubmission | boolean | True | False | body | strict JSON boolean |
@@ -963,6 +963,7 @@ Object keys and bucket credentials never returned.
 | purpose | enum(resource\|submission\|certificate\|internal\|public_asset\|financial_document\|financial_export) | True | False | body | Closed enum; reject unknown values |
 | status | enum(quarantined\|scanning\|ready\|rejected\|deleted) | True | False | body | Closed enum; reject unknown values |
 | created_at | datetime | True | False | body | RFC3339 timezone-aware instant, UTC persisted |
+| version | version | True | False | body | Current FileAsset.version for id; use for API-FILE-DELETE If-Match, never a resource/revision/owner token |
 
 ## UploadTicketView
 
@@ -1175,13 +1176,13 @@ MfaSetupView
 
 ## API_AUTH_MFA_ENROLRequest
 
-Create pending TOTP enrolment input
+Begin staff TOTP setup from either password-login or invitation limited context, or permitted full-session re-enrolment; no role field required.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | password | password | True | False | body | 12–128 characters; breached-password screening; no silent truncation |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
-| setup_token | token | False | False | body | Required for limited invited staff setup context; forbidden with unrelated full session |
+| setup_token | token | False | False | body | Required without full session for either login mfa_setup_required or invitation-accepted limited setup; bound to same staff account and setup purpose; expired/consumed/foreign tokens rejected; unrelated full session forbidden |
 
 ## RecoveryCodeView
 
@@ -2111,6 +2112,7 @@ Link verified guardian to same family child input
 | verification_reference | string | True | False | body | Audited external evidence ID, no sensitive document body |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
+| If-Match | version | True | False | header | Current AdminFamilyRelationshipsView.version for the same family; required even for first relationship; stale 409 VERSION_CONFLICT |
 
 ## API_ADMIN_GUARDIAN_REVOKERequest
 
@@ -2121,7 +2123,7 @@ Revoke guardian child access input
 | guardian_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | student_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | True | False | header | Current matching GuardianStudent.version from AdminFamilyRelationshipsView for guardian_id + student_id; never substitute Family.version; mismatch 409 VERSION_CONFLICT |
 
 ## API_ADMIN_STUDENT_UPDATERequest
 
@@ -2188,7 +2190,7 @@ Change admin privileges with audit and session revocation input
 | role | enum(parent\|student\|teacher\|admin) | True | False | body | Closed enum; reject unknown values |
 | admin_privileges | string[] | True | False | body | Closed list identity_admin,education_admin,finance_admin,operations_admin,audit_admin; incompatible teacher grants forbidden |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | True | False | header | Expected owning Account.version from current account detail or RoleGrantView for this account_id; 409 VERSION_CONFLICT on stale value; never a separate role counter |
 
 ## API_ADMIN_ACCOUNT_STATUSRequest
 
@@ -2199,7 +2201,7 @@ Suspend or reactivate account and revoke affected sessions input
 | account_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | status | enum(active\|suspended) | True | False | body | Closed enum; reject unknown values |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | True | False | header | Expected owning Account.version from current account detail or RoleGrantView for this account_id; 409 VERSION_CONFLICT on stale value; never a separate role counter |
 
 ## API_ADMIN_TEACHER_UPDATERequest
 
@@ -2599,6 +2601,7 @@ Read authorized session attendance roster input
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | session_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
+| student_id | uuid | False | False | query | Optional exact student from authorized cohort learner/assigned roster read. Validate enrolment in session cohort before querying attendance; wrong cohort/inaccessible learner returns NOT_FOUND, not an empty absence result. |
 | cursor | token | False | False | query | opaque cryptographic token; max 512 characters; never logged |
 | limit | integer | False | False | query | 1–100; default 25 |
 
@@ -2613,7 +2616,7 @@ AttendanceViewPage
 
 ## API_TEACHER_ATTENDANCE_RECORDRequest
 
-Record or amend attendance input
+Record or amend attendance input Exactly one of If-Match (positive existing version) or If-None-Match:* (first creation) is required; both or neither -> VALIDATION_ERROR.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -2622,7 +2625,8 @@ Record or amend attendance input
 | status | enum(present\|absent\|late\|excused) | True | False | body | Closed enum; reject unknown values |
 | minutes_attended | integer | False | True | body | 0–240 |
 | reason | string | True | False | body | Required change reason; no diagnoses or sensitive notes |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | False | False | header | Current persisted AttendanceRecord.version for exact selected resource; required iff updating existing row. Mutually exclusive with If-None-Match. No guessed initial version; mismatch 409 VERSION_CONFLICT. |
+| If-None-Match | string | False | False | header | Only literal * accepted. Required iff creating first row proven absent by authorized read. Mutually exclusive with If-Match; concurrent row creation returns 409 VERSION_CONFLICT. |
 
 ## API_ADMIN_ATTENDANCERequest
 
@@ -2631,12 +2635,13 @@ Read authorized session attendance roster input
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | session_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
+| student_id | uuid | False | False | query | Optional exact student from authorized cohort learner/assigned roster read. Validate enrolment in session cohort before querying attendance; wrong cohort/inaccessible learner returns NOT_FOUND, not an empty absence result. |
 | cursor | token | False | False | query | opaque cryptographic token; max 512 characters; never logged |
 | limit | integer | False | False | query | 1–100; default 25 |
 
 ## API_ADMIN_ATTENDANCE_RECORDRequest
 
-Record or amend attendance input
+Record or amend attendance input Exactly one of If-Match (positive existing version) or If-None-Match:* (first creation) is required; both or neither -> VALIDATION_ERROR.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -2645,7 +2650,8 @@ Record or amend attendance input
 | status | enum(present\|absent\|late\|excused) | True | False | body | Closed enum; reject unknown values |
 | minutes_attended | integer | False | True | body | 0–240 |
 | reason | string | True | False | body | Required change reason; no diagnoses or sensitive notes |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | False | False | header | Current persisted AttendanceRecord.version for exact selected resource; required iff updating existing row. Mutually exclusive with If-None-Match. No guessed initial version; mismatch 409 VERSION_CONFLICT. |
+| If-None-Match | string | False | False | header | Only literal * accepted. Required iff creating first row proven absent by authorized read. Mutually exclusive with If-Match; concurrent row creation returns 409 VERSION_CONFLICT. |
 
 ## API_PARENT_ATTENDANCERequest
 
@@ -3036,14 +3042,15 @@ Return work for a new immutable revision input
 
 ## API_TEACHER_ASSESSMENTRequest
 
-Save draft marking against frozen submission input
+Save draft marking against frozen submission input Exactly one of If-Match (positive existing version) or If-None-Match:* (first creation) is required; both or neither -> VALIDATION_ERROR.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | submission_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | score | integer | True | False | body | 0–assignment max_score |
 | rubric_comment | text | True | False | body | UTF-8, max 10000 characters; plain text unless explicitly sanitized rich text |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | False | False | header | Current persisted Assessment.version for exact selected resource; required iff updating existing row. Mutually exclusive with If-None-Match. No guessed initial version; mismatch 409 VERSION_CONFLICT. |
+| If-None-Match | string | False | False | header | Only literal * accepted. Required iff creating first row proven absent by authorized read. Mutually exclusive with If-Match; concurrent row creation returns 409 VERSION_CONFLICT. |
 
 ## API_TEACHER_ASSESSMENT_GETRequest
 
@@ -3186,14 +3193,15 @@ Return work for a new immutable revision input
 
 ## API_ADMIN_ASSESSMENTRequest
 
-Save draft marking against frozen submission input
+Save draft marking against frozen submission input Exactly one of If-Match (positive existing version) or If-None-Match:* (first creation) is required; both or neither -> VALIDATION_ERROR.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | submission_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | score | integer | True | False | body | 0–assignment max_score |
 | rubric_comment | text | True | False | body | UTF-8, max 10000 characters; plain text unless explicitly sanitized rich text |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | False | False | header | Current persisted Assessment.version for exact selected resource; required iff updating existing row. Mutually exclusive with If-None-Match. No guessed initial version; mismatch 409 VERSION_CONFLICT. |
+| If-None-Match | string | False | False | header | Only literal * accepted. Required iff creating first row proven absent by authorized read. Mutually exclusive with If-Match; concurrent row creation returns 409 VERSION_CONFLICT. |
 
 ## API_ADMIN_ASSESSMENT_GETRequest
 
@@ -3454,8 +3462,9 @@ Recompute and record completion decision from evidence input
 | enrolment_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | decision | enum(RECOMPUTE\|GRANT_OVERRIDE\|REVOKE_OVERRIDE) | True | False | body | Closed enum; reject unknown values |
-| evidence_references | string[] | False | False | body | 1–10 nonempty verified evidence references required iff GRANT_OVERRIDE; forbidden for RECOMPUTE |
-| override_id | uuid | False | False | body | Required iff REVOKE_OVERRIDE |
+| evidence_references | string[] | False | False | body | 1–10 nonempty verified evidence references required iff GRANT_OVERRIDE; forbidden for RECOMPUTE and REVOKE_OVERRIDE |
+| override_id | uuid | False | False | body | Required iff REVOKE_OVERRIDE; must equal current active_override_id from history for this same enrolment. Forbidden for RECOMPUTE and GRANT_OVERRIDE; reject foreign/revoked overrides. |
+| If-Match | version | True | False | header | CompletionReviewView.progress_version for enrolment_id; required for RECOMPUTE, GRANT_OVERRIDE and REVOKE_OVERRIDE; stale 409 VERSION_CONFLICT |
 
 ## API_ADMIN_CERTIFICATESRequest
 
@@ -4076,16 +4085,16 @@ Read purpose-filtered dashboard counts and next actions input
 
 ## API_FILE_UPLOADRequest
 
-Reserve validated private upload ticket input
+Closed purpose/context upload reservation. submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. Upload reservation never publishes an asset; publication requires explicit approved public-content linkage.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | filename | string | True | False | body | basename only,1–200 |
-| media_type | string | True | False | body | Allowlisted actual MIME expectation |
-| size_bytes | integer | True | False | body | student <=25MiB, staff documents <=50MiB, MP4 <=500MiB |
+| media_type | string | True | False | body | Purpose allowlist: submission application/pdf,image/png,image/jpeg,text/plain,application/zip with constrained ZIP policy; resource PDF/PNG/JPEG/TXT or video/mp4; internal/public_asset PDF/PNG/JPEG/TXT only. Declared MIME must match independent sniffing; reject SVG/HTML/scripts. |
+| size_bytes | integer | True | False | body | Strict positive bytes: submission <=26,214,400 (25MiB); resource PDF/PNG/JPEG/TXT <=52,428,800 (50MiB), MP4 <=524,288,000 (500MiB); internal/public_asset PDF/PNG/JPEG/TXT <=26,214,400 (25MiB). Submission attachment total <=104,857,600 (100MiB) checked under submission lock. |
 | checksum_sha256 | string | True | False | body | base64 SHA256 |
 | purpose | enum(resource\|submission\|internal\|public_asset) | True | False | body | Closed enum; reject unknown values |
-| context_id | uuid | True | False | body | Owning submission or curriculum revision |
+| context_id | uuid | True | False | body | submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
 
 ## API_FILE_CONFIRMRequest
@@ -4122,7 +4131,7 @@ Delete eligible unreferenced owned draft asset input
 |---|---|---|---|---|---|
 | asset_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | True | False | header | Exact FileAssetView.version for asset_id; lock FileAsset and recheck draft ownership, references, state and legal holds before compare-and-update; 409 VERSION_CONFLICT on mismatch |
 
 ## API_ADMIN_FILESRequest
 
@@ -4413,7 +4422,7 @@ Set or release audited retention hold input
 | held | boolean | True | False | body | strict JSON boolean |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | approval_reference | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | integer | True | False | header | Exact LegalHoldStateView.hold_version for this resource_type + resource_id; >=0. Zero requires hold row absent; positive requires matching RetentionHold.version. Never underlying resource version; mismatch/concurrent insert -> 409 VERSION_CONFLICT. |
 
 ## API_STRIPE_WEBHOOKRequest
 
@@ -4660,7 +4669,7 @@ ChildSubmissionStatusViewPage
 
 ## API_ADMIN_ASSIGNMENT_CLOSERequest
 
-Close/reopen assignment submissions for a delivery input
+Close/reopen assignment submissions for a delivery input Exactly one of If-Match (positive existing version) or If-None-Match:* (first creation) is required; both or neither -> VALIDATION_ERROR.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -4668,7 +4677,8 @@ Close/reopen assignment submissions for a delivery input
 | cohort_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | closed | boolean | True | False | body | strict JSON boolean |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | False | False | header | Current persisted AssignmentDeliveryRule.version for exact selected resource; required iff updating existing row. Mutually exclusive with If-None-Match. No guessed initial version; mismatch 409 VERSION_CONFLICT. |
+| If-None-Match | string | False | False | header | Only literal * accepted. Required iff creating first row proven absent by authorized read. Mutually exclusive with If-Match; concurrent row creation returns 409 VERSION_CONFLICT. |
 
 ## API_ADMIN_BILLING_MEMBERRequest
 
@@ -4681,6 +4691,7 @@ Grant verified adult family billing visibility separately from child links input
 | finance_approval_reference | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
+| If-Match | version | True | False | header | Current AdminFamilyRelationshipsView.version for the same family; required even for first relationship; stale 409 VERSION_CONFLICT |
 
 ## API_ADMIN_BILLING_MEMBER_REVOKERequest
 
@@ -4691,7 +4702,7 @@ Revoke adult family financial membership input
 | guardian_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | family_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
-| If-Match | version | True | False | header | Expected aggregate version; mismatch 409 VERSION_CONFLICT |
+| If-Match | version | True | False | header | Current matching BillingMembership.version from AdminFamilyRelationshipsView for family_id + guardian_id; never substitute Family.version; mismatch 409 VERSION_CONFLICT |
 
 ## ContactEnquiryView
 
@@ -4881,3 +4892,322 @@ Recheck provider truth and resolve only verified matching or reversed transactio
 | exception_id | uuid | True | False | path | Opaque UUID; authorization scoped lookup |
 | reason | string | True | False | body | UTF-8, trimmed, 1–200 characters unless otherwise specified |
 | Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
+
+## API_ADMIN_TEACHING_CANDIDATESRequest
+
+Education-only active teacher candidate lookup. No caller-controlled status or privilege filter.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| cursor | token | False | False | query | opaque cryptographic token; max 512 characters; never logged |
+| limit | integer | False | False | query | 1–100; default 25 |
+| q | string | False | False | query | Optional trimmed display-name search; max80characters; parameterized query; no email search |
+
+## TeachingCandidateView
+
+Minimal adult teacher assignment reference; no private identity fields.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| id | uuid | True | False | body | Opaque teacher identifier, validated again at assignment write |
+| display_name | string | True | False | body | Approved teacher display name, max160characters |
+
+## TeachingCandidateViewPage
+
+Education-scoped active teacher candidates with bounded opaque pagination.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| items | TeachingCandidateView[] | True | False | body | Validate referenced schema recursively |
+| page | PageMeta | True | False | body | Validate referenced schema recursively |
+
+## AccountDirectoryFilter
+
+Internal typed identity-administration query filter; query values are validated before scoped repository use.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| q | string | False | False | query | Optional trimmed display-name or normalized adult-account email search,1–80 Unicode characters; parameterized matching; no credential, token, child-login-alias or MFA-secret search |
+| role | enum(parent\|student\|teacher\|admin) | False | False | query | Optional closed role filter; does not authorize access |
+| status | enum(invited\|pending_verification\|active\|suspended\|closed) | False | False | query | Optional closed account lifecycle filter; no implicit exclusion of suspended/closed accounts needed for lifecycle management |
+
+## API_ADMIN_ACCOUNTSRequest
+
+Identity-admin account directory query; bounded search and pagination, no secret or unconstrained expansion fields.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| q | string | False | False | query | Optional trimmed display-name or normalized adult-account email search,1–80 Unicode characters; parameterized matching; no credential, token, child-login-alias or MFA-secret search |
+| role | enum(parent\|student\|teacher\|admin) | False | False | query | Optional closed role filter; does not authorize access |
+| status | enum(invited\|pending_verification\|active\|suspended\|closed) | False | False | query | Optional closed account lifecycle filter; no implicit exclusion of suspended/closed accounts needed for lifecycle management |
+| cursor | token | False | False | query | Opaque signed cursor bound to actor, capability, normalized filters, stable ordering and expiry; never client authority |
+| limit | integer | False | False | query | 1–100; default25 |
+
+## API_ADMIN_ACCOUNTRequest
+
+Identity-admin read of one selected account and its current Account aggregate version.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| account_id | uuid | True | False | path | Opaque Account identifier selected from authorized AccountView result; resource scope checked again |
+
+## AccountViewPage
+
+Identity-admin account directory page. Items contain only the existing AccountView whitelist, including current Account.version; no credential/session/MFA secrets.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| items | AccountView[] | True | False | body | At most requested page limit; explicit AccountView projection only |
+| page | PageMeta | True | False | body | Opaque stable cursor; no unbounded directory |
+
+## PriceTargetFilter
+
+Internal typed finance-only naming projection filter; no publication or existing-price prerequisite.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| kind | enum(course\|cohort) | False | False | query | Optional target discriminator filter |
+| course_id | uuid | False | False | query | Optional existing course filter; normally selected from this same finance lookup, never a broader education directory |
+| q | string | False | False | query | Optional trimmed course/cohort title search,1–100 characters; parameterized query; no learner/staff/financial-record search |
+
+## API_ADMIN_PRICE_TARGETSRequest
+
+Finance-admin minimal named course/cohort targets, including unpublished and unpriced records.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| kind | enum(course\|cohort) | False | False | query | Optional target discriminator filter |
+| course_id | uuid | False | False | query | Optional existing course filter; normally selected from this same finance lookup, never a broader education directory |
+| q | string | False | False | query | Optional trimmed course/cohort title search,1–100 characters; parameterized query; no learner/staff/financial-record search |
+| cursor | token | False | False | query | Opaque signed cursor bound to actor, capability, normalized filters, stable ordering and expiry; never client authority |
+| limit | integer | False | False | query | 1–100; default25 |
+
+## PriceTargetView
+
+Closed discriminated finance-only target identity projection. kind=course requires cohort_id,cohort_title,cohort_status all null. kind=cohort requires all three nonnull and matching course_id. Course/cohort publication or presence of a configured Price is not required. Titles/status provide context only; lookup never grants curriculum, roster, schedule or editing authority.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| kind | enum(course\|cohort) | True | False | body | Closed discriminator; conditional nullability constraints are mandatory |
+| course_id | uuid | True | False | body | Existing Course ID; always present for either target kind |
+| course_title | string | True | False | body | Current course title,1–200 characters; plain text only |
+| course_status | enum(draft\|published\|archived) | True | False | body | Current Course lifecycle label only; no draft content |
+| cohort_id | uuid | True | True | body | Null iff kind=course; otherwise existing cohort belongs to course_id |
+| cohort_title | string | True | True | body | Null iff kind=course; otherwise current cohort title,1–200 characters |
+| cohort_status | enum(draft\|open\|closed\|in_progress\|completed\|cancelled) | True | True | body | Null iff kind=course; otherwise current Cohort lifecycle label only |
+
+## PriceTargetViewPage
+
+Bounded finance-scope course/cohort naming projection; no price/education entity dump.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| items | PriceTargetView[] | True | False | body | Validate each discriminated target and conditional nullability; at most limit |
+| page | PageMeta | True | False | body | Opaque cursor scoped to requesting finance principal and filters |
+
+## GuardianStudentRelationshipView
+
+Identity-only exact guardian-child relationship; no inference from sharing a family.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| family_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| guardian_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| student_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| status | enum(active\|revoked) | True | False | body | active iff revoked_at is null and verification is current |
+| verified_at | datetime | True | False | body | RFC3339 verified relationship timestamp |
+| revoked_at | datetime | True | True | body | RFC3339 or null while active |
+| version | version | True | False | body | Current GuardianStudent.version for this guardian_id + student_id; required by guardian-link revocation |
+
+## BillingMembershipStateView
+
+Identity-only independently approved membership state. Contains no financial amounts, transactions, receipt identifiers or payment method data.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| family_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| guardian_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| status | enum(active\|revoked) | True | False | body | active iff revoked_at is null |
+| granted_at | datetime | True | False | body | RFC3339 grant time |
+| revoked_at | datetime | True | True | body | RFC3339 or null while active |
+| version | version | True | False | body | Current BillingMembership.version for this family_id + guardian_id; required by membership revocation |
+
+## AdminFamilyRelationshipsView
+
+Identity-admin family management projection; parent FamilyView remains unchanged. Links and independent billing memberships are explicit, including revoked entries. Empty arrays are valid. Every nested family ID equals id.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| version | version | True | False | body | Current Family.version; creating or reactivating a link/membership requires this aggregate token |
+| guardians | GuardianSummary[] | True | False | body | All existing family guardians; candidate selection for this same family only |
+| students | StudentSummary[] | True | False | body | All existing family students visible under identity-admin purpose |
+| guardian_links | GuardianStudentRelationshipView[] | True | False | body | Exact pairs only, including revoked state; do not fabricate Cartesian relationships |
+| billing_memberships | BillingMembershipStateView[] | True | False | body | Independent membership rows only; absence means no grant |
+
+## CompletionOverrideView
+
+Education-admin-only completion override history; private evidence never appears in shared ProgressView.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| id | uuid | True | False | body | Override ID owned by the enclosing enrolment |
+| enrolment_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| status | enum(active\|revoked) | True | False | body | active iff revoked_at is null |
+| actor_id | uuid | True | False | body | Audited decision actor reference; no account directory expansion |
+| reason | string | True | False | body | Audited decision reason, 1–200 characters |
+| evidence_references | string[] | True | False | body | 1–10 verified evidence references; no evidence bodies |
+| granted_at | datetime | True | False | body | RFC3339 timestamp |
+| revoked_at | datetime | True | True | body | RFC3339 revocation timestamp or null |
+| version | version | True | False | body | Current CompletionOverride row version for audit; mutation concurrency uses enclosing progress_version |
+
+## CompletionReviewView
+
+Education-admin read of one enrolment completion decision state from one consistent snapshot. Empty overrides is valid; a progress row is initialized when an enrolment activates. Before activation/initialization has completed, return INVALID_STATE with retryable progress initialization state; never synthesize progress_version=1 in a read.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| enrolment_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| progress_version | version | True | False | body | Current StudentProgress.version including every recomputation, override grant or revocation; required completion-review If-Match |
+| active_override_id | uuid | True | True | body | Null if no active override; otherwise exactly one active overrides[].id owned by this enrolment |
+| overrides | CompletionOverrideView[] | True | False | body | Complete ordered decision history by granted_at,id for this single enrolment; only education-admin projection |
+
+## API_ADMIN_COMPLETION_HISTORYRequest
+
+Read one enrolment completion decision and override identities before any completion mutation.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| enrolment_id | uuid | True | False | path | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+
+## LegalHoldTargetView
+
+Identity-only retention target reference. Payment/file labels contain only resource type and opaque record reference; no amounts, currency, provider/customer identifiers, filename, MIME, contents, object keys or signed URLs.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| resource_type | enum(family\|student\|payment\|file) | True | False | body | Closed target discriminator |
+| resource_id | uuid | True | False | body | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| display_reference | string | True | False | body | Server-generated plain reference: resource type plus record ID; never derived from financial/file content |
+| family_id | uuid | True | True | body | Associated family only when already represented by identity-authorized ownership; null for non-family operational/public assets |
+| student_id | uuid | True | True | body | Associated student only when directly owned; null otherwise; no inferred household sibling data |
+
+## LegalHoldTargetViewPage
+
+Bounded purpose-scoped page; filter before projection and pagination.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| items | LegalHoldTargetView[] | True | False | body | At most requested limit; whitelist nested fields |
+| page | PageMeta | True | False | body | Stable opaque cursor bound to actor, scope and filters |
+
+## LegalHoldStateView
+
+Identity-only retention hold aggregate state. A missing hold row is an explicit immutable read result: hold_id=null, held=false, hold_version=0, reason/approval_reference=null. Reading never creates a row.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| resource_type | enum(family\|student\|payment\|file) | True | False | body | Same type as selected target |
+| resource_id | uuid | True | False | body | Same ID as selected existing target |
+| hold_id | uuid | True | True | body | Persisted RetentionHold ID, null only when no row exists |
+| held | boolean | True | False | body | Current legal hold state; false if no hold row |
+| hold_version | integer | True | False | body | >=0; zero only means no hold row for this exact (resource_type, resource_id), otherwise current RetentionHold.version>=1; never underlying Payment/File/Family/Student version |
+| reason | string | True | True | body | Latest audited hold decision reason, 1–200 characters; null only for absent row |
+| approval_reference | string | True | True | body | Latest audited approval reference, 1–200 characters; null only for absent row |
+
+## API_ADMIN_LEGAL_HOLD_TARGETSRequest
+
+Identity-only bounded retention target selector, usable without financial or file read privileges.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| resource_type | enum(family\|student\|payment\|file) | True | False | query | Required target kind; restrict query to one underlying table |
+| family_id | uuid | False | False | query | Optional exact existing family selected from authorized identity reads; restrict targets by actual owned resource links, not arbitrary cross-family associations |
+| cursor | token | False | False | query | Opaque signed cursor bound to actor, capability, normalized filters and expiry |
+| limit | integer | False | False | query | 1–100; default 25 |
+
+## API_ADMIN_LEGAL_HOLD_STATERequest
+
+Read current independent hold state for an existing typed target.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| resource_id | uuid | True | False | path | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| resource_type | enum(family\|student\|payment\|file) | True | False | query | Exact discriminator from selected LegalHoldTargetView |
+
+## EducationLearnerView
+
+Cohort-scoped education-admin selector for both empty feedback forms and existing educational records. No surname, age, school, contacts, family IDs, identity account details or financial state.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| student_id | uuid | True | False | body | Existing student attached to this cohort enrolment; not an identity-directory grant |
+| display_name | string | True | False | body | Preferred name when nonblank, otherwise first_name; 1–80 characters; no surname |
+| enrolment_id | uuid | True | False | body | Existing enrolment belonging to this student and cohort; selected reference for learning/attendance/completion queries |
+| cohort_id | uuid | True | False | body | Equals path cohort_id |
+| education_status | enum(reserved\|active\|cancelled\|completed\|expired) | True | False | body | held/pending_payment/payment_exception map to reserved; active/cancelled/completed/expired map unchanged. Never expose payment/provider status. |
+
+## EducationLearnerViewPage
+
+Bounded purpose-scoped page; filter before projection and pagination.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| items | EducationLearnerView[] | True | False | body | At most requested limit; whitelist nested fields |
+| page | PageMeta | True | False | body | Stable opaque cursor bound to actor, scope and filters |
+
+## API_ADMIN_COHORT_LEARNERSRequest
+
+Bounded named learner selector restricted to an explicit existing educational cohort.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| cohort_id | uuid | True | False | path | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| q | string | False | False | query | Optional preferred/first-name search,1–80 characters; parameterized within cohort scope |
+| cursor | token | False | False | query | Opaque signed cursor bound to actor, capability, normalized filters and expiry |
+| limit | integer | False | False | query | 1–100; default 25 |
+
+## FileUploadContext
+
+Internal repository DTO only; never a client-minted authorization grant. Each branch is constructed from current source rows and authenticated scope. No HTTP endpoint returns or accepts this internal scope.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| purpose | enum(submission\|resource\|internal\|public_asset) | True | False | body | Closed discriminator |
+| context_id | uuid | True | False | body | Exact typed source ID |
+| owner_account_id | uuid | True | False | body | Authenticated upload owner; for internal/public_asset equals context_id |
+| context_kind | enum(submission\|curriculum_revision\|account_asset_collection) | True | False | body | submission->submission; resource->curriculum_revision; internal/public_asset->account_asset_collection |
+| writable | boolean | True | False | body | Must be true to reserve/confirm/delete a draft asset; derived current state |
+| max_size_bytes | integer | True | False | body | Positive exact purpose/media-type cap from server policy; never client chosen |
+
+## AssessmentStateView
+
+Teacher/education-admin marking state for one authorized frozen submission. assessment=null means precisely no persisted assessment, after submission scope/state validation. Missing/inaccessible submission returns NOT_FOUND; GET never creates rows.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| submission_id | uuid | True | False | body | Same authorized frozen submission as path |
+| assessment | AssessmentView | True | True | body | Current persisted assessment including exact version, or null if absent |
+
+## AssignmentClosureView
+
+Education-admin-only per-delivery closure state, independent of immutable assignment definition version. If no rule exists, rule_exists=false, version=null, closed=false and due_at is deterministically derived from the cohort/pinned definition. GET never persists a default.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| assignment_id | uuid | True | False | body | Assignment belongs to cohort pinned curriculum revision |
+| cohort_id | uuid | True | False | body | Existing authorized educational cohort |
+| rule_exists | boolean | True | False | body | True iff assignment_delivery_rules contains this exact assignment/cohort pair |
+| version | version | True | True | body | Current AssignmentDeliveryRule.version when rule_exists=true; null iff no row. Never AssignmentView.version. |
+| closed | boolean | True | False | body | Existing rule value, or false for absent rule; cohort completion may still block submissions separately |
+| due_at | datetime | True | True | body | Existing saved due time or deterministic pinned-assignment/cohort resolution; null iff no due offset |
+| reason | string | True | True | body | Latest closure reason; null for no explicit rule |
+
+## API_ADMIN_ASSIGNMENT_CLOSURERequest
+
+Read exact delivery closure state without modifying immutable assignment definition.
+
+| Field | Type | Required | Nullable | Location | Validation |
+|---|---|---|---|---|---|
+| cohort_id | uuid | True | False | path | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |
+| assignment_id | uuid | True | False | path | Existing opaque UUID; purpose-scoped lookup; IDs never grant access |

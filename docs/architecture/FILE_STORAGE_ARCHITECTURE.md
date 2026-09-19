@@ -19,3 +19,18 @@ Delete marks asset pending-deletion, refuses new URLs, removes references per re
 Verification: family/teacher/student ID guessing, forged purpose, MIME spoofing, oversized upload, ZIP traversal/bomb, post-scan overwrite, failed scan, stale presign, object deletion/retry, orphan race and restored deleted records.
 
 Exact limits: 1 MiB = 1,048,576 bytes; per student file 26,214,400 bytes and per submission all files combined 104,857,600 bytes. Check the total under the submission transaction so concurrent attachments cannot exceed it.
+
+## Closed upload contexts
+
+| Upload purpose | context_id source | Required current authority/state |
+| --- | --- | --- |
+| submission | Submission.id from the owner's draft create/detail response | Authenticated owner student, draft submission, eligible enrolment and released pinned assignment |
+| resource | CurriculumRevision.id from authorized revision list/detail | education_admin and still-writable draft revision |
+| internal | SessionView.user_id, equal to authenticated Account.id | operations_admin's own account asset collection |
+| public_asset | SessionView.user_id, equal to authenticated Account.id | operations_admin's own account asset collection; explicit publication is a separate step |
+
+No opaque context is manually invented, and the server resolves the current source again through FileRepository.resolve_upload_context. Confirmation and deletion lock/recheck the same immutable purpose/context/owner; scan promotion cannot expose an asset after its context becomes invalid. Another account ID, a course ID in place of a revision, or a submitted work ID is rejected. A caller with education_admin alone cannot upload operational/public assets, and operations_admin does not acquire curriculum access.
+
+Internal and public_asset uploads allow PDF, PNG, JPEG and TXT up to 25 MiB. Curriculum documents/images retain the 50 MiB limit and MP4 the 500 MiB limit. Student files retain 25 MiB/file, constrained ZIP rules and the transactional 100 MiB combined submission cap. Certificate and financial document/export purposes are trusted-worker outputs and are forbidden on the generic upload endpoint. A ready public_asset remains private until explicitly linked to an approved published public-content projection.
+
+FileAssetView.version is the exact delete precondition, independently of any owning revision or submission version. Deletion rechecks current draft ownership, references, resource state, retention and legal holds under the same locks used by publication/submission finalization. Parent uploads remain outside the launch contract.

@@ -34,3 +34,5 @@ Status: DRAFT. Architecture version1.0. This is a complete proposed launch bluep
 
 
 No global administrative role bypass exists. A single API listing never returns all columns then relies on the frontend to hide them. Filter, pagination cursor and include/expand parameters are validated and bound to the same scope. An admin endpoint has exactly the capability listed even if a route name shares a resource group with another capability.
+
+Assignment selector exception is a separate minimal projection: education_admin may GET /api/v1/admin/teaching-candidates to choose active approved teacher id/display_name. This does not grant identity_admin directory access; public, parent, student, teacher and other admin-only capabilities are denied.

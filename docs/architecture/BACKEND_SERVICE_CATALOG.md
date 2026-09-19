@@ -6,13 +6,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** identity
 - **Responsibility:** authentication
-- **Objects:** Account, Session, Credential, RoleGrant, MfaFactor, RecoveryCode, MfaChallenge
-- **Ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
+- **Objects:** Account, Credential, MfaChallenge, MfaFactor, RecoveryCode, RoleGrant, Session
+- **Ports:** Clock, FamilyRepository, MfaRepository, MfaVerifier, NotificationRepository, PasswordHasher, SessionRepository, TokenIssuer, UnitOfWork, UserRepository
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, PAR-001, STU-001, TCH-001, WEB-011
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -21,25 +21,25 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | resend_verification | API_AUTH_RESENDRequest → Empty | Resend verification without account enumeration | Uniform response and throttled per identifier. | NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE | API-AUTH-RESEND |
 | login | API_AUTH_LOGINRequest → AuthOutcomeView | Authenticate parent/staff/student | Credential and account status; staff MFA challenge before privileged session. | NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE, INVALID_CREDENTIALS, ACCOUNT_SUSPENDED | API-AUTH-LOGIN |
 | verify_mfa | API_AUTH_MFARequest → SessionView | Complete staff MFA challenge | Short-lived challenge bound to browser, user and purpose. | NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE, INVALID_CREDENTIALS, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED | API-AUTH-MFA |
-| enrol_mfa | API_AUTH_MFA_ENROLRequest → MfaSetupView | Create pending TOTP enrolment | Full staff session with recent password reauthentication OR unexpired staff-invitation MFA setup token; setup context permits only MFA setup operations. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED | API-AUTH-MFA-ENROL |
 | confirm_mfa | API_AUTH_MFA_CONFIRMRequest → MfaActivationView | Activate TOTP and issue recovery codes once | Purpose-bound setup token plus valid first TOTP proof; consume setup token, activate staff account and full MFA session atomically. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED | API-AUTH-MFA-CONFIRM |
 | request_password_reset | API_AUTH_RESET_REQUESTRequest → Empty | Request account recovery | Uniform response; adult verified email only; student recovery managed by guardian. | NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE | API-AUTH-RESET-REQUEST |
 | reset_password | API_AUTH_RESETRequest → Empty | Reset adult password and revoke sessions | One-time hashed token, 30-minute lifetime; revocation transactional. | NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE | API-AUTH-RESET |
 | get_session | API_AUTH_MERequest → SessionView | Get safe authenticated session identity | Authenticated principal owns this account/session/notification; server resolves subject, never trusts requested role. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-AUTH-ME |
 | logout | API_AUTH_LOGOUTRequest → Empty | Revoke current session | Authenticated principal owns this account/session/notification; server resolves subject, never trusts requested role. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-AUTH-LOGOUT |
 | accept_staff_invitation | API_AUTH_INVITE_ACCEPTRequest → StaffSetupSessionView | Accept staff invitation and require MFA setup | Single-use invitation token; no privilege upgrades from request. | NOT_FOUND, VALIDATION_ERROR, RATE_LIMITED, VERSION_CONFLICT, INVALID_STATE | API-AUTH-INVITE-ACCEPT |
+| enrol_mfa | API_AUTH_MFA_ENROLRequest → MfaSetupView | Create pending TOTP enrolment | Full staff session with recent password reauthentication OR unexpired purpose-bound MFA setup token returned by password-verified login (mfa_setup_required) or staff invitation acceptance. Server resolves teacher/admin account identity from the token, never a browser-selected role. Limited context permits only enrolment/confirmation; it grants no full session or privileged page access. Enforce token expiry, purpose, account binding, single-use activation and attempt limits. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED | API-AUTH-MFA-ENROL |
 
 ## AccountService
 
 - **Module:** identity
 - **Responsibility:** accounts
-- **Objects:** Account, Guardian, TeacherProfile, RoleGrant
-- **Ports:** UserRepository, FamilyRepository, SessionRepository, UnitOfWork, Clock
+- **Objects:** Account, Guardian, RoleGrant, TeacherProfile
+- **Ports:** Clock, FamilyRepository, SessionRepository, UnitOfWork, UserRepository
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
-- **Requirements:** ADM-003, ADM-006, AUTH-011, PAR-002, PAR-021, STU-019
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-003, ADM-006, AUTH-010, AUTH-011, NFR-012, PAR-002, PAR-021, STU-019
+- **Chunks:** ZE-P02-C03, ZE-P02-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -53,30 +53,32 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | confirm_email_change | API_PARENT_EMAIL_CONFIRMRequest → GuardianView | Confirm new email and notify old address | Authenticated principal owns this account/session/notification; server resolves subject, never trusts requested role. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-PARENT-EMAIL-CONFIRM |
 | create_staff_invitation | API_ADMIN_INVITERequest → AccountView | Invite teacher or constrained admin principal | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Separate admin principal required for teacher-to-admin duties. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, INCOMPATIBLE_ROLE | API-ADMIN-INVITE |
 | get_role_grants | API_ADMIN_ROLERequest → RoleGrantView | Read constrained role grants | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ROLE |
-| set_role_grants | API_ADMIN_ROLE_UPDATERequest → RoleGrantView | Change admin privileges with audit and session revocation | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Cannot self-escalate; no last identity-admin removal; teacher/admin principal incompatibility. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, INCOMPATIBLE_ROLE, LAST_ADMIN | API-ADMIN-ROLE-UPDATE |
-| set_account_status | API_ADMIN_ACCOUNT_STATUSRequest → AccountView | Suspend or reactivate account and revoke affected sessions | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ACCOUNT-STATUS |
+| list_accounts | API_ADMIN_ACCOUNTSRequest → AccountViewPage | Select named accounts for authorized identity lifecycle and role management | Authenticated active administrator with identity_admin and recent MFA. Read only the existing AccountView fields (id,role,display_name,email nullable,status,mfa_enabled,version); no credentials,password hashes,session tokens,MFA seed/recovery codes,child login alias,family details or billing data. Deny public,parent,student,teacher and administrators without identity_admin. Lookup does not grant a role change or status mutation; those existing writes reauthorize and use their own required version. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ACCOUNTS |
+| get_admin_account | API_ADMIN_ACCOUNTRequest → AccountView | Read selected account and current Account.version before lifecycle mutation | Authenticated active administrator with identity_admin and recent MFA. Read only the existing AccountView fields (id,role,display_name,email nullable,status,mfa_enabled,version); no credentials,password hashes,session tokens,MFA seed/recovery codes,child login alias,family details or billing data. Deny public,parent,student,teacher and administrators without identity_admin. Lookup does not grant a role change or status mutation; those existing writes reauthorize and use their own required version. Fetch current Account.version for API-ADMIN-ACCOUNT-STATUS If-Match; do not substitute RoleGrantView.version or a version from another account. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ACCOUNT |
+| set_role_grants | API_ADMIN_ROLE_UPDATERequest → RoleGrantView | Change admin privileges with audit and session revocation | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Cannot self-escalate; no last identity-admin removal; teacher/admin principal incompatibility. Compare If-Match against the same Account.version returned by AccountView and RoleGrantView; role and status changes each increment that counter. Under a shared identity-admin membership lock, reject any change leaving zero active identity administrators with LAST_ADMIN, including concurrent suspensions/removals. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, INCOMPATIBLE_ROLE, LAST_ADMIN | API-ADMIN-ROLE-UPDATE |
+| set_account_status | API_ADMIN_ACCOUNT_STATUSRequest → AccountView | Suspend or reactivate account and revoke affected sessions | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Compare If-Match against the same Account.version returned by AccountView and RoleGrantView; role and status changes each increment that counter. Under a shared identity-admin membership lock, reject any change leaving zero active identity administrators with LAST_ADMIN, including concurrent suspensions/removals. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, LAST_ADMIN | API-ADMIN-ACCOUNT-STATUS |
 
 ## FamilyService
 
 - **Module:** family
 - **Responsibility:** family
-- **Objects:** Family, Guardian, GuardianStudent, FamilyOwnershipPolicy, BillingMembership
-- **Ports:** FamilyRepository, StudentRepository, UnitOfWork, Clock
+- **Objects:** BillingMembership, Family, FamilyOwnershipPolicy, Guardian, GuardianStudent
+- **Ports:** Clock, FamilyRepository, StudentRepository, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** PAR-006
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
 | get_family | API_FAMILY_GETRequest → FamilyView | Read own family and linked students | Authenticated verified parent owns an active family membership. Child list is filtered to active GuardianStudent links; an empty family is valid and does not require an existing child. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-FAMILY-GET |
 | list_parents_admin | API_ADMIN_PARENTSRequest → GuardianViewPage | Read authorized list parents | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-PARENTS |
-| get_family_admin | API_ADMIN_FAMILYRequest → FamilyView | Read authorized get family | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-FAMILY |
-| create_guardian_link | API_ADMIN_GUARDIAN_LINKRequest → FamilyView | Link verified guardian to same family child | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Verification evidence reference mandatory; no cross-family transfer implicit. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-GUARDIAN-LINK |
-| revoke_guardian_link | API_ADMIN_GUARDIAN_REVOKERequest → FamilyView | Revoke guardian child access | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. At least one verified active guardian remains or safeguarding override is documented. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-GUARDIAN-REVOKE |
 | get_parent_dashboard | API_PARENT_DASHBOARDRequest → DashboardView | Read purpose-filtered dashboard counts and next actions | Authenticated verified parent owns an active family membership. Child list is filtered to active GuardianStudent links; an empty family is valid and does not require an existing child. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-PARENT-DASHBOARD |
-| create_billing_membership | API_ADMIN_BILLING_MEMBERRequest → FamilyView | Grant verified adult family billing visibility separately from child links | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Separate finance approval reference required; no teacher principal. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-BILLING-MEMBER |
+| get_family_admin | API_ADMIN_FAMILYRequest → AdminFamilyRelationshipsView | Read authorized get family | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-FAMILY |
+| create_guardian_link | API_ADMIN_GUARDIAN_LINKRequest → AdminFamilyRelationshipsView | Link verified guardian to same family child | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Verification evidence reference mandatory; no cross-family transfer implicit. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-GUARDIAN-LINK |
+| create_billing_membership | API_ADMIN_BILLING_MEMBERRequest → AdminFamilyRelationshipsView | Grant verified adult family billing visibility separately from child links | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Separate finance approval reference required; no teacher principal. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-BILLING-MEMBER |
+| revoke_guardian_link | API_ADMIN_GUARDIAN_REVOKERequest → AdminFamilyRelationshipsView | Revoke guardian child access | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. At least one verified active guardian remains or safeguarding override is documented. Identity-only AdminFamilyRelationshipsView includes exact guardian/student pairs and independent billing membership states; no financial records. Parent FamilyView is unchanged. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-GUARDIAN-REVOKE |
 | revoke_billing_membership | API_ADMIN_BILLING_MEMBER_REVOKERequest → Empty | Revoke adult family financial membership | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-BILLING-MEMBER-REVOKE |
 
 ## StudentProfileService
@@ -89,7 +91,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-004, PAR-005, TCH-009
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C03
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -115,7 +117,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-005, ADM-015, CLS-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -129,6 +131,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | archive_teacher | API_ADMIN_TEACHER_ARCHIVERequest → TeacherView | Archive teacher after assignment reassignment | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ACTIVE_ASSIGNMENT_EXISTS | API-ADMIN-TEACHER-ARCHIVE |
 | get_own_teacher_profile | API_TEACHER_PROFILERequest → TeacherView | Read own teacher profile | Authenticated principal owns this account/session/notification; server resolves subject, never trusts requested role. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-TEACHER-PROFILE |
 | get_teacher_dashboard | API_TEACHER_DASHBOARDRequest → DashboardView | Read purpose-filtered dashboard counts and next actions | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-TEACHER-DASHBOARD |
+| list_assignment_candidates | API_ADMIN_TEACHING_CANDIDATESRequest → TeachingCandidateViewPage | Select active approved teachers for educational assignment using a minimal projection | Active education_admin with recent MFA. Return only active teacher accounts/profiles with required staff activation approval; no identity directory, contacts, credentials, financial data or role administration. Candidate selection grants no assignment and write-time availability/status checks still apply. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-TEACHING-CANDIDATES |
 
 ## ConsentService
 
@@ -140,7 +143,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** PAR-004, SEC-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C05
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -161,7 +164,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-007, LRN-001, WEB-001, WEB-002, WEB-003, WEB-004, WEB-007, WEB-008, WEB-009, WEB-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C01
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -188,7 +191,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-007, LRN-001
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C02
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -213,7 +216,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-008, LRN-002, LRN-003, LRN-004, STU-003, STU-004, TCH-003
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P03-C03, ZE-P03-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -252,7 +255,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-013, ADM-015, CLS-001, CLS-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C01
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -277,7 +280,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-014, CLS-002, CLS-003, CLS-004, CLS-011, PAR-009, STU-013, TCH-005, TCH-006
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C02
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -306,7 +309,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** CLS-006, CLS-007, CLS-008, CLS-009, STU-014, TCH-004
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C03
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -321,13 +324,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** enrolment
 - **Responsibility:** enrolments
-- **Objects:** Enrolment, Cohort, AgeSnapshot, FamilyOwnershipPolicy
-- **Ports:** EnrolmentRepository, StudentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
+- **Objects:** AgeSnapshot, Cohort, Enrolment, FamilyOwnershipPolicy
+- **Ports:** Clock, DeliveryRepository, EnrolmentRepository, FamilyRepository, StudentRepository, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
-- **Requirements:** ADM-016, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, PAR-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-016, ADM-017, ADM-018, ADM-019, AUTH-010, ENR-001, ENR-002, ENR-003, ENR-004, ENR-005, ENR-006, ENR-007, NFR-012, PAR-008
+- **Chunks:** ZE-P06-C02
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -338,27 +341,28 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | cancel_enrolment | API_ADMIN_ENROLMENT_CANCELRequest → EnrolmentView | Cancel educational access with auditable reason | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Any money movement requires finance workflow. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ENROLMENT-CANCEL |
 | cancel_hold | API_PARENT_CHECKOUT_CANCELRequest → EnrolmentView | Release own unpaid hold | Active verified GuardianStudent link for requested student within principal family; deny revoked links and unrelated family IDs. Held/pending payment only; provider expiry reconciled. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-PARENT-CHECKOUT-CANCEL |
 | expire_holds | JOB_HOLD_EXPIRERequest → JobView | Expire elapsed holds under row lock; release capacity | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-HOLD-EXPIRE |
+| list_cohort_learners | API_ADMIN_COHORT_LEARNERSRequest → EducationLearnerViewPage | Select named cohort learners and exact enrolment references for education administration | Active administrator with education_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Cohort-scoped educational projection only. Join only enrolments in path cohort to current first/preferred name; never access the identity directory or project contact/financial data. Downstream writes independently verify learner/enrolment/cohort match and actionable state. Empty feedback/assessment lists do not constrain the selector. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-COHORT-LEARNERS |
 
 ## AttendanceService
 
 - **Module:** delivery
 - **Responsibility:** attendance
 - **Objects:** AttendanceRecord, ClassSession, TeachingAccessPolicy
-- **Ports:** AttendanceRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
+- **Ports:** AttendanceRepository, Clock, DeliveryRepository, EnrolmentRepository, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-017, CLS-010, PAR-010, STU-015, TCH-007, TCH-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C05
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
-| list_teacher_attendance | API_TEACHER_ATTENDANCERequest → AttendanceViewPage | Read authorized session attendance roster | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-TEACHER-ATTENDANCE |
-| record_teacher_attendance | API_TEACHER_ATTENDANCE_RECORDRequest → AttendanceView | Record or amend attendance | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. Student enrolled in this session cohort. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-TEACHER-ATTENDANCE-RECORD |
-| list_admin_attendance | API_ADMIN_ATTENDANCERequest → AttendanceViewPage | Read authorized session attendance roster | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ATTENDANCE |
-| record_admin_attendance | API_ADMIN_ATTENDANCE_RECORDRequest → AttendanceView | Record or amend attendance | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Student enrolled in this session cohort. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ATTENDANCE-RECORD |
 | list_parent_attendance | API_PARENT_ATTENDANCERequest → AttendanceViewPage | Read own or linked child attendance | Active verified GuardianStudent link for requested student within principal family; deny revoked links and unrelated family IDs. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-PARENT-ATTENDANCE |
 | list_student_attendance | API_STUDENT_ATTENDANCERequest → AttendanceViewPage | Read own or linked child attendance | Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-STUDENT-ATTENDANCE |
+| record_teacher_attendance | API_TEACHER_ATTENDANCE_RECORDRequest → AttendanceView | Record or amend attendance | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. Student enrolled in this session cohort. First-write concurrency requires exactly one If-None-Match:* for absent AttendanceRecord, or If-Match current AttendanceRecord.version for existing row; never a definition, submission or other aggregate token. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-TEACHER-ATTENDANCE-RECORD |
+| list_teacher_attendance | API_TEACHER_ATTENDANCERequest → AttendanceViewPage | Read authorized session attendance roster | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. With exact student_id filter, first authorize that student in the session cohort, then return one persisted row or an empty items array. Empty items means no record yet, not permission to infer a version. Read never creates virtual AttendanceRecord IDs/versions; UI shows unrecorded from absence. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-TEACHER-ATTENDANCE |
+| record_admin_attendance | API_ADMIN_ATTENDANCE_RECORDRequest → AttendanceView | Record or amend attendance | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Student enrolled in this session cohort. First-write concurrency requires exactly one If-None-Match:* for absent AttendanceRecord, or If-Match current AttendanceRecord.version for existing row; never a definition, submission or other aggregate token. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ATTENDANCE-RECORD |
+| list_admin_attendance | API_ADMIN_ATTENDANCERequest → AttendanceViewPage | Read authorized session attendance roster | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. With exact student_id filter, first authorize that student in the session cohort, then return one persisted row or an empty items array. Empty items means no record yet, not permission to infer a version. Read never creates virtual AttendanceRecord IDs/versions; UI shows unrecorded from absence. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ATTENDANCE |
 
 ## QuizService
 
@@ -370,7 +374,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-010, ASM-001, ASM-002, ASM-003, STU-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C01
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -393,13 +397,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** assessment
 - **Responsibility:** assignments
-- **Objects:** Assignment, CurriculumRevision, ReleasePolicy
-- **Ports:** AssessmentRepository, CourseRepository, UnitOfWork, EnrolmentRepository, DeliveryRepository
+- **Objects:** Assignment, AssignmentDeliveryRule, CurriculumRevision, ReleasePolicy
+- **Ports:** AssessmentRepository, CourseRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-011, ASM-004, STU-008, TCH-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C02
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -411,7 +415,8 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | list_student_assignments | API_STUDENT_ASSIGNMENTSRequest → AssignmentViewPage | Read permitted assignment and project work | Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-STUDENT-ASSIGNMENTS |
 | list_parent_assignments | API_PARENT_ASSIGNMENTSRequest → AssignmentViewPage | Read permitted assignment and project work | Active verified GuardianStudent link for requested student within principal family; deny revoked links and unrelated family IDs. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-PARENT-ASSIGNMENTS |
 | list_teacher_assignments | API_TEACHER_ASSIGNMENTSRequest → AssignmentViewPage | Read permitted assignment and project work | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-TEACHER-ASSIGNMENTS |
-| set_delivery_closure | API_ADMIN_ASSIGNMENT_CLOSERequest → AssignmentView | Close/reopen assignment submissions for a delivery | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ASSIGNMENT-CLOSE |
+| get_delivery_closure | API_ADMIN_ASSIGNMENT_CLOSURERequest → AssignmentClosureView | Read separate delivery closure and exact mutation token | Active administrator with education_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Cohort-scoped educational projection only. Assignment must belong to the selected cohort pinned curriculum revision; no curriculum mutation or definition token substitution. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ASSIGNMENT-CLOSURE |
+| set_delivery_closure | API_ADMIN_ASSIGNMENT_CLOSERequest → AssignmentClosureView | Close/reopen assignment submissions for a delivery | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. First-write concurrency requires exactly one If-None-Match:* for absent AssignmentDeliveryRule, or If-Match current AssignmentDeliveryRule.version for existing row; never a definition, submission or other aggregate token. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ASSIGNMENT-CLOSE |
 
 ## SubmissionService
 
@@ -423,7 +428,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ASM-005, STU-009, STU-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C03
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -442,28 +447,28 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** assessment
 - **Responsibility:** assessments
-- **Objects:** Assessment, Submission, ReleasePolicy, TeachingAccessPolicy
-- **Ports:** AssessmentRepository, DeliveryRepository, EnrolmentRepository, UnitOfWork, Clock
+- **Objects:** Assessment, ReleasePolicy, Submission, TeachingAccessPolicy
+- **Ports:** AssessmentRepository, Clock, DeliveryRepository, EnrolmentRepository, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-012, ASM-006, ASM-007, PAR-013, STU-011, TCH-011, TCH-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
 | return_teacher_submission | API_TEACHER_RETURNRequest → SubmissionView | Return work for a new immutable revision | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-TEACHER-RETURN |
-| save_teacher_assessment | API_TEACHER_ASSESSMENTRequest → AssessmentView | Save draft marking against frozen submission | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-TEACHER-ASSESSMENT |
-| get_teacher_assessment | API_TEACHER_ASSESSMENT_GETRequest → AssessmentView | Read permitted draft/released marking | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-TEACHER-ASSESSMENT-GET |
 | release_teacher_assessment | API_TEACHER_ASSESSMENT_RELEASERequest → AssessmentView | Release validated assessment to learner and guardian | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-TEACHER-ASSESSMENT-RELEASE |
 | withdraw_teacher_assessment | API_TEACHER_ASSESSMENT_WITHDRAWRequest → AssessmentView | Withdraw erroneous release and preserve correction history | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-TEACHER-ASSESSMENT-WITHDRAW |
 | return_admin_submission | API_ADMIN_RETURNRequest → SubmissionView | Return work for a new immutable revision | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-RETURN |
-| save_admin_assessment | API_ADMIN_ASSESSMENTRequest → AssessmentView | Save draft marking against frozen submission | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ASSESSMENT |
-| get_admin_assessment | API_ADMIN_ASSESSMENT_GETRequest → AssessmentView | Read permitted draft/released marking | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ASSESSMENT-GET |
 | release_admin_assessment | API_ADMIN_ASSESSMENT_RELEASERequest → AssessmentView | Release validated assessment to learner and guardian | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ASSESSMENT-RELEASE |
 | withdraw_admin_assessment | API_ADMIN_ASSESSMENT_WITHDRAWRequest → AssessmentView | Withdraw erroneous release and preserve correction history | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ASSESSMENT-WITHDRAW |
 | list_student_assessments | API_STUDENT_ASSESSMENTSRequest → AssessmentViewPage | Read own/linked child released assessments | Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances. Released records only. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-STUDENT-ASSESSMENTS |
 | list_parent_assessments | API_PARENT_ASSESSMENTSRequest → AssessmentViewPage | Read own/linked child released assessments | Active verified GuardianStudent link for requested student within principal family; deny revoked links and unrelated family IDs. Released records only. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-PARENT-ASSESSMENTS |
+| save_teacher_assessment | API_TEACHER_ASSESSMENTRequest → AssessmentView | Save draft marking against frozen submission | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. First-write concurrency requires exactly one If-None-Match:* for absent Assessment, or If-Match current Assessment.version for existing row; never a definition, submission or other aggregate token. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-TEACHER-ASSESSMENT |
+| get_teacher_assessment | API_TEACHER_ASSESSMENT_GETRequest → AssessmentStateView | Read permitted draft/released marking | Active teacher assignment covers cohort/session and requested learner enrolment; purpose-limited educational projection; never finance. Return AssessmentStateView only after authorizing an existing frozen submission. assessment=null proves absence; never confuse unauthorized/missing submission with a creatable assessment. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-TEACHER-ASSESSMENT-GET |
+| save_admin_assessment | API_ADMIN_ASSESSMENTRequest → AssessmentView | Save draft marking against frozen submission | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. First-write concurrency requires exactly one If-None-Match:* for absent Assessment, or If-Match current Assessment.version for existing row; never a definition, submission or other aggregate token. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-ASSESSMENT |
+| get_admin_assessment | API_ADMIN_ASSESSMENT_GETRequest → AssessmentStateView | Read permitted draft/released marking | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Return AssessmentStateView only after authorizing an existing frozen submission. assessment=null proves absence; never confuse unauthorized/missing submission with a creatable assessment. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-ASSESSMENT-GET |
 
 ## FeedbackService
 
@@ -475,7 +480,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-019, ASM-008, PAR-012, STU-012, TCH-013
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -496,13 +501,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** learning
 - **Responsibility:** progress
-- **Objects:** StudentProgress, CompletionPolicy, Enrolment, ActivityCompletion, CompletionOverride
-- **Ports:** ProgressRepository, AssessmentRepository, CourseRepository, EnrolmentRepository, UnitOfWork, Clock, AttendanceRepository
+- **Objects:** ActivityCompletion, CompletionOverride, CompletionPolicy, Enrolment, StudentProgress
+- **Ports:** AssessmentRepository, AttendanceRepository, Clock, CourseRepository, EnrolmentRepository, ProgressRepository, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
-- **Requirements:** ADM-018, LRN-007, LRN-008, PAR-011, STU-016, TCH-014
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-018, AUTH-010, LRN-007, LRN-008, NFR-012, PAR-011, STU-016, TCH-014
+- **Chunks:** ZE-P07-C05
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -513,9 +518,10 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | list_activities | API_STUDENT_ACTIVITY_GETRequest → ActivityCompletionViewPage | Read own activity/reflection status | Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-STUDENT-ACTIVITY-GET |
 | record_activity | API_STUDENT_ACTIVITYRequest → ActivityCompletionView | Record own non-graded activity and reflection | Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-STUDENT-ACTIVITY |
 | complete_lesson | API_STUDENT_LESSON_COMPLETERequest → ActivityCompletionView | Record own lesson acknowledgement | Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-STUDENT-LESSON-COMPLETE |
-| review_completion | API_ADMIN_COMPLETION_REVIEWRequest → ProgressView | Recompute and record completion decision from evidence | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. education_admin may recompute standard eligibility, grant override with verified evidence and reason, or revoke prior override. Source learning records and attendance remain immutable. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, COMPLETION_NOT_ELIGIBLE, EVIDENCE_REQUIRED | API-ADMIN-COMPLETION-REVIEW |
 | get_student_dashboard | API_STUDENT_DASHBOARDRequest → DashboardView | Read purpose-filtered dashboard counts and next actions | Student principal identity equals resource student_id; active/completed eligible enrolment and released pinned curriculum; no finances. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-STUDENT-DASHBOARD |
 | recompute_progress | JOB_PROGRESS_RECOMPUTERequest → ProgressView | Recalculate completion from latest released work and attendance evidence | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-PROGRESS-RECOMPUTE |
+| review_completion | API_ADMIN_COMPLETION_REVIEWRequest → ProgressView | Record standard or evidenced exceptional course completion decision | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. education_admin may recompute standard eligibility, grant override with verified evidence and reason, or revoke prior override. Source learning records and attendance remain immutable. If-Match is StudentProgress.version from API-ADMIN-COMPLETION-HISTORY. REVOKE_OVERRIDE must name the same enrolment current active override; reject foreign, inactive or stale state. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, COMPLETION_NOT_ELIGIBLE, EVIDENCE_REQUIRED | API-ADMIN-COMPLETION-REVIEW |
+| get_completion_review | API_ADMIN_COMPLETION_HISTORYRequest → CompletionReviewView | Read exact completion override history and current progress mutation token | Active administrator with education_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Cohort-scoped educational projection only. Enrolment must belong to an accessible existing cohort. Excludes identity/contact, payment and file content. Parent/student/teacher progress projections never contain override evidence. Completion review requires active/completed enrolment and initialized persisted StudentProgress; pending initialization returns INVALID_STATE and no guessed token. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, INVALID_STATE | API-ADMIN-COMPLETION-HISTORY |
 
 ## CertificateService
 
@@ -527,7 +533,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-020, LRN-009, LRN-010, PAR-014, STU-017
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P07-C06
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -543,13 +549,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** billing
 - **Responsibility:** billing
-- **Objects:** Payment, Price, Money, Enrolment, WebhookInbox, CapacityPolicy, BillingMembership, Receipt, ReconciliationException
+- **Objects:** Payment, Price, Money, Enrolment, WebhookInbox, CapacityPolicy, BillingMembership, Receipt, ReconciliationException, Course, Cohort
 - **Ports:** PaymentRepository, EnrolmentRepository, DeliveryRepository, FamilyRepository, PaymentGateway, UnitOfWork, Clock, SettingsRepository, IntegrationRepository, FileRepository, ObjectStorageProvider, DocumentRenderer
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Never accepted from teacher/student principal.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
-- **Requirements:** ADM-024, ADM-025, ENR-007, PAR-017, PAR-018, PAR-019, PAR-020, PAY-001, PAY-002, PAY-003, PAY-004, PAY-005, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** ADM-024, ADM-025, AUTH-010, ENR-007, NFR-012, PAR-017, PAR-018, PAR-019, PAR-020, PAY-001, PAY-002, PAY-003, PAY-004, PAY-005, PAY-006, PAY-007, PAY-009, PAY-011, PAY-012
+- **Chunks:** ZE-P06-C01, ZE-P06-C03, ZE-P06-C04, ZE-P06-C05
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -575,6 +581,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | discover_provider_transactions | JOB_PAYMENT_DISCOVERYRequest → JobView | Discover provider-side payments/refunds and reconcile missing local references | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-PAYMENT-DISCOVERY |
 | list_reconciliation_exceptions | API_ADMIN_RECONCILIATION_EXCEPTIONSRequest → ReconciliationExceptionViewPage | Inspect provider transactions unmatched to local financial records | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-RECONCILIATION-EXCEPTIONS |
 | retry_reconciliation_exception | API_ADMIN_RECONCILIATION_EXCEPTION_RETRYRequest → Accepted | Recheck provider truth and resolve only verified matching or reversed transaction | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. No manual invented payment ownership; unresolved cases remain open for documented operational repair. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-RECONCILIATION-EXCEPTION-RETRY |
+| list_price_targets | API_ADMIN_PRICE_TARGETSRequest → PriceTargetViewPage | Select named unpublished or unpriced course/cohort targets for finance-only price configuration | Authenticated active administrator with finance_admin and recent MFA. Return only target kind,course/cohort IDs,titles and lifecycle labels, including unpublished and unpriced courses/cohorts. Deny public,parent,student,teacher and non-finance administrators. Do not join or return curriculum revisions/modules/lessons/resources/answer keys,learner rosters,staff identity,private sessions or financial transactions. No education-admin capability is inferred or granted. Subsequent price creation validates selected course/cohort correspondence and existing pricing rules again. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-PRICE-TARGETS |
 
 ## RefundService
 
@@ -586,7 +593,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-026, PAY-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -606,7 +613,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-027, PAY-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P06-C05
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -626,7 +633,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-021, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-008, COM-009, PAR-003, PAR-015, STU-018
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P08-C02
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -658,7 +665,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-022, COM-001, COM-002, COM-003, COM-004, COM-005, COM-006, COM-007, COM-008, COM-009, PAR-016, TCH-015
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P08-C01
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -674,25 +681,25 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** files
 - **Responsibility:** files
-- **Objects:** FileAsset, FileAccessPolicy
-- **Ports:** FileRepository, ObjectStorageProvider, MalwareScanner, EnrolmentRepository, FamilyRepository, DeliveryRepository, UnitOfWork, Clock
+- **Objects:** FileAccessPolicy, FileAsset
+- **Ports:** Clock, DeliveryRepository, EnrolmentRepository, FamilyRepository, FileRepository, MalwareScanner, ObjectStorageProvider, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-023, FILE-001, FILE-002, FILE-003, FILE-004, FILE-005, FILE-006, FILE-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P04-C01, ZE-P04-C02
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
-| create_upload | API_FILE_UPLOADRequest → UploadTicketView | Reserve validated private upload ticket | Student own draft submission only; admin matching purpose privilege. No parent upload feature. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, FILE_TYPE_DENIED, FILE_TOO_LARGE | API-FILE-UPLOAD |
-| confirm_upload | API_FILE_CONFIRMRequest → FileAssetView | Confirm upload and queue independent scanning | Upload owner and same original scope; uploaded object metadata/checksum must match ticket. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, UPLOAD_MISMATCH | API-FILE-CONFIRM |
 | get_asset | API_FILE_GETRequest → FileAssetView | Read authorized file scan/metadata state | FileAccessPolicy derives released curriculum, own submission, guardian link, teaching assignment or scoped admin purpose. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-FILE-GET |
 | create_download | API_FILE_DOWNLOADRequest → DownloadTicketView | Issue ready-file short-lived download | FileAccessPolicy validates ready state and linked resource scope; submission parents read only authorized child; internal files never learner-readable. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, ASSET_NOT_READY | API-FILE-DOWNLOAD |
-| delete_asset | API_FILE_DELETERequest → Empty | Delete eligible unreferenced owned draft asset | No referenced submitted work/published resource/certificate deletion; retention and legal hold apply. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE, LEGAL_HOLD | API-FILE-DELETE |
 | list_assets | API_ADMIN_FILESRequest → FileAssetViewPage | Browse assets by permitted educational/operations purpose | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-FILES |
 | scan_and_promote | JOB_FILE_SCANRequest → JobView | Verify metadata/MIME/archive limits/malware and promote immutable object | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-FILE-SCAN |
 | clean_orphaned_uploads | JOB_FILE_CLEANRequest → JobView | Delete expired unreferenced staging objects after retention/hold checks | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-FILE-CLEAN |
 | purge_asset | JOB_FILE_DELETERequest → JobView | Delete eligible private object/version per approved retention decision | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-FILE-DELETE |
+| create_upload | API_FILE_UPLOADRequest → UploadTicketView | Reserve validated private upload ticket | Student own draft submission only; admin matching purpose privilege. No parent upload feature. Resolve current FileUploadContext from purpose + context_id: submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. Recheck immutable owner/purpose/context on confirmation and deletion; publication/release or submission finalization races reject mutation. Scan promotion checks context still permits the asset before exposing it. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, FILE_TYPE_DENIED, FILE_TOO_LARGE | API-FILE-UPLOAD |
+| confirm_upload | API_FILE_CONFIRMRequest → FileAssetView | Confirm upload and queue independent scanning | Upload owner and same original scope; uploaded object metadata/checksum must match ticket. Resolve current FileUploadContext from purpose + context_id: submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. Recheck immutable owner/purpose/context on confirmation and deletion; publication/release or submission finalization races reject mutation. Scan promotion checks context still permits the asset before exposing it. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, UPLOAD_MISMATCH | API-FILE-CONFIRM |
+| delete_asset | API_FILE_DELETERequest → Empty | Delete eligible unreferenced owned draft asset | No referenced submitted work/published resource/certificate deletion; retention and legal hold apply. Reject financial_document/financial_export purposes on this generic endpoint even for a parent; financial-specific BillingService/ReportingService grants are required. If-Match uses current FileAsset.version obtained from API-FILE-GET, upload confirmation or permitted asset listing; delete is owner-draft/purpose scoped and still checks linked resource state. Resolve current FileUploadContext from purpose + context_id: submission -> Submission.id from owned draft submission create/detail, same authenticated student and eligible enrolment; resource -> CurriculumRevision.id from education-admin revision list/detail, must still be writable draft; internal/public_asset -> authenticated SessionView.user_id (the same Account.id as principal), current admin:operations_admin only. No caller-selected other account/context; certificate/financial_document/financial_export are server-generated and forbidden here. Recheck immutable owner/purpose/context on confirmation and deletion; publication/release or submission finalization races reject mutation. Scan promotion checks context still permits the asset before exposing it. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, RESOURCE_IN_USE, LEGAL_HOLD | API-FILE-DELETE |
 
 ## CalendarService
 
@@ -704,7 +711,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** CAL-001, CAL-002, CAL-003, CAL-004, CAL-005
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P05-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -722,7 +729,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-028, OPS-003, OPS-005, OPS-008
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P01-C02, ZE-P08-C03
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -750,7 +757,7 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
 - **Requirements:** ADM-029, SEC-007
-- **Chunks:** See Code Blueprint implementation ownership
+- **Chunks:** ZE-P02-C02
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -760,13 +767,13 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 
 - **Module:** family
 - **Responsibility:** privacy
-- **Objects:** PrivacyRequest, GuardianStudent, FileAsset
-- **Ports:** FamilyRepository, StudentRepository, FileRepository, PrivacyRepository, UnitOfWork, Clock
+- **Objects:** FileAsset, GuardianStudent, PrivacyRequest, RetentionHold
+- **Ports:** Clock, FamilyRepository, FileRepository, PrivacyRepository, StudentRepository, UnitOfWork
 - **Invariants:** Application operation checks role, explicit resource scope and state before aggregate mutation; no route-level business rules; no direct provider SDK. Return purpose-specific DTO only.
 - **Persistence:** UnitOfWork commits aggregate change, audit and outbox atomically. Read DTO projections remain repository-scoped. Integration calls execute outside row locks with durable intent/result reconciliation.
 - **Authorization:** Each public method has its own explicit authorization contract below; all callers, including internal adapters, use it.
-- **Requirements:** SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
-- **Chunks:** See Code Blueprint implementation ownership
+- **Requirements:** AUTH-010, NFR-012, SEC-001, SEC-002, SEC-008, SEC-009, SEC-010
+- **Chunks:** ZE-P02-C05, ZE-P08-C04
 
 | Operation | Input → output | Purpose | Authorization | Errors | API/worker |
 |---|---|---|---|---|---|
@@ -775,6 +782,8 @@ Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [back
 | list_privacy_requests | API_ADMIN_PRIVACY_LISTRequest → PrivacyRequestViewPage | Read restricted privacy work queue | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-PRIVACY-LIST |
 | decide_request | API_ADMIN_PRIVACY_DECIDERequest → PrivacyRequestView | Record verified authority and retention-aware decision | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. Never orphan active children or erase required finance records. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, LEGAL_HOLD, ACTIVE_GUARDIAN_REQUIRED | API-ADMIN-PRIVACY-DECIDE |
 | download_export | API_PARENT_PRIVACY_EXPORTRequest → DownloadTicketView | Get ready verified family export | Active verified GuardianStudent link for requested student within principal family; deny revoked links and unrelated family IDs. Approved access request only; exclude unrelated guardian finances. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-PARENT-PRIVACY-EXPORT |
-| set_legal_hold | API_ADMIN_LEGAL_HOLDRequest → Empty | Set or release audited retention hold | Admin privilege stated in roles plus active account and recent MFA; no teacher principal, no cross-purpose projection. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-LEGAL-HOLD |
 | process_request | JOB_PRIVACY_PROCESSRequest → JobView | Generate protected export or execute approved retention-aware deletion/closure | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-PRIVACY-PROCESS |
 | apply_retention | JOB_RETENTIONRequest → JobView | Purge/anonymize only eligible unheld records from approved matrix | Internal service identity; validated durable job/event origin; no browser route and no user-provided worker privilege. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | JOB-RETENTION |
+| list_legal_hold_targets | API_ADMIN_LEGAL_HOLD_TARGETSRequest → LegalHoldTargetViewPage | Select existing retention targets without financial or file content access | Active administrator with identity_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Explicit identity-purpose projection only. List only typed identity references and existing ownership links; no payment/file domain object hydration or generic finance/file read grants. Filters apply before bounded stable pagination. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-LEGAL-HOLD-TARGETS |
+| get_legal_hold_state | API_ADMIN_LEGAL_HOLD_STATERequest → LegalHoldStateView | Read typed retention hold state and exact independent concurrency token | Active administrator with identity_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Explicit identity-purpose projection only. Verify target existence via the same typed projection; do not read or expose its financial/file contents. Never reuse target aggregate version as hold version. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR | API-ADMIN-LEGAL-HOLD-STATE |
+| set_legal_hold | API_ADMIN_LEGAL_HOLDRequest → Empty | Set or release audited retention hold | Active administrator with identity_admin and recent MFA; deny every other privilege-only principal, teacher, parent and student. Explicit identity-purpose projection only. Typed target must exist; identity-admin can decide retention only, without payment/file content reads. If-Match compares exclusively the RetentionHold state returned by API-ADMIN-LEGAL-HOLD-STATE. | UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE | API-ADMIN-LEGAL-HOLD |

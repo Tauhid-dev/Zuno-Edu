@@ -6,6 +6,6 @@ Start with [launch scope](docs/product/LAUNCH_SCOPE.md), [scope lock](docs/produ
 
 Future sessions receiving `next chunk` must follow [AGENTS.md](AGENTS.md): identify the expected remote, synchronize master, reconcile verified merged evidence read-only, select exactly one eligible chunk and create a fresh feature branch. Human review and merge are required; no automatic implementation starts from this draft.
 
-`python3 scripts/validate_plan.py` checks planning coverage and references. `python3 -m unittest discover -s tests/workflow -v` exercises reconciliation safeguards. These are bootstrap-tooling checks, not product test results.
+`python3 scripts/validate_plan.py` checks planning coverage, contract mappings, dependencies and references. Add `--bootstrap` to prove the initial application folders contain only documentation; ordinary future validation permits implemented code. `python3 -m unittest discover -s tests/workflow -v` exercises reconciliation safeguards. These are bootstrap-tooling checks, not product test results.
 
-Repository identity and synchronization status are in `memory/repository.json` and `memory/PROJECT_STATE.md`. 
+Repository identity and synchronization status are in `memory/repository.json` and `memory/PROJECT_STATE.md`.

@@ -31,3 +31,11 @@ Required automated cases: teacher requests list/detail/export/refund/payment-fil
 Tests must exercise API serialization, service direct calls and scoped repository SQL; route manipulation, filter injection and stale cached relationships must not bypass decisions. Every privileged mutation records actor, action, target, timestamp, correlation and reason where documented, without secrets or full child work in audit payloads.
 
 Production staff activation additionally requires canonical HG-STAFF approval evidence for initial administrators, role separation, teacher approval and incident contacts. No invitation or account-status operation may bypass this human gate. Full launch requires every canonical gate in LAUNCH_SCOPE, including HG-STAFF.
+
+## Purpose-scoped administration reads
+
+Identity administration obtains exact family relationship and independent billing-membership state through AdminFamilyRelationshipsView; the parent FamilyView does not inherit these fields or sibling visibility. Identity-only legal hold selectors expose resource references and retention decisions, never payment amounts or file contents. Hold authority does not grant financial administration or generic file access.
+
+Education administration obtains a cohort-scoped named learner/enrolment selector without the identity student directory. Override history is education-only and tied to a single current enrolment. Receipt/finance and child contact information remain excluded. Operational/public uploads use the authenticated operations-admin account ID as context; educational resources require a writable curriculum revision and education privilege.
+
+RoleGrant is composed inside Account. Role and status writes both lock the identity-admin membership set and compare Account.version, so simultaneous removals/suspensions cannot leave zero active identity administrators. A role-neutral MFA setup route accepts a ten-minute purpose-bound limited token from either successful password login or staff invitation acceptance, and no full session is required before confirmation. The backend obtains the staff identity from that token; setup access cannot be converted into portal authority until TOTP proof succeeds.

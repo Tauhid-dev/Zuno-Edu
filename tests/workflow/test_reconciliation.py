@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -176,6 +177,50 @@ class ReconciliationTests(unittest.TestCase):
 
     def reconcile(self):
         return r.reconcile(self.repo, self.api)
+
+    def test_full_repository_plan_recovers_first_chunk_without_chat_context(self):
+        """Use the actual plan and authority files in an isolated simulated human merge."""
+        source=SCRIPT.parents[1]
+        shutil.copytree(source/'docs',self.root/'docs',dirs_exist_ok=True)
+        shutil.copytree(source/'skills',self.root/'skills',dirs_exist_ok=True)
+        shutil.copy2(source/'AGENTS.md',self.root/'AGENTS.md')
+        self.chunks=json.loads((self.root/'docs/planning/chunks.json').read_text())
+        for chunk in self.chunks:
+            chunk['status']='PLANNED'
+            chunk['execution']={key:None for key in chunk['execution']}
+            chunk['blockers']=[]
+            path=self.root/'docs/planning/chunks'/(chunk['id']+'.md')
+            parts=path.read_text().split('---',2)
+            metadata=json.loads(parts[1])
+            metadata['status']='PLANNED'
+            metadata['execution']=chunk['execution']
+            if 'blockers' in metadata:metadata['blockers']=[]
+            path.write_text('---\n'+json.dumps(metadata,indent=2)+'\n---'+parts[2])
+        self.write_json('docs/planning/chunks.json',self.chunks)
+        self.lock=json.loads((self.root/'docs/product/scope-lock.json').read_text())
+        self.lock.update(status='DRAFT',planning_pr=1)
+        witnesses=[]
+        for path in sorted(r.mandatory_witnesses(self.repo)):
+            witness={'path':path}
+            normalization=r.witness_normalization(path)
+            if normalization:witness['normalization']=normalization
+            witness['sha256']=r.plan_digest((self.root/path).read_bytes(),witness)
+            witnesses.append(witness)
+        self.lock['plan_artifacts']=witnesses
+        self.write_json('docs/product/scope-lock.json',self.lock)
+        self.commit('Actual full-plan simulation fixture')
+        self.api.records[1]=self.pr(self.sha(),self.sha())
+        self.publish()
+        before=self.sha()
+        state=self.reconcile()
+        self.assertEqual(state['scope_status'],'LOCKED')
+        self.assertEqual(state['next_candidate_chunk'],'ZE-P01-C01')
+        self.assertEqual(state['completed_chunks'],[])
+        self.assertEqual(self.sha(),before)
+        self.assertEqual(self.git('status','--porcelain'),'')
+        selected=next(c for c in self.chunks if c['id']==state['next_candidate_chunk'])
+        for path in selected['required_context']+selected['required_skills']:
+            self.assertTrue((self.root/path).is_file(),path)
 
     def test_draft_effectively_locks_after_human_merge_without_master_writes(self):
         before = (self.sha(), self.git("show-ref"), self.git("status", "--porcelain"),
