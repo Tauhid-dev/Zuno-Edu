@@ -26,4 +26,3 @@ Independently review and validate traceability plus plan witnesses. Human review
 Failure signals: MVP reinterpretation, silently postponed requirement, opportunistic redesign, weakened permissions, hidden extra capability or stale approval witnesses.
 
 See [the repository constitution](../../../AGENTS.md) and [state protocol](../../../docs/planning/STATE_RECONCILIATION.md) for shared authority. Do not load unrelated skills.
-

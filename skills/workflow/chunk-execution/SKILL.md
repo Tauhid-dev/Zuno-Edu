@@ -26,4 +26,3 @@ Run manifest checks and independent review; fix all Critical/High findings. Reco
 Failure signals: stale progress hints, branching from an unmerged dependency, DRAFT implementation, hidden deferred acceptance criteria, or COMPLETE before verified merge.
 
 See [the repository constitution](../../../AGENTS.md) and [state protocol](../../../docs/planning/STATE_RECONCILIATION.md) for shared authority. Do not load unrelated skills.
-

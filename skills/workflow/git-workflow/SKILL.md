@@ -26,4 +26,3 @@ Verify final diff, required checks, independent review and correct master target
 Failure signals: missing origin, invented repository identity, dirty master, accidental default-branch edits, PR aimed at another branch, automatic merge.
 
 See [the repository constitution](../../../AGENTS.md) and [state protocol](../../../docs/planning/STATE_RECONCILIATION.md) for shared authority. Do not load unrelated skills.
-

@@ -2284,4 +2284,3 @@ Roles: Admin. Priority: REQUIRED FOR LAUNCH. Capability: `launch_gate`.
 Acceptance:
 
 - All required requirements are implemented and traced, Critical/High findings resolved, integrations/security/restore/accessibility/end-to-end checks evidenced and human business/legal gates approved.
-

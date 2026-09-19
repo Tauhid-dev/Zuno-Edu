@@ -466,7 +466,7 @@
     },
     {
       "path": "docs/product/FUNCTIONAL_REQUIREMENTS.md",
-      "sha256": "5bcebe66b05463a9bae9ca7ad977aba4b40ab59bf0e95e00d632edb05ad58c1f"
+      "sha256": "f4567b62c2c580f93ed01037f6341e0588986bad5c9c87b239bee32197bbdbf9"
     },
     {
       "path": "docs/product/FUTURE_CONSIDERATIONS.md",
@@ -482,7 +482,7 @@
     },
     {
       "path": "docs/product/NON_FUNCTIONAL_REQUIREMENTS.md",
-      "sha256": "bf0105a0c8df0b6e9557bb7483e3defd6992a189779f2210ae1345565f79d756"
+      "sha256": "60a44121549c4bc660d84f63c72a2e9c5796221b81dac30ee02a343b7254fb75"
     },
     {
       "path": "docs/product/OUT_OF_SCOPE.md",

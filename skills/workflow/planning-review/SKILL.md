@@ -26,4 +26,3 @@ Verify every requirement has a chunk and each chunk has requirements, tests, acc
 Failure signals: vague later-design promises, teacher finance exposure, missing child age/name, missing frontend contract, unavoidable linear dependencies, unverifiable remote state.
 
 See [the repository constitution](../../../AGENTS.md) and [state protocol](../../../docs/planning/STATE_RECONCILIATION.md) for shared authority. Do not load unrelated skills.
-

@@ -26,4 +26,3 @@ Report Critical/High/Medium/Low findings with precise evidence and fixes. Verify
 Failure signals: reviewing only the happy path or UI, relying on author's completion claim, passing criteria with no evidence, skipping a final metadata/evidence diff.
 
 See [the repository constitution](../../../AGENTS.md) and [state protocol](../../../docs/planning/STATE_RECONCILIATION.md) for shared authority. Do not load unrelated skills.
-

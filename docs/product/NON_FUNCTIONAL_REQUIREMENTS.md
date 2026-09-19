@@ -137,4 +137,3 @@ Acceptance:
 
 - DTOs explicitly whitelist permitted fields for public, family, student, assigned teacher and admin capabilities.
 - Cross-surface tests prove financial and child-data segregation.
-

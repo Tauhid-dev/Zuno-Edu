@@ -26,4 +26,3 @@ Validate JSON, required metadata, references and absence of premature COMPLETE. 
 Failure signals: verbose history in progress.json, copied architecture, contradictory next candidate, missing base master SHA or treating conversational history as authority.
 
 See [the repository constitution](../../../AGENTS.md) and [state protocol](../../../docs/planning/STATE_RECONCILIATION.md) for shared authority. Do not load unrelated skills.
-

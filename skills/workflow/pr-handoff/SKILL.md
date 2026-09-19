@@ -26,4 +26,3 @@ Confirm all required checks and independent review cover the final diff and no C
 Failure signals: declaring COMPLETE, missing PR identifier, hash self-reference, unverified final changes, hiding missing checks, automatic merge or beginning another chunk.
 
 See [the repository constitution](../../../AGENTS.md) and [state protocol](../../../docs/planning/STATE_RECONCILIATION.md) for shared authority. Do not load unrelated skills.
-
