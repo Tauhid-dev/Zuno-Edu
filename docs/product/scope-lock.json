@@ -1,0 +1,517 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT",
+  "scope_version": "1.0",
+  "architecture_version": 1,
+  "planning_pr": null,
+  "plan_artifacts": [
+    {
+      "path": "docs/architecture/ADR/0001-launch-baseline.md",
+      "sha256": "521d719bff102ae3733af78ae3a6842e62ac753870d09b0d0fcc692e3f521083"
+    },
+    {
+      "path": "docs/architecture/ADR/0002-business-and-data-decisions.md",
+      "sha256": "a2eef23be7ca0190305535d7d42c070e4b07696d1498661031bec575dc2397cd"
+    },
+    {
+      "path": "docs/architecture/ADR/0003-external-consistency.md",
+      "sha256": "b4d8d8aef8a681dbcffd3a9599a4cef6fabd6fc70ca943ef85bc178aa17f8d25"
+    },
+    {
+      "path": "docs/architecture/AGGREGATES.md",
+      "sha256": "3581a69835a1c072fddc32c76d199684101517e948777d8107e7e8a375b6ae3c"
+    },
+    {
+      "path": "docs/architecture/API_ARCHITECTURE.md",
+      "sha256": "5a103aa98d74ba3e88a631e7f62980a7355344941e3ee59b7dffca54e0f0a1d9"
+    },
+    {
+      "path": "docs/architecture/API_CATALOG.md",
+      "sha256": "520c485d1b6358f82934bb0b0e75d078d11e9fb96a48e45a5c1dd8df1625f1f5"
+    },
+    {
+      "path": "docs/architecture/API_SCHEMA_CATALOG.md",
+      "sha256": "07974f68a5ff1e6e49cd278232770b1d2318fdfcb6dac561a1e523b324c98df5"
+    },
+    {
+      "path": "docs/architecture/AUTHORIZATION_MODEL.md",
+      "sha256": "d3e4405dce4084882bdf9e2e368dd3fd6f4481911f1526a874e055f7817543ca"
+    },
+    {
+      "path": "docs/architecture/BACKEND_ARCHITECTURE.md",
+      "sha256": "a9e180ab2117a060aa4bba545d1d3eba84e13aab1d5a5a31cf9fbeacf97fa78f"
+    },
+    {
+      "path": "docs/architecture/BACKEND_OBJECT_CATALOG.md",
+      "sha256": "144922846a9f66e4f69791b8d4e042837f4bd42f34da14a86c8190627d436abe"
+    },
+    {
+      "path": "docs/architecture/BACKEND_SERVICE_CATALOG.md",
+      "sha256": "add110a809a18bdcdf7fe2ed4266a249aa20ece4beb2329168766d6f3d7dda88"
+    },
+    {
+      "path": "docs/architecture/BILLING_ARCHITECTURE.md",
+      "sha256": "b7ab4a9e36b7eadb39ca3d47341914897b2da10694db7cbfc6ba2d0a68cf1088"
+    },
+    {
+      "path": "docs/architecture/CALENDAR_ARCHITECTURE.md",
+      "sha256": "d3ac4b000b0260ade116a8ad129baac6f0568b7b6a0deb0ae459fb1572a2d0f1"
+    },
+    {
+      "path": "docs/architecture/CODE_BLUEPRINT.md",
+      "sha256": "70629c47a42313c235d5bbb56fe9060d734cba48fad48b3dea651ff0e7031269"
+    },
+    {
+      "path": "docs/architecture/COMMUNICATION_ARCHITECTURE.md",
+      "sha256": "edbb6e2bcd340b741a3cd38b1224555c85ef8c1414012ed76fbbb29aad1103b0"
+    },
+    {
+      "path": "docs/architecture/DATABASE_SCHEMA_PLAN.md",
+      "sha256": "08280a70b187c53c2853524fc5acefdd84e320ee1bfffe23edb75bccb75747b7"
+    },
+    {
+      "path": "docs/architecture/DATA_ACCESS_BOUNDARIES.md",
+      "sha256": "e32dfe0b284eb23a557cccb083383c90916d27e84345ea12c1a599436e256635"
+    },
+    {
+      "path": "docs/architecture/DATA_MODEL.md",
+      "sha256": "1c7be53f838909615eb51a98bfcedc5f587d5481305de74583bdf8f71c8b21c9"
+    },
+    {
+      "path": "docs/architecture/DEPLOYMENT_ARCHITECTURE.md",
+      "sha256": "a3ef2f16faaa79001a5a285d4715cec30c62bffa09700ad7631fa556dc55c1a3"
+    },
+    {
+      "path": "docs/architecture/DOMAIN_MODEL.md",
+      "sha256": "220ddc30c845d35c1f94487d6a5bce57dfb1274da7a4adb5e2f23e7d597e28d0"
+    },
+    {
+      "path": "docs/architecture/FILE_STORAGE_ARCHITECTURE.md",
+      "sha256": "ff387d9dc688ebe2e314e7c3c2a4284317ef842b21f43f6d74c4b78f3ec14428"
+    },
+    {
+      "path": "docs/architecture/FRONTEND_ARCHITECTURE.md",
+      "sha256": "9384b13af8a148983327604989b0c835e6f57514a15fa2a4ed7d215c5dc5f4fc"
+    },
+    {
+      "path": "docs/architecture/FRONTEND_BACKEND_MAPPING.md",
+      "sha256": "4610312f5004f858a92cdb41536491f1648de94b5dc3f97d7f77cf0b4029ea0e"
+    },
+    {
+      "path": "docs/architecture/FRONTEND_COMPONENT_CATALOG.md",
+      "sha256": "21f2cd53bcdc6c2296cfe447cf08944e8549fd0f4427ececd6d7968b91fbc4c7"
+    },
+    {
+      "path": "docs/architecture/FRONTEND_ROUTE_MAP.md",
+      "sha256": "1043276cd749dcafee50e27c712e5f8eff50fb9fd8f434aabdf8a4bb033bb541"
+    },
+    {
+      "path": "docs/architecture/FRONTEND_STATE_AND_API_MODEL.md",
+      "sha256": "a18a83e19ee18adbe2af853ef202641fbcf646047d22a09e448dce5879134c15"
+    },
+    {
+      "path": "docs/architecture/INTEGRATIONS.md",
+      "sha256": "590c0ea0ac3774f84bb17f49054d5907ebc12e1d58edc33d30d710eb8ed1076f"
+    },
+    {
+      "path": "docs/architecture/LIVE_CLASS_ARCHITECTURE.md",
+      "sha256": "eda83b8d4a97c642dc2c3bcbfe1658b06eaf0f8cc9103839d6f5a3175a31e740"
+    },
+    {
+      "path": "docs/architecture/PERMISSION_MATRIX.md",
+      "sha256": "e74f99041912701adb1c25050b1701ab6d4d0663e7d3c983294052fdf051e1a1"
+    },
+    {
+      "path": "docs/architecture/PORTS_AND_REPOSITORIES.md",
+      "sha256": "ebaaa1ded8ab4f5a8e6c895f0931d2b90be5389b0d0b758ea815377e8c335532"
+    },
+    {
+      "path": "docs/architecture/SECURITY_ARCHITECTURE.md",
+      "sha256": "f51b5e080f106dd41df9ab98d9bebab490f07c84ddba8569bf664f449f6e5dda"
+    },
+    {
+      "path": "docs/architecture/SETTINGS_CATALOG.md",
+      "sha256": "5d90b8f3aa69bbe63ec5519e6afde26aad5e64f3037b091a2fee597951aa06d0"
+    },
+    {
+      "path": "docs/architecture/SYSTEM_ARCHITECTURE.md",
+      "sha256": "4673a6b0520e9765322c8aa39d47fe385d0b81bde703a059d1f4d0f65a9732ec"
+    },
+    {
+      "path": "docs/architecture/backend-catalog.json",
+      "sha256": "a0025e16226e89d2460b4afb257aa6f41b5c088f8bf95d1122a5325cd3aba80b"
+    },
+    {
+      "path": "docs/architecture/frontend-catalog.json",
+      "sha256": "4ee178ea7fafd96ad082969e7201f343331858b5e023ec97fc5f4b5405549f4b"
+    },
+    {
+      "path": "docs/planning/chunks.json",
+      "normalization": "chunk-plan-v1",
+      "sha256": "3087beeb3d2d913e7ffcfd5f37021dd0d75e82b27893c113e55ba5e15a5aeaa1"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P01-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "b7b3cd2fb70058ea70ed83c00b9dbe344d102eda19ee7f9b3c2467cdda247985"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P01-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "c086d174aef93a1f39c25bf2e336fef149200119a3755bb13b4af5234cf47af0"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P01-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "8318c822ce5cd13dc4c6f015b5a8b5e51cdfa342f8b54242d1af69eda349d4ee"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P02-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "33f56e2f706668d9a9f0a61ee8b09a608cac681e9c11710bb52f2b11cba2790f"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P02-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "f6fd82aa350710bb03bde68306cc0aac90c7e8f25403bfa0c004f02316977aa2"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P02-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "46729d5f175d68b97802eea0812a9d9b3c113ab83c364634c94fd04856a22173"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P02-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "31ffa7dad788c93fac0e5a78e8240661eb72a2eb7ba7e7a3f6de9eef0715c6ae"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P02-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "6c4b600a00429cb86557c9e1d0cd584e0d9a9bbd151ec950bacbf4c8cac53740"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P03-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "ebc3e17b5873e194477a5da12d24f34d87d342589cf92ec53d0e533f4ae80c62"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P03-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "d3abd72034f517cd567368263b020ab4960394230dd5c394ea93179081706fbe"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P03-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "6153876cbad702c37517bf0edf4e3fe64ebb2090525b3292431a532fa32eb5a4"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P03-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "a1285147b9b9e4059367dbac0d1659fc8ad0b6e1670abecd3603e651b3308f31"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P04-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "01528263ef9ee0588b311212394de5310273bfa7d7d4dfa144e66c7611e51e11"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P04-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "c6925596fbb05f5036a9abf26f8f6de523e99cd926a49d1fb734e1c78ec8eada"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P05-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "0963101a9555ceccd73fe5b23b99e8b6ac0736e1f9a721cfc10ad22122690ca7"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P05-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "e1fe936a211fea52db7c4eb68db398a7b73f3c98cdc70a3bb3b212489dae5b92"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P05-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "a425d8f4749f1dfb32e0632eab19528b00d399d7db69fcbd741aff578bc53d15"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P05-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "a7fe777fd3783e6b26148808d52fd1263c9c4bf6887848fe5ca78246a4238a99"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P05-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "ad49257fae681d1247643ec4bdc308657d2605d95ff140e7974e74ddec410b06"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P06-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "d83c1f0ca7c12b3da8c0d75492b23498b6b2b798fd99d2054b446b82899d3a3a"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P06-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "62917c5336cf70caf8fdbaf49a48998f8dba91ee66901d568a311cdf4f394f53"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P06-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "3cf63a6f63265da21da798878773b6509a78c5b1b42994818561e2ff44c8d49e"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P06-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "4aca83c178a1f97b098f8318eb4ba535c1ff9c02475e1f14d6e3952ca344cb58"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P06-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "a5225c172f2b568b8a54e1c11e9ac0e71f06ecea72b285559896197f5f66c548"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P07-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "10bff0417483902f52b12e29444b6c4a55d80f85f08098268afd73057f6297c2"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P07-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "b585192eeccbfceb75ecf2cdbcbb346c2e26302f08049339365022d692929115"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P07-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "00b6e2cd02537868b7e952b884edf13841014f4d9c962431f36c1e3f7711a144"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P07-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "698cd2cca58e3f4d8a72c0ee8dd550ffbd3ab82dedd58aff228e13414a4a1536"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P07-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "ea85c6bf10813ad9e1be9b71f2d886d9f5cf0396f55ab9ed4b665efcf2578397"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P07-C06.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "24099a25b3130c518d98943b3dd24a44ebc34cd4ac487a5ee0b77a489275d8f2"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P08-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "316291abfe05cfb29c36dc00fbd082dcbf831f9e43c3d7d679e07684b9d48835"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P08-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "5f6b74861b2c8cef7b2b000d73fdbb6d8a69679a4d2cc0560c9c7c702768a590"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P08-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "618d90c7408e5fafb38c32be40c5c29de58a5113a4007858a630ce04b9e9231b"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P08-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "3edc82892743a55d04fc3aab2f3c38e5a39ca654aa2552f5e3cc2dddb422b3ca"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P08-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "80ae7d991970f71d1c6e637a9f017612e3f4f69e5d598b50729dd5be4a69f666"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P09-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "4f02f7137cb6d60795e7306d23c6ee5962567d1a2500bd1f07eb0c112a0d63b9"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P09-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "4d1bb307ec62b0cf8df827802433ec6cc84e74c59e3eb09e1d8b00ae3b7e744d"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P09-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "35b7eb9c1b3fc51d20ea9ac8a527b164e2ed5fae52517b3bac76b79b5cd45092"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P10-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "7ff628e463d5e842af9581f5e57e84860ac203b06e0ea0c4380386d0d6eab9b9"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P10-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "ed3d390f39775745da6df58298be1479ad736907dc979df381d07c3011dc3ac6"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P10-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "80c8c5b72d97d0aae8725467288f165ac012fcb55e9a909fcdb6dac351d00ce9"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P10-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "4026503543fb051d14a74c6330d35c9cae98427f67928e9d8f54d1c020e8fdf5"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P10-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "dddac82e24ec2f451b1dfe8181aa6dffd67efcbe53cb9dc1ee97f8176b3dcf21"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P10-C06.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "b435e3ae8ced22bb10126d72b6818fec83e267a2f3d80fe83dae9210b5135ad1"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P10-C07.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "d9348f8c92b03cde88a6beab13d364fee4558f0fa67acfb61d2293fd636b4dfc"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "a9ed60db6b885bb44f7653c36ba323e853f21e7ff331a9f13452e76844827269"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "3b4cc9a7439dd3843986e48e7d87d12f14793afa8e772bb2ddba64c4004738e0"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "0cfac28ac9948eec491482a9739cccf9a878c09eadc03e49fd98422cc3a48c34"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "2cae08a57a6e56165b3807e4155fa466261c38f19951e1e27f3d1dfe08d8c5b9"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "77dd42b35734238793a7ded10bbf675310d2a6ec01513cc9c84db5ddbef952f6"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C06.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "66df718bebc85c26e498efff02be313313cc499cba9172f9a7a5e4bbe31127bb"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C07.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "e820c319f98c30ae08929b1791014e417f8e40e001992440457eaad052247591"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C08.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "83e8395d7310e3096f67ceef8fa05091800aa37a4ed695f1e1acb421aeb04e1e"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C09.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "2fc34f5cacbf7cd70273b8f80e4fa4883768ccd412d3f8f26b824d01c213db71"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P11-C10.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "0d92a02db6712f762f1f8a7b4ea86602651a25d403de6a5791c618e24ff5cc25"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P12-C01.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "2ba2c9637395c390cbed4775348aa402bb512009bf3e48ea9134bba3c7090744"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P12-C02.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "791f48ed526142974911cf6db186d8d4cc540575f95e67179344e8cb4069800b"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P12-C03.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "52440029ec806200571ed8adb974ac5a194bdb5fe42cb017d373e75ea56bff30"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P12-C04.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "7e6b35de292c1739156071498406c1c4373dd183c86939c4b733efd335ae0741"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P12-C05.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "ef7a47cf0f9fd3b497dc33bc18034e1c1194125ae9e6ef96bde34ebbbc2dadda"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P12-C06.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "97e26a1c9214663c8f57cb00c86f78dfbeec42c432671f349a9b352d61fbe8f9"
+    },
+    {
+      "path": "docs/planning/chunks/ZE-P12-C07.md",
+      "normalization": "chunk-manifest-v1",
+      "sha256": "4bd5b6efa938be4f61a0dd2c5711a7a511e056ab9ad16dab53bcabcf6563e0c3"
+    },
+    {
+      "path": "docs/product/DATA_REQUIREMENTS.md",
+      "sha256": "4a19206b9151aec1e85b4f1bc5544fbfb9a27008bf0819ec0b7e27747429b0a5"
+    },
+    {
+      "path": "docs/product/FUNCTIONAL_REQUIREMENTS.md",
+      "sha256": "f4567b62c2c580f93ed01037f6341e0588986bad5c9c87b239bee32197bbdbf9"
+    },
+    {
+      "path": "docs/product/FUTURE_CONSIDERATIONS.md",
+      "sha256": "300d5511356341e0e5369a88ccae0ec4a4b1963711560140b1e238279e2528b5"
+    },
+    {
+      "path": "docs/product/LAUNCH_ACCEPTANCE_CRITERIA.md",
+      "sha256": "7a5c9803e1e4c81291f22cb6c82a44c333f461b99485a37534807967112a04cb"
+    },
+    {
+      "path": "docs/product/LAUNCH_SCOPE.md",
+      "sha256": "ae18754a54594ffd6bebc9762235c28b4814eaaa594da719fe706dbbc1883066"
+    },
+    {
+      "path": "docs/product/NON_FUNCTIONAL_REQUIREMENTS.md",
+      "sha256": "60a44121549c4bc660d84f63c72a2e9c5796221b81dac30ee02a343b7254fb75"
+    },
+    {
+      "path": "docs/product/OUT_OF_SCOPE.md",
+      "sha256": "47bde0e74d9c19b4338d1eda50174bf11f8208b7bf0a19cd35ca61b16ef82325"
+    },
+    {
+      "path": "docs/product/PRODUCT_DEFINITION.md",
+      "sha256": "b4ae024b119b79d1a7318796d02a6811eb561b0ff295a358217d4669943232e9"
+    },
+    {
+      "path": "docs/product/REQUIREMENT_GAP_ANALYSIS.md",
+      "sha256": "dd6ee14d330f822e3914cf334743c11042bf6c5d6e0721725992f4578ed9304d"
+    },
+    {
+      "path": "docs/product/ROLE_CAPABILITIES.md",
+      "sha256": "b7d094622ed628a403149d3cfb7abb6341ba2a6e755501b9bbd934f95b366a13"
+    },
+    {
+      "path": "docs/product/SCOPE_LOCK.md",
+      "normalization": "scope-document-v1",
+      "sha256": "4f6119c505b52cd0b2490b9de68d70a54b66e1cd2d661d21199df3c62f76f993"
+    },
+    {
+      "path": "docs/product/USER_JOURNEYS.md",
+      "sha256": "8a3feb6ec570ef5901bacfbaf654974e761c07b31e8b99f083e9bb8e439418ab"
+    },
+    {
+      "path": "docs/product/requirements.json",
+      "sha256": "96f24c5ee1c658dad6e75d426cdde071c262705aa5722856f889e92e5563d2b2"
+    }
+  ]
+}
