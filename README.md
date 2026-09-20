@@ -9,3 +9,5 @@ Future sessions receiving `next chunk` must follow [AGENTS.md](AGENTS.md): ident
 `python3 scripts/validate_plan.py` checks planning coverage, contract mappings, dependencies and references. Add `--bootstrap` to prove the initial application folders contain only documentation; ordinary future validation permits implemented code. `python3 -m unittest discover -s tests/workflow -v` exercises reconciliation safeguards. These are bootstrap-tooling checks, not product test results.
 
 Repository identity and synchronization status are in `memory/repository.json` and `memory/PROJECT_STATE.md`.
+
+For normal development, start a fresh context and say **next chunk**. The root router synchronizes remote master, verifies merge evidence and resolves only the selected chunk. `python3 scripts/next_chunk.py --preview ZE-P01-C01` shows its bounded route without authorizing execution. Model recommendations are advisory; the handoff never proves readiness.

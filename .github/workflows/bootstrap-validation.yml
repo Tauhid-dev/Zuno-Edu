@@ -18,6 +18,8 @@ jobs:
           python-version: '3.12'
       - name: Validate requirement coverage and planning artifacts
         run: python3 scripts/validate_plan.py
+      - name: Validate compact routing metadata
+        run: python3 scripts/next_chunk.py --validate
       - name: Validate deterministic chunk graph
         run: python3 scripts/reconcile_state.py --validate-plan
       - name: Verify reconciliation with isolated Git repositories

@@ -77,7 +77,12 @@
       "Pass: Run type/lint and domain import boundary checks",
       "Pass: Verify no business endpoints are exposed"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P01-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P01-C01.md",
+    "workflow": {
+      "route": "foundation",
+      "review_risk": "medium",
+      "context_budget_tokens": 12000
+    }
   },
   {
     "id": "ZE-P01-C02",
@@ -172,7 +177,15 @@
       "Pass: Redis loss recovers durable jobs",
       "Pass: Initial migrations run on PostgreSQL"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P01-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P01-C02.md",
+    "workflow": {
+      "route": "foundation",
+      "review_risk": "critical",
+      "context_budget_tokens": 24000,
+      "extra_validation": [
+        "migration"
+      ]
+    }
   },
   {
     "id": "ZE-P01-C03",
@@ -255,7 +268,12 @@
       "Pass: Plan coverage validator detects orphan requirement",
       "Pass: No secret-bearing CI on untrusted PR"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P01-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P01-C03.md",
+    "workflow": {
+      "route": "foundation",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P02-C01",
@@ -390,7 +408,12 @@
       "Pass: CSRF/session expiry",
       "Pass: Rate-limit behavior"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P02-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P02-C01.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "critical",
+      "context_budget_tokens": 24000
+    }
   },
   {
     "id": "ZE-P02-C02",
@@ -499,7 +522,12 @@
       "Pass: Audit append-only and redaction",
       "Pass: Role revocation invalidates session"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P02-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P02-C02.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "critical",
+      "context_budget_tokens": 24000
+    }
   },
   {
     "id": "ZE-P02-C03",
@@ -687,7 +715,12 @@
       "Pass: Duplicate/claim-by-email link denied",
       "Pass: Student safe profile cannot mass assign"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P02-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P02-C03.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P02-C04",
@@ -826,7 +859,12 @@
       "Pass: No privilege self-escalation",
       "Pass: Suspend staff denies new teaching actions"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P02-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P02-C04.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P02-C05",
@@ -966,7 +1004,12 @@
       "Pass: Restore tombstone replay",
       "Pass: Policy configuration gate prevents unsafe production purge"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P02-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P02-C05.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P03-C01",
@@ -1099,7 +1142,12 @@
       "Pass: Policy historical version read",
       "Pass: Public contact creates restricted operational intent"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P03-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P03-C01.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "medium",
+      "context_budget_tokens": 12000
+    }
   },
   {
     "id": "ZE-P03-C02",
@@ -1214,7 +1262,12 @@
       "Pass: Published slug uniqueness",
       "Pass: Concurrent version conflict"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P03-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P03-C02.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "medium",
+      "context_budget_tokens": 12000
+    }
   },
   {
     "id": "ZE-P03-C03",
@@ -1356,7 +1409,12 @@
       "Pass: Activity block definition validates inputs",
       "Pass: Rich text/media sanitization"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P03-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P03-C03.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P03-C04",
@@ -1472,7 +1530,12 @@
       "Pass: Private resource not publicly cached",
       "Pass: Archived resource access matches pinned revision"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P03-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P03-C04.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P04-C01",
@@ -1584,7 +1647,12 @@
       "Pass: No object credentials in DTO",
       "Pass: Download denies quarantine/deleted asset"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P04-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P04-C01.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P04-C02",
@@ -1696,7 +1764,12 @@
       "Pass: Deletion/orphan reference race",
       "Pass: Scanner failure denies access"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P04-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P04-C02.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P05-C01",
@@ -1814,7 +1887,12 @@
       "Pass: Assignment teacher/cohort validation",
       "Pass: Lifecycle state gates"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P05-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P05-C01.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P05-C02",
@@ -1944,7 +2022,12 @@
       "Pass: Parent mutation denied",
       "Pass: Cancel invalidates joins"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P05-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P05-C02.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P05-C03",
@@ -2054,7 +2137,12 @@
       "Pass: Out-of-order update after cancel",
       "Pass: Provider outage visible/retriable"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P05-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P05-C03.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P05-C04",
@@ -2157,7 +2245,12 @@
       "Pass: No child roster or host link",
       "Pass: Cross-family export denied"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P05-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P05-C04.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P05-C05",
@@ -2267,7 +2360,12 @@
       "Pass: Concurrent attendance update",
       "Pass: Student/family field omission"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P05-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P05-C05.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P06-C01",
@@ -2394,7 +2492,12 @@
       "Pass: Missing merchant approval blocks live checkout",
       "Pass: Historical price immutable"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P06-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P06-C01.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P06-C02",
@@ -2522,7 +2625,12 @@
       "Pass: Cross-family enrolment denied",
       "Pass: Cancel reason and historical read entitlement"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P06-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P06-C02.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P06-C03",
@@ -2661,7 +2769,12 @@
       "Pass: Late payment ALLOCATE/REFUND race",
       "Pass: Never oversell"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P06-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P06-C03.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "critical",
+      "context_budget_tokens": 24000
+    }
   },
   {
     "id": "ZE-P06-C04",
@@ -2799,7 +2912,12 @@
       "Pass: Other-family receipt denied",
       "Pass: Issued document corrections append adjustment"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P06-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P06-C04.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P06-C05",
@@ -2943,7 +3061,12 @@
       "Pass: Export ownership",
       "Pass: Finance privilege required"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P06-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P06-C05.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P07-C01",
@@ -2991,7 +3114,7 @@
       "pr": null,
       "completion_evidence": null
     },
-    "objective": "Implement versioned question definitions, allowed single/multiple-choice grading, own attempts/save/submit, server scoring and deliberate result release. Default3 attempts range1–5, pass70% or approved threshold.",
+    "objective": "Implement versioned question definitions, allowed single/multiple-choice grading, own attempts/save/submit, server scoring and deliberate result release. Default3 attempts range1\u20135, pass70% or approved threshold.",
     "required_tests": [
       "Correct answers absent learner payload",
       "Attempt bound concurrency",
@@ -3062,7 +3185,7 @@
     ],
     "context_selection": "Read only entries matching the named requirement/object/service/API/component IDs in larger catalogs.",
     "acceptance_criteria": [
-      "Implement versioned question definitions, allowed single/multiple-choice grading, own attempts/save/submit, server scoring and deliberate result release. Default3 attempts range1–5, pass70% or approved threshold.",
+      "Implement versioned question definitions, allowed single/multiple-choice grading, own attempts/save/submit, server scoring and deliberate result release. Default3 attempts range1\u20135, pass70% or approved threshold.",
       "Pass: Correct answers absent learner payload",
       "Pass: Attempt bound concurrency",
       "Pass: Submit replay",
@@ -3070,7 +3193,12 @@
       "Pass: Wrong enrolment/release denied",
       "Pass: Multi-choice grading deterministic"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P07-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P07-C01.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P07-C02",
@@ -3185,7 +3313,12 @@
       "Pass: Late policy/deadline derivation",
       "Pass: Release gate"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P07-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P07-C02.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P07-C03",
@@ -3304,7 +3437,12 @@
       "Pass: Late/closed behavior",
       "Pass: Teacher reads only assigned learners"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P07-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P07-C03.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P07-C04",
@@ -3461,7 +3599,12 @@
       "Pass: Score limits",
       "Pass: Return creates revision permission"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P07-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P07-C04.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P07-C05",
@@ -3592,7 +3735,12 @@
       "Pass: Override privilege/reason",
       "Pass: Unreleased grade omitted"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P07-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P07-C05.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P07-C06",
@@ -3704,7 +3852,12 @@
       "Pass: Renderer failure status/retry",
       "Pass: Certificate snapshot survives later curriculum edits"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P07-C06.md"
+    "verification_evidence": "docs/planning/verification/ZE-P07-C06.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P08-C01",
@@ -3824,7 +3977,12 @@
       "Pass: Schedule-version reminder invalidation",
       "Pass: Bounce and unknown outcome"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P08-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P08-C01.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P08-C02",
@@ -3962,7 +4120,12 @@
       "Pass: Cohort enrolment/assignment check",
       "Pass: Changed audience does not send old private content"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P08-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P08-C02.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P08-C03",
@@ -4086,7 +4249,12 @@
       "Pass: Audit privilege segregation",
       "Pass: Provider readiness/degraded state"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P08-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P08-C03.md",
+    "workflow": {
+      "route": "backend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P08-C04",
@@ -4183,7 +4351,12 @@
       "Pass: Deletion tombstone replay",
       "Pass: Partial export failure and retry"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P08-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P08-C04.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P08-C05",
@@ -4270,7 +4443,12 @@
       "Pass: Current guardian and source-version check",
       "Pass: Replay and rollback no duplicate effects"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P08-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P08-C05.md",
+    "workflow": {
+      "route": "integration",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P09-C01",
@@ -4409,7 +4587,12 @@
       "Pass: Contract drift",
       "Pass: Route guard denial plus backend denial"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P09-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P09-C01.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P09-C02",
@@ -4568,7 +4751,12 @@
       "Pass: Mobile timetable",
       "Pass: No private data in cache/HTML"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P09-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P09-C02.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "low",
+      "context_budget_tokens": 6000
+    }
   },
   {
     "id": "ZE-P09-C03",
@@ -4732,7 +4920,12 @@
       "Pass: Logout/revoked session",
       "Pass: Role route mismatch"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P09-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P09-C03.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P10-C01",
@@ -4894,7 +5087,12 @@
       "Pass: Validation accessibility",
       "Pass: Cross-family ID denied"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P10-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P10-C01.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P10-C02",
@@ -5085,7 +5283,12 @@
       "Pass: Currency formatting",
       "Pass: No unrestricted scheduling action"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P10-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P10-C02.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P10-C03",
@@ -5350,7 +5553,12 @@
       "Pass: Accessible progress/schedule",
       "Pass: Unread state"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P10-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P10-C03.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P10-C04",
@@ -5530,7 +5738,12 @@
       "Pass: No finance imports",
       "Pass: Activity replay/error"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P10-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P10-C04.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P10-C05",
@@ -5686,7 +5899,12 @@
       "Pass: Immutable submission history",
       "Pass: Other-student denial"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P10-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P10-C05.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P10-C06",
@@ -5835,7 +6053,12 @@
       "Pass: Completion pending state",
       "Pass: Responsive accessible score"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P10-C06.md"
+    "verification_evidence": "docs/planning/verification/ZE-P10-C06.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P10-C07",
@@ -6041,7 +6264,12 @@
       "Pass: Revoked enrolment",
       "Pass: Keyboard notification flow"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P10-C07.md"
+    "verification_evidence": "docs/planning/verification/ZE-P10-C07.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C01",
@@ -6267,7 +6495,12 @@
       "Pass: Host-start restriction",
       "Pass: Revoked assignment"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C01.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C02",
@@ -6451,7 +6684,12 @@
       "Pass: Keyboard rubric/error handling",
       "Pass: No other-family/billing fields"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C02.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C03",
@@ -6635,7 +6873,12 @@
       "Pass: Confirmed lifecycle changes",
       "Pass: Audit reason"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C03.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C04",
@@ -6792,7 +7035,12 @@
       "Pass: Accessible publication validation",
       "Pass: Unsaved edits"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C04.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "medium",
+      "context_budget_tokens": 12000
+    }
   },
   {
     "id": "ZE-P11-C09",
@@ -6980,7 +7228,12 @@
       "Pass: Wrong revision reference",
       "Pass: Unsaved/version-conflict recovery"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C09.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C09.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C10",
@@ -7120,7 +7373,12 @@
       "Pass: Accessible question controls",
       "Pass: Definition version/reference errors"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C10.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C10.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "medium",
+      "context_budget_tokens": 12000
+    }
   },
   {
     "id": "ZE-P11-C05",
@@ -7342,7 +7600,12 @@
       "Pass: Provider retry state",
       "Pass: No finance for education-only admin"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C05.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C06",
@@ -7545,7 +7808,12 @@
       "Pass: Certificate owner/link",
       "Pass: Draft visibility restricted"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C06.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C06.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C07",
@@ -7724,7 +7992,12 @@
       "Pass: CSV export access",
       "Pass: Explicit access disposition"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C07.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C07.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P11-C08",
@@ -7974,7 +8247,12 @@
       "Pass: Asset quarantine/hold",
       "Pass: Privilege-specific dashboard"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P11-C08.md"
+    "verification_evidence": "docs/planning/verification/ZE-P11-C08.md",
+    "workflow": {
+      "route": "frontend",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P12-C01",
@@ -8056,7 +8334,12 @@
       "Pass: Missing prod config fail closed",
       "Pass: Health/readiness and restart recovery"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P12-C01.md"
+    "verification_evidence": "docs/planning/verification/ZE-P12-C01.md",
+    "workflow": {
+      "route": "operations",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P12-C02",
@@ -8138,7 +8421,12 @@
       "Pass: Disk/queue thresholds",
       "Pass: Incident drill"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P12-C02.md"
+    "verification_evidence": "docs/planning/verification/ZE-P12-C02.md",
+    "workflow": {
+      "route": "operations",
+      "review_risk": "medium",
+      "context_budget_tokens": 12000
+    }
   },
   {
     "id": "ZE-P12-C03",
@@ -8220,7 +8508,12 @@
       "Pass: Key recovery",
       "Pass: Deletion tombstone replay"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P12-C03.md"
+    "verification_evidence": "docs/planning/verification/ZE-P12-C03.md",
+    "workflow": {
+      "route": "operations",
+      "review_risk": "critical",
+      "context_budget_tokens": 24000
+    }
   },
   {
     "id": "ZE-P12-C04",
@@ -8304,7 +8597,12 @@
       "Pass: Image rollback",
       "Pass: Migration previous-release compatibility"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P12-C04.md"
+    "verification_evidence": "docs/planning/verification/ZE-P12-C04.md",
+    "workflow": {
+      "route": "operations",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P12-C05",
@@ -8365,7 +8663,7 @@
       "pr": null,
       "completion_evidence": null
     },
-    "objective": "Run real staging provider sandbox contracts and end-to-end family purchase→class→submission→mark/release→completion/certificate, refunds and failure recovery. Fix integration defects only within traced launch contracts.",
+    "objective": "Run real staging provider sandbox contracts and end-to-end family purchase\u2192class\u2192submission\u2192mark/release\u2192completion/certificate, refunds and failure recovery. Fix integration defects only within traced launch contracts.",
     "required_tests": [
       "Stripe signed payment/refund",
       "Zoom start/join/cancel",
@@ -8400,7 +8698,7 @@
     ],
     "context_selection": "Read only entries matching the named requirement/object/service/API/component IDs in larger catalogs.",
     "acceptance_criteria": [
-      "Run real staging provider sandbox contracts and end-to-end family purchase→class→submission→mark/release→completion/certificate, refunds and failure recovery. Fix integration defects only within traced launch contracts.",
+      "Run real staging provider sandbox contracts and end-to-end family purchase\u2192class\u2192submission\u2192mark/release\u2192completion/certificate, refunds and failure recovery. Fix integration defects only within traced launch contracts.",
       "Pass: Stripe signed payment/refund",
       "Pass: Zoom start/join/cancel",
       "Pass: Calendar sync",
@@ -8409,7 +8707,12 @@
       "Pass: Cross-family/role IDOR",
       "Pass: Out-of-order duplicate event regression"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P12-C05.md"
+    "verification_evidence": "docs/planning/verification/ZE-P12-C05.md",
+    "workflow": {
+      "route": "verification",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   },
   {
     "id": "ZE-P12-C06",
@@ -8499,7 +8802,12 @@
       "Pass: Student othersubmission",
       "Pass: Revoked access and cache"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P12-C06.md"
+    "verification_evidence": "docs/planning/verification/ZE-P12-C06.md",
+    "workflow": {
+      "route": "verification",
+      "review_risk": "critical",
+      "context_budget_tokens": 24000
+    }
   },
   {
     "id": "ZE-P12-C07",
@@ -8582,6 +8890,11 @@
       "Pass: Production configuration/smoke",
       "Pass: ZeroCritical/High"
     ],
-    "verification_evidence": "docs/planning/verification/ZE-P12-C07.md"
+    "verification_evidence": "docs/planning/verification/ZE-P12-C07.md",
+    "workflow": {
+      "route": "verification",
+      "review_risk": "high",
+      "context_budget_tokens": 18000
+    }
   }
 ]

@@ -23,6 +23,7 @@ from urllib.error import HTTPError, URLError
 STATES = {"PLANNED", "READY", "BLOCKED", "IN_PROGRESS", "PR_OPEN", "COMPLETE"}
 SHA = re.compile(r"^[0-9a-f]{40,64}$")
 CORE_AUTHORITIES = {
+    "docs/planning/workflow-routing.json", "docs/planning/AGENT_WORKFLOW.md",
     "docs/product/requirements.json", "docs/planning/chunks.json",
     *{f"docs/product/{name}.md" for name in (
         "PRODUCT_DEFINITION", "LAUNCH_SCOPE", "OUT_OF_SCOPE", "FUTURE_CONSIDERATIONS",
@@ -48,6 +49,10 @@ class Blocked(Exception):
 
 class AuthorityUnavailable(Blocked):
     """A live authority could not be queried; selection must stop entirely."""
+
+
+class ClosedUnmergedPR(Blocked):
+    """A rejected/abandoned PR cannot remain an open completion claim."""
 
 
 def require(condition, message):
@@ -246,6 +251,9 @@ class GitHub:
     def open_prs(self):
         return self.api("pulls?state=open&base=master&per_page=100", paginate=True)
 
+    def closed_prs(self):
+        return self.api("pulls?state=closed&base=master&per_page=100", paginate=True)
+
     def file_at(self, revision, path):
         require(SHA.fullmatch(revision or "") is not None, "Invalid PR head identifier")
         return self._request(f"contents/{quote(safe_path(path), safe='/')}?ref={revision}", raw=True)
@@ -309,6 +317,8 @@ def validate_plan(chunks):
 
 def merged_pr(repo, github, number, head):
     pr = github.pr(number)
+    if pr.get("state") == "closed" and pr.get("merged") is not True:
+        raise ClosedUnmergedPR(f"PR #{number} was closed without merge; resolve before retrying its chunk")
     require(pr.get("merged") is True and pr.get("merged_at"), f"PR #{number} is not merged")
     require(pr.get("base", {}).get("ref") == "master", f"PR #{number} targets another branch")
     require(pr.get("base", {}).get("repo", {}).get("full_name", "").lower() == github.slug.lower(),
@@ -383,6 +393,15 @@ def completion(repo, github, head, chunk):
     require(isinstance(checks, list) and checks, "Verification evidence is missing")
     review = evidence.get("review", {})
     require(review.get("critical") == 0 and review.get("high") == 0, "Unresolved Critical/High review findings")
+    if chunk.get("workflow"):
+        rank = {"low": 0, "medium": 1, "high": 2, "critical": 3}
+        depth = {"lightweight": 0, "focused": 1, "deep": 2}
+        risk = chunk["workflow"]["review_risk"]
+        require(review.get("risk") in rank and rank[review["risk"]] >= rank[risk], "Review risk is below chunk floor")
+        required_depth = min(rank[review["risk"]], 2)
+        require(depth.get(review.get("depth"), -1) >= required_depth, "Review depth is insufficient")
+        if required_depth == 2:
+            require(review.get("independent") is True, "Sensitive chunk requires independent deep review")
     for record in [*checks, {"result": "PASS", "evidence": review.get("evidence")}]:
         require(record.get("result") == "PASS", "Verification did not pass")
         p = safe_path(record.get("evidence"))
@@ -412,6 +431,27 @@ def open_chunk_claims(github, chunks):
     return claims
 
 
+def closed_chunk_claims(github, chunks):
+    """Find abandoned same-repository chunk PRs without loading their diffs/history."""
+    known = {chunk["id"] for chunk in chunks}
+    claims = {}
+    for pr in github.closed_prs():
+        if pr.get("state") != "closed" or pr.get("merged") is True or pr.get("merged_at"):
+            continue
+        if pr.get("base", {}).get("ref") != "master":
+            continue
+        if any(pr.get(side, {}).get("repo", {}).get("full_name", "").lower() != github.slug.lower()
+               for side in ("base", "head")):
+            continue
+        for line in (pr.get("body") or "").splitlines():
+            if not re.fullmatch(r"ZUNO_EDU_CHUNK:ZE-P\d{2}-C\d{2}", line):
+                continue
+            cid = line.removeprefix("ZUNO_EDU_CHUNK:")
+            if cid in known and re.fullmatch(rf"feature/{cid.lower()}-[a-z0-9]+(?:-[a-z0-9]+)*", pr.get("head", {}).get("ref", "")):
+                claims.setdefault(cid, []).append(pr["number"])
+    return claims
+
+
 def reconcile(repo, github=None):
     head, config = repo.synchronize_check()
     chunks = validate_plan(repo.json(head, "docs/planning/chunks.json"))
@@ -426,6 +466,7 @@ def reconcile(repo, github=None):
               "unresolved_prs": [], "blocked_chunks": [], "completion_evidence": {},
               "next_candidate_chunk": None, "warnings": []}
     open_claims = open_chunk_claims(github, chunks) if effective_scope == "LOCKED" else {}
+    closed_claims = closed_chunk_claims(github, chunks) if effective_scope == "LOCKED" else {}
     result["open_prs"] = {cid: [claim["pr"] for claim in claims] for cid, claims in sorted(open_claims.items())}
     for chunk in chunks:
         cid, status = chunk["id"], chunk["status"]
@@ -442,6 +483,11 @@ def reconcile(repo, github=None):
                 continue
             except AuthorityUnavailable:
                 raise
+            except ClosedUnmergedPR as exc:
+                result["effective_states"][cid] = "BLOCKED"
+                result["blocked_chunks"].append(cid)
+                result["warnings"].append(f"{cid}: {exc}")
+                continue
             except Blocked as exc:
                 result["warnings"].append(f"{cid}: {exc}")
                 if status == "COMPLETE":
@@ -454,6 +500,11 @@ def reconcile(repo, github=None):
         if cid in open_claims:
             result["effective_states"][cid] = "PR_OPEN"
             result["unresolved_prs"].append(cid)
+            continue
+        if cid in closed_claims:
+            result["effective_states"][cid] = "BLOCKED"
+            result["blocked_chunks"].append(cid)
+            result["warnings"].append(f"{cid}: PRs {closed_claims[cid]} closed without merge; obtain explicit retry/disposition before resuming")
             continue
         if status in {"BLOCKED", "IN_PROGRESS"} or chunk.get("blockers"):
             result["effective_states"][cid] = "BLOCKED" if chunk.get("blockers") else status
@@ -475,6 +526,10 @@ def reconcile(repo, github=None):
         if ready and result["next_candidate_chunk"] is None:
             result["next_candidate_chunk"] = cid
     # Catch a remote merge during API/evidence inspection. Restart on a new tip.
+    if progress.get("master_sha_at_last_reconciliation") not in (None, head):
+        result["warnings"].append("Progress cache uses an older master; persist recomputed state only on the next feature branch")
+    if progress.get("next_candidate_chunk") not in (None, result["next_candidate_chunk"]):
+        result["warnings"].append("Cached next candidate is stale and was ignored")
     repo.assert_remote_tip(head)
     return result
 

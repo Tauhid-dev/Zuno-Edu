@@ -146,319 +146,327 @@
       "sha256": "4ee178ea7fafd96ad082969e7201f343331858b5e023ec97fc5f4b5405549f4b"
     },
     {
+      "path": "docs/planning/AGENT_WORKFLOW.md",
+      "sha256": "98984a8bc7de9be4a906154291b06a8676b157daa3229d7baf160451ae9a96f0"
+    },
+    {
       "path": "docs/planning/chunks.json",
       "normalization": "chunk-plan-v1",
-      "sha256": "3087beeb3d2d913e7ffcfd5f37021dd0d75e82b27893c113e55ba5e15a5aeaa1"
+      "sha256": "6fb531e1ea4fdfd224a73ecec437f3bebb40c3693fa81fdcc9b7057a2dfd3750"
     },
     {
       "path": "docs/planning/chunks/ZE-P01-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "b7b3cd2fb70058ea70ed83c00b9dbe344d102eda19ee7f9b3c2467cdda247985"
+      "sha256": "ebb66a1e4ec7f4f757cea9e04d31a0acadb33d3391ef26f60d3b665fa7ecdb07"
     },
     {
       "path": "docs/planning/chunks/ZE-P01-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "c086d174aef93a1f39c25bf2e336fef149200119a3755bb13b4af5234cf47af0"
+      "sha256": "818fb40dac05a0788576f9d69f905ee68946d0ddfb7864c707f0bc87e265f3a1"
     },
     {
       "path": "docs/planning/chunks/ZE-P01-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "8318c822ce5cd13dc4c6f015b5a8b5e51cdfa342f8b54242d1af69eda349d4ee"
+      "sha256": "1125aa785b6177c078f526a3f93efb3ad828d0ee969b8bce3b6225a110370535"
     },
     {
       "path": "docs/planning/chunks/ZE-P02-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "33f56e2f706668d9a9f0a61ee8b09a608cac681e9c11710bb52f2b11cba2790f"
+      "sha256": "f377fc8f3eb76ac07c4ae4b5b1cc6d777cf8e239c4698b273101dfcff9ca87ab"
     },
     {
       "path": "docs/planning/chunks/ZE-P02-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "f6fd82aa350710bb03bde68306cc0aac90c7e8f25403bfa0c004f02316977aa2"
+      "sha256": "337e86b06b1052c57b3bf3e05b3340328c99c2df9f619799d75e2acf5dca9d9d"
     },
     {
       "path": "docs/planning/chunks/ZE-P02-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "46729d5f175d68b97802eea0812a9d9b3c113ab83c364634c94fd04856a22173"
+      "sha256": "c07d633d52b1c4ce8e325b690dff98e7e31e14966fb16c6722b3a5650d4e13b5"
     },
     {
       "path": "docs/planning/chunks/ZE-P02-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "31ffa7dad788c93fac0e5a78e8240661eb72a2eb7ba7e7a3f6de9eef0715c6ae"
+      "sha256": "16d5989527d7cfa35c0a1cfff38414603c3d5ec5a87758aa911d7d668943526b"
     },
     {
       "path": "docs/planning/chunks/ZE-P02-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "6c4b600a00429cb86557c9e1d0cd584e0d9a9bbd151ec950bacbf4c8cac53740"
+      "sha256": "3adc439ed5d8053928890560f6c654c1462feb6eb72b0f7acfd504d5edad9227"
     },
     {
       "path": "docs/planning/chunks/ZE-P03-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "ebc3e17b5873e194477a5da12d24f34d87d342589cf92ec53d0e533f4ae80c62"
+      "sha256": "0eb4762ba9b276769a5af9510978cbb1ff66b6bfeab0eca7f8876ff613ba8bc3"
     },
     {
       "path": "docs/planning/chunks/ZE-P03-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "d3abd72034f517cd567368263b020ab4960394230dd5c394ea93179081706fbe"
+      "sha256": "f3de225c4985fa7cba500b11d6576e369cd466484a7969dbccf4a93491d59815"
     },
     {
       "path": "docs/planning/chunks/ZE-P03-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "6153876cbad702c37517bf0edf4e3fe64ebb2090525b3292431a532fa32eb5a4"
+      "sha256": "da569d211c570c3ffa2e0d978fe0c404d8534732b63dca20bd991a767e964102"
     },
     {
       "path": "docs/planning/chunks/ZE-P03-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "a1285147b9b9e4059367dbac0d1659fc8ad0b6e1670abecd3603e651b3308f31"
+      "sha256": "ba802088aad80ba9af8f2ab2e78165e46ce4154d25d962836a4d68f4599a9728"
     },
     {
       "path": "docs/planning/chunks/ZE-P04-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "01528263ef9ee0588b311212394de5310273bfa7d7d4dfa144e66c7611e51e11"
+      "sha256": "cfbdacece893b206a9f9b8d067a67927e1d757ed594d79fc9ecccbae3c65ee41"
     },
     {
       "path": "docs/planning/chunks/ZE-P04-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "c6925596fbb05f5036a9abf26f8f6de523e99cd926a49d1fb734e1c78ec8eada"
+      "sha256": "2368996df94ac24d8cf9c4d4c400e6a87ee8edbd3651e834ec631404f2e66f34"
     },
     {
       "path": "docs/planning/chunks/ZE-P05-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "0963101a9555ceccd73fe5b23b99e8b6ac0736e1f9a721cfc10ad22122690ca7"
+      "sha256": "07196700069b53ffeb1c3ee0ce4f261445f4d760d4cf85380299d2eebd511be3"
     },
     {
       "path": "docs/planning/chunks/ZE-P05-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "e1fe936a211fea52db7c4eb68db398a7b73f3c98cdc70a3bb3b212489dae5b92"
+      "sha256": "ad805df47d864556dfa1db9a212fc2d47d61d8f07761d7657546dae7ad84a637"
     },
     {
       "path": "docs/planning/chunks/ZE-P05-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "a425d8f4749f1dfb32e0632eab19528b00d399d7db69fcbd741aff578bc53d15"
+      "sha256": "2b0079473297637be882cbe12d3eb986ef9602a6acb2edf5a1390ebeccb50229"
     },
     {
       "path": "docs/planning/chunks/ZE-P05-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "a7fe777fd3783e6b26148808d52fd1263c9c4bf6887848fe5ca78246a4238a99"
+      "sha256": "0b86e5a514d3d54dcefb3a933ead8d15063a98877d5155d6fd731a9773bbde0e"
     },
     {
       "path": "docs/planning/chunks/ZE-P05-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "ad49257fae681d1247643ec4bdc308657d2605d95ff140e7974e74ddec410b06"
+      "sha256": "655a69a6785d74f756c5b4f9ce2eb4fa586293856a2e7438014e685425365f5e"
     },
     {
       "path": "docs/planning/chunks/ZE-P06-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "d83c1f0ca7c12b3da8c0d75492b23498b6b2b798fd99d2054b446b82899d3a3a"
+      "sha256": "ade2754666dad2fbbdb2230d5ac1c5a817485ca7e89f8a475f40ab5a484c9343"
     },
     {
       "path": "docs/planning/chunks/ZE-P06-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "62917c5336cf70caf8fdbaf49a48998f8dba91ee66901d568a311cdf4f394f53"
+      "sha256": "bcf859254af619dddc7712685673ce8eb9c4b3286f35867560eaf24c7cd7e01d"
     },
     {
       "path": "docs/planning/chunks/ZE-P06-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "3cf63a6f63265da21da798878773b6509a78c5b1b42994818561e2ff44c8d49e"
+      "sha256": "37fb38b1e9e50083955a1de4b85bdfd2388b314700ad09639101af67541ab91e"
     },
     {
       "path": "docs/planning/chunks/ZE-P06-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "4aca83c178a1f97b098f8318eb4ba535c1ff9c02475e1f14d6e3952ca344cb58"
+      "sha256": "9dafd45a715fabbcec876941648f8b137e27bf1d762f333cd24c77f27d682a97"
     },
     {
       "path": "docs/planning/chunks/ZE-P06-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "a5225c172f2b568b8a54e1c11e9ac0e71f06ecea72b285559896197f5f66c548"
+      "sha256": "bc4fd8d23326233ea6651d98094b33b4ccb986f2481e4a2330245ca0f5fe3e79"
     },
     {
       "path": "docs/planning/chunks/ZE-P07-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "10bff0417483902f52b12e29444b6c4a55d80f85f08098268afd73057f6297c2"
+      "sha256": "1907e72d8eedc1c58277003979a5c757a91826aeeafec17d53fa106214139eaa"
     },
     {
       "path": "docs/planning/chunks/ZE-P07-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "b585192eeccbfceb75ecf2cdbcbb346c2e26302f08049339365022d692929115"
+      "sha256": "b3ed04dd52133637d74b6e3c05fa3396ab8cc1640104db3d7e6a952dcdebb346"
     },
     {
       "path": "docs/planning/chunks/ZE-P07-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "00b6e2cd02537868b7e952b884edf13841014f4d9c962431f36c1e3f7711a144"
+      "sha256": "78da02f924c5101a7b7d2a3d7aae40e64c1d3e7c62705e5ca7a8c6fcf25e6e90"
     },
     {
       "path": "docs/planning/chunks/ZE-P07-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "698cd2cca58e3f4d8a72c0ee8dd550ffbd3ab82dedd58aff228e13414a4a1536"
+      "sha256": "06abac6b6416ddbbbf1cdc100a8d578266f62b4b7d34a7bad86fbe879bf6b604"
     },
     {
       "path": "docs/planning/chunks/ZE-P07-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "ea85c6bf10813ad9e1be9b71f2d886d9f5cf0396f55ab9ed4b665efcf2578397"
+      "sha256": "65ed35e27507179770c7676946fc9eaa983c8c90fa3fbbcf3045a72f60fb2ced"
     },
     {
       "path": "docs/planning/chunks/ZE-P07-C06.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "24099a25b3130c518d98943b3dd24a44ebc34cd4ac487a5ee0b77a489275d8f2"
+      "sha256": "b3c008b4aa45b104b450c9b55545b54c0b74dbbd85a49ffd3ff8dcb4b3d2a62c"
     },
     {
       "path": "docs/planning/chunks/ZE-P08-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "316291abfe05cfb29c36dc00fbd082dcbf831f9e43c3d7d679e07684b9d48835"
+      "sha256": "175dac2159f7f9039371ab8385ff87cce57247ca62841c16b8ae4daab030eb73"
     },
     {
       "path": "docs/planning/chunks/ZE-P08-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "5f6b74861b2c8cef7b2b000d73fdbb6d8a69679a4d2cc0560c9c7c702768a590"
+      "sha256": "d49197ce494f2f95a4e9839bba8405654e2210c259a928088192051c1c0913a1"
     },
     {
       "path": "docs/planning/chunks/ZE-P08-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "618d90c7408e5fafb38c32be40c5c29de58a5113a4007858a630ce04b9e9231b"
+      "sha256": "187993a7f4032ebf2e429f0cda8042cc6b09d66fcbf5b8d15b8eed4115006e16"
     },
     {
       "path": "docs/planning/chunks/ZE-P08-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "3edc82892743a55d04fc3aab2f3c38e5a39ca654aa2552f5e3cc2dddb422b3ca"
+      "sha256": "d525aa7e2f5e2f48afba0c07858d0cba3ab9c73926da7ba9e8031bea6bc16e6e"
     },
     {
       "path": "docs/planning/chunks/ZE-P08-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "80ae7d991970f71d1c6e637a9f017612e3f4f69e5d598b50729dd5be4a69f666"
+      "sha256": "968102a76a412e5e64dd3d911ef6289be323fd70abeccffbd21a06472dc4dfa4"
     },
     {
       "path": "docs/planning/chunks/ZE-P09-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "4f02f7137cb6d60795e7306d23c6ee5962567d1a2500bd1f07eb0c112a0d63b9"
+      "sha256": "07fc97499b57feb4f4c8f5b0333b244794e6a2590be0cb17a6334dd72b1a7f76"
     },
     {
       "path": "docs/planning/chunks/ZE-P09-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "4d1bb307ec62b0cf8df827802433ec6cc84e74c59e3eb09e1d8b00ae3b7e744d"
+      "sha256": "9f2f2d820b5d3a7afc8f08715a8bc57419f63a0f0e56dd307fcaf0abd0a249a8"
     },
     {
       "path": "docs/planning/chunks/ZE-P09-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "35b7eb9c1b3fc51d20ea9ac8a527b164e2ed5fae52517b3bac76b79b5cd45092"
+      "sha256": "44aa3363ce8bf19058f3d1c2a15db73a1e38f5c51d67df22ccc19e7c7a319e47"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "7ff628e463d5e842af9581f5e57e84860ac203b06e0ea0c4380386d0d6eab9b9"
+      "sha256": "7c84d8aa109ad2112ef6a14989edc7a50e3ea5da08d3de460df2330242df1d03"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "ed3d390f39775745da6df58298be1479ad736907dc979df381d07c3011dc3ac6"
+      "sha256": "6a3796cd60ad3b698a5d1c2409d9806cc609824a6bea3e726a34b44fe865c3ac"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "80c8c5b72d97d0aae8725467288f165ac012fcb55e9a909fcdb6dac351d00ce9"
+      "sha256": "33e39149da0b1c6e504a00f8813bfff855acae25dd74481e10605d6a41129239"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "4026503543fb051d14a74c6330d35c9cae98427f67928e9d8f54d1c020e8fdf5"
+      "sha256": "59fdf30b4a999f62633af84aa0bbc3b61f2581f9a456f81ae309c3e6311de0ac"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "dddac82e24ec2f451b1dfe8181aa6dffd67efcbe53cb9dc1ee97f8176b3dcf21"
+      "sha256": "1c493c4aecbc867b9f3f2de874da93d206496f4152bbe2d865e387b1c6564181"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C06.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "b435e3ae8ced22bb10126d72b6818fec83e267a2f3d80fe83dae9210b5135ad1"
+      "sha256": "bb8237d2c04ba0163eaffcd8c203fccf0e4f5b443877e00d121db227c434dbb9"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C07.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "d9348f8c92b03cde88a6beab13d364fee4558f0fa67acfb61d2293fd636b4dfc"
+      "sha256": "ff443887357df41e424655d5962a5cf4ad4384ecda4a52b8ce93cc89a8c0a721"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "a9ed60db6b885bb44f7653c36ba323e853f21e7ff331a9f13452e76844827269"
+      "sha256": "b6313246e5c5434788e6a7e526c92a373191bb70978f6a94b861976b35b68f67"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "3b4cc9a7439dd3843986e48e7d87d12f14793afa8e772bb2ddba64c4004738e0"
+      "sha256": "8a9c959631a76bc96e1936ad1faaab74366ebaa0e88e69d5685096871671e65f"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "0cfac28ac9948eec491482a9739cccf9a878c09eadc03e49fd98422cc3a48c34"
+      "sha256": "ede938612b8a8ca2f729aff7f7d34ce5bf5f9f5eb74c1535bef25e1898638007"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "2cae08a57a6e56165b3807e4155fa466261c38f19951e1e27f3d1dfe08d8c5b9"
+      "sha256": "a21f9dc3a565aee3eef847fd3106bec6aeac4ca4ccf52d5983330ac5f6387c4c"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "77dd42b35734238793a7ded10bbf675310d2a6ec01513cc9c84db5ddbef952f6"
+      "sha256": "f48655a25b0d8b121d37dede0fe390554184b4d243c996d12aa409052ae55dc2"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C06.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "66df718bebc85c26e498efff02be313313cc499cba9172f9a7a5e4bbe31127bb"
+      "sha256": "798bf7fa50f5aff7e0171f7ed4958e806e83e7ab7d3fad3da166e69e08b783a5"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C07.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "e820c319f98c30ae08929b1791014e417f8e40e001992440457eaad052247591"
+      "sha256": "2f0c754282e3188a8cf9dabb24245ff780cb279ba0303138fc88e32c22681c42"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C08.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "83e8395d7310e3096f67ceef8fa05091800aa37a4ed695f1e1acb421aeb04e1e"
+      "sha256": "d5fc418c81ccaf3fcc5e563d73fbd5bd303800af3abbe430b2c8547ae68f5538"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C09.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "2fc34f5cacbf7cd70273b8f80e4fa4883768ccd412d3f8f26b824d01c213db71"
+      "sha256": "84ef162ac66a7c49697917893af67128da1e60d5b33173407c9440cea2040d0a"
     },
     {
       "path": "docs/planning/chunks/ZE-P11-C10.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "0d92a02db6712f762f1f8a7b4ea86602651a25d403de6a5791c618e24ff5cc25"
+      "sha256": "8f9108aa4cab6096c59db141b26ccad3cd1a56ef9c07208f005ce1ea6fa0bb17"
     },
     {
       "path": "docs/planning/chunks/ZE-P12-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "2ba2c9637395c390cbed4775348aa402bb512009bf3e48ea9134bba3c7090744"
+      "sha256": "0e4e6374a9146be1c281bcecb571bbcbd295eae11a3835e21026af2d781ad1a0"
     },
     {
       "path": "docs/planning/chunks/ZE-P12-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "791f48ed526142974911cf6db186d8d4cc540575f95e67179344e8cb4069800b"
+      "sha256": "d58b204718e651c449cb7edc26cede450d3ad765c33c21bb8de2431eb29c2806"
     },
     {
       "path": "docs/planning/chunks/ZE-P12-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "52440029ec806200571ed8adb974ac5a194bdb5fe42cb017d373e75ea56bff30"
+      "sha256": "36af9e091ca622a2cc3992aa3c7f31c53ce7794184ceabf7f37bf156cf6e4571"
     },
     {
       "path": "docs/planning/chunks/ZE-P12-C04.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "7e6b35de292c1739156071498406c1c4373dd183c86939c4b733efd335ae0741"
+      "sha256": "052bbf8bfceb316bb2573ab36b46a09a6e0e9aa2d044a25a49f76a1948c1bc45"
     },
     {
       "path": "docs/planning/chunks/ZE-P12-C05.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "ef7a47cf0f9fd3b497dc33bc18034e1c1194125ae9e6ef96bde34ebbbc2dadda"
+      "sha256": "bdb378e563cc8df1b70e6f0e16acd84a953f1507e6e8049056f0a8ac12ea256e"
     },
     {
       "path": "docs/planning/chunks/ZE-P12-C06.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "97e26a1c9214663c8f57cb00c86f78dfbeec42c432671f349a9b352d61fbe8f9"
+      "sha256": "4bc896637c5fa0a621e9664c9931c561802b95f524f48c9dd6f3b0ac3eb213e8"
     },
     {
       "path": "docs/planning/chunks/ZE-P12-C07.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "4bd5b6efa938be4f61a0dd2c5711a7a511e056ab9ad16dab53bcabcf6563e0c3"
+      "sha256": "5e17ec933a3919bcd8ca845b437c8c1e16648d16ead7ac03fe1d5a65ff0e7f7f"
+    },
+    {
+      "path": "docs/planning/workflow-routing.json",
+      "sha256": "996b4e148ad988730d1fdb194bdf50f5fd6ec56377afb12bbf5a86f5de5c90c2"
     },
     {
       "path": "docs/product/DATA_REQUIREMENTS.md",
@@ -503,7 +511,7 @@
     {
       "path": "docs/product/SCOPE_LOCK.md",
       "normalization": "scope-document-v1",
-      "sha256": "4f6119c505b52cd0b2490b9de68d70a54b66e1cd2d661d21199df3c62f76f993"
+      "sha256": "099fe49f3ceb763b9d97049752c08b0e9c939021ef9fca817368f8bb31413334"
     },
     {
       "path": "docs/product/USER_JOURNEYS.md",
@@ -513,5 +521,10 @@
       "path": "docs/product/requirements.json",
       "sha256": "96f24c5ee1c658dad6e75d426cdde071c262705aa5722856f889e92e5563d2b2"
     }
-  ]
+  ],
+  "workflow_version": 1,
+  "product_baseline": {
+    "pr": 1,
+    "merge_commit": "e6818689ce23526165c4fe99a8899e9d5641891e"
+  }
 }

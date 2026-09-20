@@ -31,7 +31,7 @@ ZUNO_EDU_CHUNK:<CHUNK-ID>
 
 ## Independent review findings
 
-<!-- Reviewer, evidence, Critical/High/Medium/Low counts, fixes and retest results. -->
+<!-- Risk/depth, reviewer identity/independence, evidence, finding counts and affected retests. Independent deep review for high/critical. -->
 
 ## State
 
@@ -42,3 +42,7 @@ ZUNO_EDU_CHUNK:<CHUNK-ID>
 ## Human action
 
 Review and merge into master if approved.
+
+## Next context
+
+<!-- Conditional next chunk, model/reasoning and one-line reason; exact LOAD refs in CURRENT_HANDOFF. Fresh remote reconciliation is still required. -->

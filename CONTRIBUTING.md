@@ -8,6 +8,7 @@ Use Python 3.11+ and Git for bootstrap validation:
 ```sh
 python3 scripts/validate_plan.py
 python3 scripts/reconcile_state.py --validate-plan
+python3 scripts/next_chunk.py --validate
 python3 -m unittest discover -s tests/workflow -v
 ```
 
@@ -34,7 +35,7 @@ Branches: `feature/<chunk-id-lowercase>-<slug>`. Bootstrap branch:
 
 Every implementation PR must include the exact full-line marker
 `ZUNO_EDU_CHUNK:<CHUNK-ID>`, the completed [PR template](.github/pull_request_template.md),
-required validation and independent review with zero unresolved Critical/High findings.
+required validation and risk-based review with zero unresolved Critical/High findings. High/critical work requires independent deep review.
 Record its number and immutable completion evidence on the feature branch after PR
 creation. A merged PR can retain `PR_OPEN` in files; reconciliation recognizes the
 actual merge and persists corrections in the next feature branch.
@@ -42,3 +43,5 @@ actual merge and persists corrections in the next feature branch.
 Use the [scope-change process](docs/planning/SCOPE_CHANGE_PROCESS.md) for an explicit
 human change to locked scope. Do not reinterpret hard requirements as optional.
 The PR author hands off; the human reviews and merges into master if approved.
+
+Normal entry point: start a fresh Codex context and say `next chunk`. AGENTS routes remote synchronization, existing evidence reconciliation and one bounded context packet. Detailed policy is lazy-loaded from docs/planning/AGENT_WORKFLOW.md; historical handoffs are not startup context.
