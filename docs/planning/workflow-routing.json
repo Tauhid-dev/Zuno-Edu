@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "instructions": "docs/planning/AGENT_WORKFLOW.md",
+  "current_handoff": "memory/CURRENT_HANDOFF.md",
+  "archive": "memory/handoffs",
+  "profiles": {
+    "foundation": {
+      "instructions": [
+        "docs/standards/ENGINEERING_STANDARDS.md"
+      ],
+      "validation": [
+        "python",
+        "web"
+      ]
+    },
+    "backend": {
+      "instructions": [
+        "docs/standards/BACKEND_STANDARDS.md",
+        "docs/standards/OOP_AND_DOMAIN_STANDARDS.md"
+      ],
+      "validation": [
+        "python"
+      ]
+    },
+    "integration": {
+      "instructions": [
+        "docs/standards/BACKEND_STANDARDS.md",
+        "docs/standards/API_STANDARDS.md"
+      ],
+      "validation": [
+        "python",
+        "integration"
+      ],
+      "model": {
+        "model": "gpt-5.6-sol",
+        "reasoning": "medium",
+        "why": "Multi-module integration needs stronger synthesis within established contracts; sensitive risk floors take precedence."
+      }
+    },
+    "frontend": {
+      "instructions": [
+        "docs/standards/FRONTEND_STANDARDS.md",
+        "docs/standards/ACCESSIBILITY_STANDARDS.md"
+      ],
+      "validation": [
+        "web"
+      ]
+    },
+    "operations": {
+      "instructions": [
+        "docs/standards/OBSERVABILITY_STANDARDS.md"
+      ],
+      "validation": [
+        "operations"
+      ]
+    },
+    "verification": {
+      "instructions": [
+        "docs/standards/TESTING_STANDARDS.md"
+      ],
+      "validation": [
+        "acceptance"
+      ]
+    }
+  },
+  "validation": {
+    "metadata": [
+      "python3 scripts/validate_plan.py",
+      "python3 scripts/next_chunk.py --validate",
+      "git diff --check"
+    ],
+    "python": [
+      "uv run ruff check {python_paths}",
+      "uv run ruff format --check {python_paths}",
+      "uv run mypy {python_paths}",
+      "uv run pytest tests/chunks/{chunk_id}"
+    ],
+    "web": [
+      "pnpm exec eslint {web_paths}",
+      "pnpm exec tsc --noEmit -p {owning_tsconfig}",
+      "pnpm exec vitest run tests/chunks/{chunk_id}",
+      "pnpm --dir apps/web exec next build"
+    ],
+    "integration": [
+      "uv run pytest tests/chunks/{chunk_id} -m integration"
+    ],
+    "operations": [
+      "docker compose -f {changed_compose_file} config --quiet",
+      "uv run pytest tests/chunks/{chunk_id}"
+    ],
+    "acceptance": [
+      "uv run pytest tests/chunks/{chunk_id}",
+      "pnpm exec playwright test tests/chunks/{chunk_id}"
+    ],
+    "migration": [
+      "uv run alembic upgrade head",
+      "uv run pytest tests/chunks/{chunk_id} -m migration"
+    ]
+  },
+  "risk": {
+    "low": {
+      "depth": "lightweight",
+      "independent": false,
+      "model": "gpt-5.6-luna",
+      "reasoning": "low",
+      "context_budget_tokens": 6000,
+      "why": "Bounded established-pattern work; deterministic checks and local diff review suffice."
+    },
+    "medium": {
+      "depth": "focused",
+      "independent": false,
+      "model": "gpt-5.6-terra",
+      "reasoning": "medium",
+      "context_budget_tokens": 12000,
+      "why": "Established architecture with normal implementation and focused contract review."
+    },
+    "high": {
+      "depth": "deep",
+      "independent": true,
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "context_budget_tokens": 18000,
+      "why": "Sensitive data, authorization or transactional boundaries need independent deep review."
+    },
+    "critical": {
+      "depth": "deep",
+      "independent": true,
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "context_budget_tokens": 24000,
+      "why": "Critical security or migration/recovery safety needs the strongest targeted review."
+    }
+  },
+  "expansion_reasons": [
+    "contract_ambiguity",
+    "dependency_gap",
+    "test_failure",
+    "architecture_conflict",
+    "state_inconsistency",
+    "regression_audit"
+  ],
+  "first_chunk": "ZE-P01-C01",
+  "validation_parameters": {
+    "python_paths": "Existing changed Python files/modules inside expected_files or affected_areas; P01-C01 establishes these paths.",
+    "web_paths": "Existing changed JS/TS files inside expected_files or affected_areas.",
+    "owning_tsconfig": "Nearest existing tsconfig.json for the changed web/package files.",
+    "changed_compose_file": "Each changed Compose definition named by the current operations manifest; N/A only if no Compose change, with rationale."
+  }
+}

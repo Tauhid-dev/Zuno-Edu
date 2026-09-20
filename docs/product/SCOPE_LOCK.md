@@ -29,4 +29,4 @@ A DRAFT marker alone is not a blocker after verified human merge. Missing, misma
 
 ## Immutable implementation constraints
 
-One selected chunk per session; synchronized remote master baseline; no dependent work on an unmerged branch; no master mutations during reconciliation; PR_OPEN is not COMPLETE; independent review and required tests; no financial teacher privilege; no cross-family/student leakage; no provider details in domain entities; no opportunistic refactoring or future functionality; human PR-only handoff; stop after handoff.
+One selected chunk per session; synchronized remote master baseline; no dependent work on an unmerged branch; no master mutations during reconciliation; PR_OPEN is not COMPLETE; risk-appropriate review (independent deep review for high/critical risk) and required tests; no financial teacher privilege; no cross-family/student leakage; no provider details in domain entities; no opportunistic refactoring or future functionality; human PR-only handoff; stop after handoff.

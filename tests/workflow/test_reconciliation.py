@@ -40,6 +40,10 @@ class FakeGitHub:
         return [dict(copy.deepcopy(record), number=number) for number, record in self.records.items()
                 if record.get("state") == "open"]
 
+    def closed_prs(self):
+        return [dict(copy.deepcopy(record), number=number) for number, record in self.records.items()
+                if record.get("state") == "closed"]
+
     def file_at(self, revision, path):
         return self.repo.read(revision, path)
 
@@ -137,7 +141,7 @@ class ReconciliationTests(unittest.TestCase):
                 "base": {"ref": "master", "repo": {"full_name": "example/zuno-edu"}},
                 "body": f"ZUNO_EDU_CHUNK:{cid}" if cid else "Planning scope approved by human merge"}
 
-    def implement(self, index=0, merged=True, mode="squash"):
+    def implement(self, index=0, merged=True, mode="squash", review=None):
         chunk = self.chunks[index]
         cid, number = chunk["id"], index + 2
         self.git("checkout", "-b", f"feature/{cid.lower()}-work")
@@ -152,6 +156,8 @@ class ReconciliationTests(unittest.TestCase):
                                   for p in (code, report)],
                     "verification": [{"name": "Acceptance suite", "result": "PASS", "evidence": report}],
                     "review": {"critical": 0, "high": 0, "evidence": report}}
+        if review:
+            evidence["review"].update(review)
         chunk["status"] = "PR_OPEN"
         chunk["execution"] = {"pr": number, "completion_evidence": evidence_path}
         self.write_json("docs/planning/chunks.json", self.chunks)
@@ -177,6 +183,56 @@ class ReconciliationTests(unittest.TestCase):
 
     def reconcile(self):
         return r.reconcile(self.repo, self.api)
+
+    def test_normal_merge_recovers_dependency_without_local_completion_claim(self):
+        self.implement(mode="normal")
+        result = self.reconcile()
+        self.assertEqual(result["effective_states"]["ZE-P01-C01"], "COMPLETE")
+        self.assertEqual(result["next_candidate_chunk"], "ZE-P01-C02")
+
+    def test_closed_unmerged_feature_only_claim_is_detected(self):
+        self.implement(merged=False)
+        self.api.records[2]["state"] = "closed"
+        result = self.reconcile()
+        self.assertEqual(result["effective_states"]["ZE-P01-C01"], "BLOCKED")
+        self.assertEqual(result["next_candidate_chunk"], "ZE-P01-C03")
+        self.assertTrue(any("closed without merge" in warning for warning in result["warnings"]))
+
+    def test_closed_pr_requires_exact_marker_and_human_disposition_releases_claim(self):
+        self.implement(merged=False)
+        self.api.records[2].update(state="closed", body="ZE-P01-C01")
+        self.assertEqual(self.reconcile()["next_candidate_chunk"], "ZE-P01-C01")
+        self.api.records[2]["body"] = "ZUNO_EDU_CHUNK:ZE-P01-C01"
+        self.assertEqual(self.reconcile()["effective_states"]["ZE-P01-C01"], "BLOCKED")
+        self.api.records[2]["body"] = "ZUNO_EDU_ABANDONED:ZE-P01-C01\nHuman authorized a fresh attempt."
+        self.assertEqual(self.reconcile()["next_candidate_chunk"], "ZE-P01-C01")
+
+    def test_remote_merge_after_last_session_overrides_stale_handoff_and_cache(self):
+        self.implement(merged=False)
+        self.assertEqual(self.reconcile()["effective_states"]["ZE-P01-C01"], "PR_OPEN")
+        self.git("merge", "--no-ff", "feature/ze-p01-c01-work", "-m", "Human merged remotely")
+        merged = self.sha()
+        self.api.records[2].update(merged=True, state="closed", merged_at="2026-09-20T00:00:00Z", merge_commit_sha=merged)
+        self.write("memory/CURRENT_HANDOFF.md", "CHUNK: ZE-P01-C01\nSTATUS: PR_OPEN\nNEXT: ZE-P01-C01\n")
+        self.write_json("memory/progress.json", {"schema_version": 1, "master_sha_at_last_reconciliation": "0" * 40,
+                                               "next_candidate_chunk": "ZE-P01-C01", "completed_chunks": []})
+        self.commit("Stale routing cache remains advisory")
+        self.publish()
+        result = self.reconcile()
+        self.assertEqual(result["effective_states"]["ZE-P01-C01"], "COMPLETE")
+        self.assertEqual(result["next_candidate_chunk"], "ZE-P01-C02")
+        self.assertTrue(any("stale" in warning for warning in result["warnings"]))
+
+    def test_sensitive_completion_rejects_nonindependent_review(self):
+        self.chunks[0]["workflow"] = {"review_risk": "high"}
+        self.implement(review={"risk": "high", "depth": "deep", "independent": False})
+        with self.assertRaisesRegex(r.Blocked, "independent deep review"):
+            r.completion(self.repo, self.api, self.sha(), self.chunks[0])
+
+    def test_low_completion_accepts_lightweight_review_with_hashed_evidence(self):
+        self.chunks[0]["workflow"] = {"review_risk": "low"}
+        self.implement(review={"risk": "low", "depth": "lightweight", "independent": False})
+        self.assertEqual(r.completion(self.repo, self.api, self.sha(), self.chunks[0])["pr"], 2)
 
     def test_full_repository_plan_recovers_first_chunk_without_chat_context(self):
         """Use the actual plan and authority files in an isolated simulated human merge."""

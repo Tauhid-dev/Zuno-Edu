@@ -1,6 +1,6 @@
 # Automatic skill routing
 
-After fresh master synchronization and deterministic chunk selection, read every `required_skills` path in that manifest. A missing required skill is a blocker; never silently skip it. Read optional skills only if the selected work touches the named boundary, and note why in the handoff. Paths are repository-relative `SKILL.md` entrypoints. Do not preload the whole skills directory.
+After fresh master synchronization and deterministic chunk selection, use `scripts/next_chunk.py` and the chunk workflow profile. Read technical required skills for implementation; workflow skills are loaded only at their phase as specified in AGENT_WORKFLOW.md. A missing required skill is a blocker; never silently skip it. Read optional skills only if the selected work touches the named boundary, and note why in the handoff. Paths are repository-relative `SKILL.md` entrypoints. Do not preload the whole skills directory.
 
 | Changed boundary | Skill categories/names |
 |---|---|
@@ -17,7 +17,9 @@ After fresh master synchronization and deterministic chunk selection, read every
 | External payment callback | security/webhook-security, integrations/stripe |
 | Provider adapter | matching integrations skill plus security/secrets-and-integrations |
 | Runtime/release/operations | matching infrastructure skills |
-| Every chunk | workflow/chunk-execution, state-reconciliation, scope-control, review-agent |
+| Execution | workflow/chunk-execution; technical skills from the selected manifest |
+| Evidence/scope conflict only | workflow/state-reconciliation or scope-control |
+| Medium+ review | workflow/review-agent; high/critical requires independent deep review |
 | Handoff and state persistence | workflow/git-workflow, memory-maintenance, pr-handoff |
 | Independent planning review | workflow/planning-review plus relevant security/domain/frontend skill |
 

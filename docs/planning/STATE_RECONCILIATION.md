@@ -160,8 +160,8 @@ the scope/architecture-change process and a newly approved evidence record.
 
 ## Implementation completion evidence
 
-The PR body must contain a full line `ZUNO_EDU_CHUNK:ZE-PXX-CXX`. After tests and
-independent review, create `memory/completions/ZE-PXX-CXX.json` on the feature branch:
+The PR body must contain a full line `ZUNO_EDU_CHUNK:ZE-PXX-CXX`. After deterministic validation and
+risk-based review, create `memory/completions/ZE-PXX-CXX.json` on the feature branch:
 
 ```json
 {
@@ -175,14 +175,14 @@ independent review, create `memory/completions/ZE-PXX-CXX.json` on the feature b
   "verification": [
     {"name": "<required check>", "result": "PASS", "evidence": "memory/handoffs/ZE-P01-C01-review.md"}
   ],
-  "review": {"critical": 0, "high": 0, "evidence": "memory/handoffs/ZE-P01-C01-review.md"}
+  "review": {"risk": "medium", "depth": "focused", "independent": false, "critical": 0, "high": 0, "evidence": "memory/handoffs/ZE-P01-C01-review.md"}
 }
 ```
 
 Include meaningful implementation, test and review witnesses; review reports identify
-the independent reviewer, findings/fixes, required checks and acceptance criteria.
+the reviewer, risk/depth/independence, findings/fixes, required checks and acceptance criteria. High/critical work requires an independent deep reviewer.
 Reports are assertions until the human reviews and merges their PR. This script proves
-provenance and inclusion, not semantic correctness; required CI, independent review
+provenance and inclusion, not semantic correctness; required CI, risk-appropriate review
 and human review are separate acceptance controls.
 
 Set status PR_OPEN and execution.completion_evidence before handoff. Open the PR, then
@@ -199,7 +199,7 @@ Completion requires all of the following:
 3. The completion file is byte-identical between its verified merge tree and current
    master; identity and exact requirement set match the chunk.
 4. Every artifact has a valid SHA-256 matching the verified merge tree. At least one
-   witnessed artifact changed in the PR. Verification and independent review evidence
+   witnessed artifact changed in the PR. Verification and risk-appropriate review evidence
    are themselves hashed artifacts, checks passed and Critical/High counts are zero.
 5. The artifact still exists on fresh master. Later edits can extend it: the reachable
    historical merge plus immutable witness proves original completion. A deleted or
@@ -236,3 +236,21 @@ Live credentials are not needed for these isolated tests.
 Before initial PR publication, also run `python3 scripts/validate_plan.py` and the
 offline schema/graph check. Online authority remains unproven until real origin and
 GitHub setup are supplied and successfully queried.
+
+## Compact routing and handoff
+
+AGENTS synchronizes first; next_chunk.py calls this same reconciler and emits only the selected routing packet. progress.json and CURRENT_HANDOFF.md are advisory caches, never approval/completion proof. Reconciliation ignores stale handoff claims, reports stale cache SHA/selection, and persists corrections only on a new feature branch. Historical memory/handoffs files are archive/evidence only.
+
+Closed-without-merge PR claims are BLOCKED rather than PR_OPEN/COMPLETE. Completion review includes risk, depth and independent fields under AGENT_WORKFLOW.md#Review; the verifier enforces the chunk risk floor and independent deep review for high/critical risk. Local execution.stage milestones do not replace registry status or remote merge proof. Conditional next-model recommendations cannot authorize another chunk.
+
+### Closed without merge
+
+A closed, unmerged PR with the exact chunk marker blocks that chunk, not independent
+ready work. A bare chunk ID is not a claim. Do not silently retry a rejected change.
+The human may reopen the PR (restoring PR_OPEN), or explicitly authorize a fresh
+attempt and replace its marker line with `ZUNO_EDU_ABANDONED:<ID>` plus the disposition
+reason in that closed PR body. On the next synchronized run, the old claim no longer
+reserves the chunk; fresh dependency/approval checks determine readiness. This is
+not completion evidence and never overrides a merged artifact. If an execution PR
+pointer was already committed on master, its stale pointer must also be corrected
+in a separate reviewed workflow-repair PR before retry; no direct master edits.
