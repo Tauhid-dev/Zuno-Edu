@@ -3,7 +3,7 @@
   "status": "DRAFT",
   "scope_version": "1.0",
   "architecture_version": 1,
-  "planning_pr": null,
+  "planning_pr": 2,
   "plan_artifacts": [
     {
       "path": "docs/architecture/ADR/0001-launch-baseline.md",

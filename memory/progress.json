@@ -9,7 +9,7 @@
   "last_completed_chunk": null,
   "next_candidate_chunk": "ZE-P01-C01",
   "active_chunk": null,
-  "active_pr": null,
+  "active_pr": 2,
   "completed_chunks": [],
   "blocked_chunks": [],
   "workflow_version": 1

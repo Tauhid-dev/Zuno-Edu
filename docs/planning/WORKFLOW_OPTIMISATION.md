@@ -49,5 +49,5 @@ Bootstrap PR #1 was human-merged at e6818689ce23526165c4fe99a8899e9d5641891e
 before its actual PR number was recorded in scope-lock.json. Therefore existing
 reconciliation correctly remains DRAFT. This workflow PR becomes the new reviewed
 approval pointer with refreshed witnesses; PR #1 remains recorded as product baseline.
-Record the actual workflow PR number before human merge. No fabricated approval,
+Workflow PR #2 is recorded as planning_pr before human merge. No fabricated approval,
 self-reported LOCKED flag, product completion or direct master commit is used.
