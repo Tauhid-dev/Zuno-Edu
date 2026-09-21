@@ -132,12 +132,22 @@ class RoutingTests(unittest.TestCase):
             routing.validate_workflow(self.root)
 
     def test_conditional_forecast_never_selects_completed_or_mutates_plan(self):
-        snapshot = copy.deepcopy(self.chunks)
-        candidate = routing.forecast(self.chunks, "ZE-P01-C01", [])
+        # Pin execution state in this fixture; real chunks advance as PRs are opened.
+        chunks = copy.deepcopy(self.chunks)
+        for chunk in chunks:
+            chunk["status"] = "PLANNED"
+            chunk["blockers"] = []
+        snapshot = copy.deepcopy(chunks)
+        candidate = routing.forecast(chunks, "ZE-P01-C01", [])
         self.assertEqual(candidate["id"], "ZE-P01-C02")
-        candidate = routing.forecast(self.chunks, "ZE-P01-C01", ["ZE-P01-C02"])
+        candidate = routing.forecast(chunks, "ZE-P01-C01", ["ZE-P01-C02"])
         self.assertEqual(candidate["id"], "ZE-P01-C03")
-        self.assertEqual(self.chunks, snapshot)
+        self.assertEqual(chunks, snapshot)
+        for chunk in chunks:
+            if chunk["id"] == "ZE-P01-C02":
+                chunk["status"] = "IN_PROGRESS"
+        candidate = routing.forecast(chunks, "ZE-P01-C01", [])
+        self.assertEqual(candidate["id"], "ZE-P01-C03")
 
 
 if __name__ == "__main__":

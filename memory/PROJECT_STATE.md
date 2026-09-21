@@ -1,7 +1,13 @@
 # Project state
 
-Zuno Edu: launch baseline 1.0, architecture 1. Fresh reconciliation on master 1bcb0546ea4af3c4513686227c5d6ac4ce3ca504 verified effective LOCKED scope.
+Zuno Edu launch baseline 1.0, architecture 1. Reconciliation on master
+`293e6c2b2d0f011cc95f6d6cb192aa4d1c754737` verified LOCKED scope and human-merged ZE-P01-C01 (PR #5),
+with metadata repair PR #6 included.
 
-The runtime/test foundation (ZE-P01-C01) was human-merged in PR #5. Its implementation commit is a16941281f7108b43947d2276a34fd1716b51034. All 13 existing completion-artifact hashes match the merge tree. Current work repairs its missing PR/commit metadata without changing implementation or completion evidence.
+ZE-P01-C02 persistence/durable-worker foundation: REVIEWED; ready for feature commit and PR.
+Branch `feature/ze-p01-c02-persistence-durable-jobs`. PR: Pending creation.
+41 product/regression tests and 61 workflow tests passed, with an independent
+critical/deep review. Implementation is not COMPLETE before verified human merge.
 
-Completion remains unverified by the selector until the metadata repair is human-merged and PR #5's placeholder marker becomes ZUNO_EDU_CHUNK:ZE-P01-C01. No new product chunk is authorized. Normal startup uses AGENTS.md and scripts/next_chunk.py; progress.json and CURRENT_HANDOFF.md remain advisory caches. Human production gates remain separate requirements.
+After merge, synchronize master and run scripts/next_chunk.py. ZE-P01-C03 is only
+a conditional forecast. CURRENT_HANDOFF.md contains exact next references.

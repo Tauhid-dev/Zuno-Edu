@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "chunk_id": "ZE-P01-C02",
+  "requirements": [
+    "NFR-007",
+    "OPS-004",
+    "OPS-005"
+  ],
+  "artifacts": [
+    {
+      "path": "alembic.ini",
+      "sha256": "8c89337f22eba7f1596501eef74d54daa49796979710bfcc8d448ecbb6aff6b9"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/bootstrap/worker.py",
+      "sha256": "a8677050db565ff8cc7340ace3bb774e4df3562cc13c578cb6d3ea8182dea633"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/__init__.py",
+      "sha256": "7f1cca7024f9293fbc3504d987ffb3ed9b30581d5abea23c8c476ce4362fc8d1"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/README.md",
+      "sha256": "24fa761bba9af82a5bab83958450fc5f84abd670a0a1eda00ffb620f7ce6bd74"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/__init__.py",
+      "sha256": "0964cbaecd30e2f9eb7364e9278e1c878f38677db2ef597dc32945a643b3dc40"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/database.py",
+      "sha256": "9a34f31f092621fb0ad93beb4538481230528d5c4d67d3145ead8feac681113f"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/migrations/env.py",
+      "sha256": "d8c76641f1d8dc753be27033fb35708b31d20df78d5e23fdb39595929cfedf2c"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/migrations/script.py.mako",
+      "sha256": "ecfae60dc5e8d404cdbbc5ef47f6c197a6e565c7d88b535e5f692034b044b0cb"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/migrations/versions/0001_durable_delivery_foundation.py",
+      "sha256": "fdb59ef35a37698171d51f8438e17c5dd0f11efb4ed84f0d358a96c98031c37f"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/repository.py",
+      "sha256": "ff458b4ee41a1d240dc2c2c12d6f4082d93da76ef1ae038bd2a37bdcaac99501"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/tables.py",
+      "sha256": "081cc894201f7566c39d9dd1cc1fba5e621d7a3883d162e1c36fdc9917b6d611"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/worker.py",
+      "sha256": "7a4df3d77b4e1d6132d91aa176eeca4166cb8fef9b3d870f759dffceeb7a43e6"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/__init__.py",
+      "sha256": "41976c3fa62097e481d0135f199b2d678db88f409fca9840348a54a738d9de59"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/application/__init__.py",
+      "sha256": "09f3b2bd25b2ce4e15a05734be5d4dfc14b292216c72785739d2fb75dff0af99"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/application/dispatch.py",
+      "sha256": "15ad1c8c6565349f155d1fc2ceadd8d4526cf4edc4f5d1ab3373543af04b72aa"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/domain/__init__.py",
+      "sha256": "ac8f87a6350c9ca21e459f8976e2a5f9e5472d543958745d7aa52e9a262d798a"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/domain/delivery.py",
+      "sha256": "286f152ad51ae60840702930d41a0bcd505593ee6543ea3646924c1dadef7b0c"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/shared/persistence.py",
+      "sha256": "f6c2a4b91fb6e5b961dd4a71b7b003770509ab5df954d23868d1dc302e83ef9f"
+    },
+    {
+      "path": "docs/planning/verification/ZE-P01-C02-checks.log",
+      "sha256": "7cbb71d0207f356a3ef62e05fbddca5d5ce98fe09e9e6dfe70a5172c8ea7dc52"
+    },
+    {
+      "path": "docs/planning/verification/ZE-P01-C02-tests.log",
+      "sha256": "7008fe61e0a3ab5f68c64a4441229715430b3dce74516f13df9d99f6614d8580"
+    },
+    {
+      "path": "docs/planning/verification/ZE-P01-C02-workflow.log",
+      "sha256": "7d58fff839fb5f11d3417319e40f7d2931009f3b19b116ac7d539abc9a1a305d"
+    },
+    {
+      "path": "docs/planning/verification/ZE-P01-C02.md",
+      "sha256": "7d76259f413e7999c0a0f8f05600cd1d9a1986a639fbeaa94eb2b624ab023f38"
+    },
+    {
+      "path": "memory/handoffs/ZE-P01-C02-review.md",
+      "sha256": "98cdcfc2f70210233cc2e48e5965210941054e1ab98b0f1e0485512b847b182b"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "bc6ac7bda4c5e6ee7e95793c65b525f9b2ff47bfa0e42d0d22e38f86ffc632ce"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C02/conftest.py",
+      "sha256": "c8595151ae162f5b5f334ff3c644d20000478b062668b7af0895a3a8f3be7ceb"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C02/test_migrations.py",
+      "sha256": "ad3eb1fe2254798b08adb99ef7575a10f28cc09b6663fd22097363771667edbf"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C02/test_persistence.py",
+      "sha256": "efdf96fbae8f035eaf9b9b372d7d690ba6c75ea212fe25f74d3f1c5867ce2f0e"
+    },
+    {
+      "path": "tests/workflow/test_routing.py",
+      "sha256": "31cb2b9f5545cd4874d639b72ec8f8f9dbacb1accb955eb813b4e178947511d6"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "b56e6b2c5028ae995f0ba2312499917ab6b6e2615d18c75d1b9afacec386fb0b"
+    }
+  ],
+  "verification": [
+    {
+      "name": "Rollback leaves no outbox event",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    },
+    {
+      "name": "Concurrent workers claim one lease",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    },
+    {
+      "name": "Redis loss recovers durable jobs",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    },
+    {
+      "name": "Initial migrations run on PostgreSQL",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    },
+    {
+      "name": "Pinned lint/format/type/compile checks",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    },
+    {
+      "name": "Plan/workflow validation: 61 tests",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    },
+    {
+      "name": "Package build",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    },
+    {
+      "name": "Migration drift and compatibility",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C02.md"
+    }
+  ],
+  "review": {
+    "risk": "critical",
+    "depth": "deep",
+    "independent": true,
+    "critical": 0,
+    "high": 0,
+    "evidence": "memory/handoffs/ZE-P01-C02-review.md"
+  }
+}
