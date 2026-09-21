@@ -4,8 +4,8 @@ Zuno Edu launch baseline 1.0, architecture 1. Reconciliation on master
 `293e6c2b2d0f011cc95f6d6cb192aa4d1c754737` verified LOCKED scope and human-merged ZE-P01-C01 (PR #5),
 with metadata repair PR #6 included.
 
-ZE-P01-C02 persistence/durable-worker foundation: REVIEWED; ready for feature commit and PR.
-Branch `feature/ze-p01-c02-persistence-durable-jobs`. PR: Pending creation.
+ZE-P01-C02 persistence/durable-worker foundation: PR_OPEN; awaiting human review and merge.
+Branch `feature/ze-p01-c02-persistence-durable-jobs`. PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/7.
 41 product/regression tests and 61 workflow tests passed, with an independent
 critical/deep review. Implementation is not COMPLETE before verified human merge.
 
