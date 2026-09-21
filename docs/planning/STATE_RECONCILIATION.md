@@ -39,7 +39,7 @@ Fork PRs cannot reserve internal work. Independent ready chunks remain eligible.
 
 ## Synchronization without master edits
 
-Before any selection, verify the expected origin and clean working tree, then run:
+Before any selection, verify the configured repository identity and clean working tree, then run:
 
 ```sh
 git fetch origin
@@ -49,7 +49,7 @@ python3 scripts/reconcile_state.py
 ```
 
 The reconciler **does not synchronize or mutate anything**. It checks repository root,
-current branch, tracked/untracked cleanliness, exact configured origin, local master,
+current branch, tracked/untracked cleanliness, configured repository origin, local master,
 HEAD and `origin/master` equality, then uses read-only `git ls-remote` to compare the
 server-advertised master SHA. It repeats the remote-tip check after API/evidence reads
 to detect a merge during inspection. GitHub evidence comes from fresh official
@@ -73,6 +73,12 @@ Repository identity in `memory/repository.json`:
 The nulls deliberately mean unconfigured. A human must supply the actual origin URL
 and `owner/repository`; never infer them from a project label. A setup branch can then
 record this identity and be reviewed. A local bootstrap SHA is not a remote master SHA.
+Origin validation accepts the exact approved `expected_origin` for compatibility,
+plus `git@github.com:<owner/repository>.git`,
+`https://github.com/<owner/repository>.git` and the same HTTPS URL without `.git`,
+derived from `github_repository`. Arbitrary hosts, aliases and forks are not accepted
+as equivalent origins. Repository roots are compared as resolved `pathlib.Path`
+objects so native path separators do not require machine-specific configuration.
 The actual approved repository identity is recorded in the repository file; these
 nulls illustrate unconfigured setup only. Online scope approval remains blocked until
 the real planning PR is published and human-merged.

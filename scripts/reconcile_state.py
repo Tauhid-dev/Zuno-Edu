@@ -128,7 +128,7 @@ def witness_normalization(path):
 def mandatory_witnesses(repo, revision=None):
     """Required authority paths. None reads the working tree for generation/validation only."""
     if revision is None:
-        files = {str(p.relative_to(repo.root)) for p in (repo.root / "docs").rglob("*") if p.is_file()}
+        files = {p.relative_to(repo.root).as_posix() for p in (repo.root / "docs").rglob("*") if p.is_file()}
         chunks = decode((repo.root / "docs/planning/chunks.json").read_bytes(), "chunk registry")
     else:
         files = set(repo.git("ls-tree", "-r", "--name-only", revision).splitlines())
@@ -165,7 +165,8 @@ class Repository:
         return result.returncode == 0
 
     def synchronize_check(self):
-        require(self.git("rev-parse", "--show-toplevel") == str(self.root), "Run at the repository root")
+        require(Path(self.git("rev-parse", "--show-toplevel")).resolve() == self.root,
+                "Run at the repository root")
         require(self.git("branch", "--show-current") == "master", "Checkout synchronized master before reconciliation")
         require(not self.git("status", "--porcelain", "--untracked-files=all"), "Working tree must be clean")
         require(not self.git("ls-files", "--others", "--exclude-standard"), "Untracked files prevent reconciliation")
@@ -178,7 +179,12 @@ class Repository:
         require(isinstance(expected, str) and expected.strip(), "Expected origin is not configured; human repository setup required")
         require(isinstance(slug, str) and re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", slug),
                 "Expected GitHub repository is not configured")
-        require(self.git("remote", "get-url", "origin") == expected, "origin does not match the approved repository identity")
+        # Keep the explicitly approved origin (including a developer SSH alias),
+        # and derive portable GitHub forms only for the configured repository.
+        accepted_origins = {expected, f"git@github.com:{slug}.git",
+                            f"https://github.com/{slug}.git", f"https://github.com/{slug}"}
+        require(self.git("remote", "get-url", "origin") in accepted_origins,
+                "origin does not match the approved repository identity")
         require(self.git("rev-parse", "refs/heads/master") == head, "Local master does not match HEAD")
         require(self.git("rev-parse", "refs/remotes/origin/master") == head,
                 "Local master differs from origin/master; synchronize without destructive repair")

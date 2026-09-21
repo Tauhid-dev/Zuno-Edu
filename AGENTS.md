@@ -12,12 +12,13 @@ Preserve approved scope, architecture, contracts and permissions.
    configured repository owner and repository name in `memory/repository.json`.
 
    Equivalent GitHub remote forms are permitted when they identify the same
-   canonical repository, including standard SSH, HTTPS and developer-specific SSH
-   host aliases. For Zuno Edu, examples of equivalent origins include:
+   canonical repository, including standard SSH, HTTPS and the explicitly configured
+   `expected_origin` (which may use a developer-specific SSH host alias). Other host
+   aliases are not implicitly trusted. For Zuno Edu, examples include:
 
    - `git@github.com:Tauhid-dev/Zuno-Edu.git`
    - `https://github.com/Tauhid-dev/Zuno-Edu.git`
-   - `git@github-zuno-edu:Tauhid-dev/Zuno-Edu.git`
+   - `git@github-zuno-edu:Tauhid-dev/Zuno-Edu.git` when configured as `expected_origin`
 
    A developer-specific SSH host alias must not be required on another developer's
    machine. Stop if the owner/repository identity differs from the configured
