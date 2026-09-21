@@ -36,8 +36,8 @@
     "execution": {
       "base_master_sha": "68acae769081fd321317763cb652676385b21740",
       "branch": "feature/ze-p01-c01-runtime-foundation",
-      "commit": null,
-      "pr": null,
+      "commit": "a16941281f7108b43947d2276a34fd1716b51034",
+      "pr": 5,
       "completion_evidence": "memory/completions/ZE-P01-C01.json"
     },
     "objective": "Create pinned supported Python/Node dependency locks including TanStack Query v5 for the documented private client cache, typed package layout, minimal boot/health transport skeleton and test/type/lint harness. No domain features.",
