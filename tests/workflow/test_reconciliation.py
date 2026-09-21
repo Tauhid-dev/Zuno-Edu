@@ -464,8 +464,10 @@ class ReconciliationTests(unittest.TestCase):
             self.assertIsNone(req.get_header("Authorization"))
 
     def test_github_rate_limit_stops_selection_without_secret_disclosure(self):
+        # Windows needs PATH to find Git while the test isolates credentials.
         with patch.object(r.shutil, "which", return_value=None), \
-             patch.dict(r.os.environ, {"GH_TOKEN": "secret-token-value"}, clear=True), \
+             patch.dict(r.os.environ, {"GH_TOKEN": "secret-token-value",
+                                       "PATH": r.os.environ.get("PATH", "")}, clear=True), \
              patch.object(r, "urlopen", side_effect=HTTPError("https://api.github.com", 403, "secret-token-value", {}, None)):
             api = r.GitHub(self.root, "example/zuno-edu")
             with self.assertRaises(r.AuthorityUnavailable) as raised:
