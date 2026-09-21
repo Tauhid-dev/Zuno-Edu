@@ -1,0 +1,15 @@
+html {
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  box-sizing: border-box;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding: clamp(1rem, 4vw, 3rem);
+  overflow-wrap: anywhere;
+}

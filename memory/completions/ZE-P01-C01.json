@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "chunk_id": "ZE-P01-C01",
+  "requirements": ["NFR-004", "NFR-005", "NFR-009"],
+  "artifacts": [
+    {"path": "pyproject.toml", "sha256": "314177899b98c01224c1e0e36ecc1ac0e3dcd14e6a319cc53ba1aeeae36ca611"},
+    {"path": "uv.lock", "sha256": "ff22fcd0f23c62b205c98f4722d9db040a083b7afc4d84fa01e09808fa7fae8d"},
+    {"path": "package.json", "sha256": "648286c1c9a86ae62f73172faff149e6f690cc9ab54f630660e1748c01be5daa"},
+    {"path": "pnpm-lock.yaml", "sha256": "ed96cae6fe96a0cb37a7d808c0ca3143bc872b7aea4ae0847950c9953d765060"},
+    {"path": "apps/api/src/zuno_edu/main.py", "sha256": "29ef393620a37a358b612c71c5347e80d0967bd8874f3f85896ec76432df920e"},
+    {"path": "apps/api/src/zuno_edu/bootstrap/app.py", "sha256": "7d7bad511ca132662580e9743d456338e43047ac7a5bad51575e8eae0e43ded8"},
+    {"path": "apps/api/src/zuno_edu/interfaces/api/health.py", "sha256": "c26141758cd95d62bd6fcece6825085c84c8a4c517870b88897095143965e57d"},
+    {"path": "apps/web/src/app/layout.tsx", "sha256": "670a54deec97108728d5c19c7563836b0bda6a285d7cfc16f354a39c96c65f63"},
+    {"path": "apps/web/src/app/page.tsx", "sha256": "79ac2e88b2afdee89d68ee5c94fbb24910b02a85a8b649393f11501462ebe39b"},
+    {"path": "tests/chunks/ZE-P01-C01/test_health.py", "sha256": "e856a4660682d45f6896f406f41485a279374269ff98e3bfd5b7e3e78d4b0cfb"},
+    {"path": "tests/chunks/ZE-P01-C01/test_boundaries.py", "sha256": "4d665e6caca34309aef8d57710dd81a3d06491ee418cbd4a1f1bf35e859a342c"},
+    {"path": "docs/planning/verification/ZE-P01-C01.md", "sha256": "a1fc0cbb23396b5e30233024630b97761edad41bb2535c1c86458c1524181eb5"},
+    {"path": "memory/handoffs/ZE-P01-C01-review.md", "sha256": "967c582435059adc01156bd1688b810fb8e599331a6d19ff628b99ae0e86c4a5"}
+  ],
+  "verification": [
+    {"name": "Foundation acceptance and Python checks", "result": "PASS", "evidence": "docs/planning/verification/ZE-P01-C01.md"},
+    {"name": "Web lint, typecheck, Vitest and production build", "result": "PASS", "evidence": "docs/planning/verification/ZE-P01-C01.md"}
+  ],
+  "review": {
+    "risk": "medium",
+    "depth": "focused",
+    "independent": false,
+    "critical": 0,
+    "high": 0,
+    "evidence": "memory/handoffs/ZE-P01-C01-review.md"
+  }
+}
