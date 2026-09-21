@@ -1,7 +1,7 @@
 # Project state
 
-Zuno Edu: complete launch baseline 1.0, architecture 1. Bootstrap PR #1 was human-merged at e6818689ce23526165c4fe99a8899e9d5641891e. Product implementation: none; all 62 chunks remain PLANNED.
+Zuno Edu: launch baseline 1.0, architecture 1. Fresh reconciliation on master 1bcb0546ea4af3c4513686227c5d6ac4ce3ca504 verified effective LOCKED scope.
 
-Current work is the explicitly requested workflow-only optimisation. Product/domain/API/frontend/permission/deployment architecture is unchanged. Workflow approval is DRAFT until its PR and witnesses are verified. Normal startup uses AGENTS.md and scripts/next_chunk.py; progress.json and CURRENT_HANDOFF.md are compact caches, never execution authority.
+The runtime/test foundation (ZE-P01-C01) was human-merged in PR #5. Its implementation commit is a16941281f7108b43947d2276a34fd1716b51034. All 13 existing completion-artifact hashes match the merge tree. Current work repairs its missing PR/commit metadata without changing implementation or completion evidence.
 
-Initial candidate: ZE-P01-C01 only after fresh remote reconciliation. Human production legal/merchant/age/provider/staff gates remain required. Workflow tests 56/56, metadata/skill validation and independent review PASS; PR #2 is open with actual approval pointer recorded; human merge remains pending.
+Completion remains unverified by the selector until the metadata repair is human-merged and PR #5's placeholder marker becomes ZUNO_EDU_CHUNK:ZE-P01-C01. No new product chunk is authorized. Normal startup uses AGENTS.md and scripts/next_chunk.py; progress.json and CURRENT_HANDOFF.md remain advisory caches. Human production gates remain separate requirements.

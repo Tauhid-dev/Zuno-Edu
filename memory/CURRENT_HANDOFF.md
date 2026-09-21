@@ -1,12 +1,12 @@
-CHUNK: WORKFLOW-OPTIMISATION (no product chunk implemented)
-STATUS: PR_OPEN; bootstrap PR #1 MERGED
-COMMIT: implementation 57cb26c937a9b090e1dc7ce3b18b98790b95669d; PR head includes final metadata
-PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/2
-CHANGE: Compact routing/context reader, phased skills, risk-based review and conditional model recommendations over the existing registry/reconciler.
-VALIDATION: 56/56 workflow tests; plan, routing, skills and independent review PASS.
-BLOCKERS: Human workflow PR merge and fresh approval verification pending; no product execution during DRAFT.
-NEXT: ZE-P01-C01, conditional on verified workflow/planning approval and fresh remote reconciliation.
-NEXT_MODEL: gpt-5.6-terra
-REASONING: medium
-WHY: Fixed architecture; establish the Python/TypeScript runtime and validation harness without business features.
-LOAD: AGENTS.md; memory/repository.json; synchronized next_chunk.py output; docs/planning/chunks/ZE-P01-C01.md; only packet-selected instructions, contracts, source paths and skills.
+CHUNK: ZE-P01-C01 metadata repair (no new product chunk)
+STATUS: BLOCKED pending repair merge and correction of PR #5's marker
+COMMIT: implementation a16941281f7108b43947d2276a34fd1716b51034; verified merge 1bcb0546ea4af3c4513686227c5d6ac4ce3ca504
+PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/5 (human-merged implementation); repair branch fix/ze-p01-c01-completion-metadata
+CHANGE: Link registry and manifest to actual PR #5 and implementation commit; correct stale operational memory. Completion evidence is unchanged.
+VALIDATION: Live PR #5 human merge and all 13 artifact hashes verified. Live completion remains blocked by the missing exact chunk marker.
+BLOCKERS: GitHub integration cannot edit PR bodies (403). Replace ZUNO_EDU_CHUNK:<CHUNK-ID> in PR #5 with ZUNO_EDU_CHUNK:ZE-P01-C01, then human-review/merge the metadata repair.
+NEXT: Synchronize master and run next_chunk.py. ZE-P01-C02 is conditional on successful completion verification; no product execution is authorized by this handoff.
+NEXT_MODEL: gpt-6-astra
+REASONING: xhigh
+WHY: Conditional persistence/worker foundation has critical migration and recovery review requirements.
+LOAD: AGENTS.md; memory/repository.json; synchronized next_chunk.py output; docs/planning/STATE_RECONCILIATION.md#Implementation completion evidence; only the resulting packet's context.
