@@ -53,9 +53,7 @@ def test_secret_scan_exempts_only_matching_public_metadata(
     assert secrets_scan.public_digest("docs/product/scope-lock.json", finding)
     finding["type"] = "Private Key"
     assert not secrets_scan.public_digest("docs/product/scope-lock.json", finding)
-    Path(".secrets.baseline").write_text(
-        '{"hashed_secret": "' + commit + '"}', encoding="utf-8"
-    )
+    Path(".secrets.baseline").write_text('{"hashed_secret": "' + commit + '"}', encoding="utf-8")
     for detector in ("Hex High Entropy String", "Secret Keyword"):
         finding["type"] = detector
         assert secrets_scan.public_digest(".secrets.baseline", finding)
