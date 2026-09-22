@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "chunk_id": "ZE-P01-C03",
+  "requirements": [
+    "NFR-006",
+    "NFR-008",
+    "NFR-010",
+    "NFR-011",
+    "OPS-006"
+  ],
+  "artifacts": [
+    {
+      "path": ".github/workflows/quality.yml",
+      "sha256": "4735c435678b0d35768059a60b58b38ec7c810e87500a9c055d6fe8629944968"
+    },
+    {
+      "path": ".secrets.baseline",
+      "sha256": "566cdd53a1f52468a265fa994b5b80a8d4c3191f9038e30b4958931844fee61c"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/bootstrap/app.py",
+      "sha256": "94d6ce549096a4b1a2756722ad1d515c890b4d3e16a2b0e4d53b6b4e68b1c469"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/__init__.py",
+      "sha256": "f0723dbd83b692b6af01d88ff19d5b536a23b5bd441329e2f43e76c710b09c8d"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/__init__.py",
+      "sha256": "0c722600323a3c9cbaa2c067e6de822c01e95be7081632435062830fc1b34bf9"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/errors.py",
+      "sha256": "885b545a1e5be9803443a438a82f213983e3f2dc1387fbd4266433ad2833f940"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/models.py",
+      "sha256": "d2b04e52d55eb0a57f220361a7f4d48228448f1c41d649e8a50e67a1160a12f4"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/pagination.py",
+      "sha256": "332d766fdd9cd15ae3a7920f08c4c1584ac0d4bfa79acf2a9528b3f7456e06c1"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/validation.py",
+      "sha256": "23d3cae4a7073977c89134982ce47cea88c247f163eb1e73ac52731c00f284a6"
+    },
+    {
+      "path": "docs/planning/reviews/ZE-P01-C03.md",
+      "sha256": "10aabd36a22b31596ebc1740eb56dd903acaca73a5281fd6e07b5997e32f5078"
+    },
+    {
+      "path": "docs/planning/verification/ZE-P01-C03-repair.md",
+      "sha256": "fe46d827a32484dc18a1bae79be14bdce3e970a5f4efa7757adffb11891b4a39"
+    },
+    {
+      "path": "memory/handoffs/ZE-P01-C03-review.md",
+      "sha256": "5bbb84d17d3546775159c3406da702cc744784366e2a846b6df4012b87934e6e"
+    },
+    {
+      "path": "package.json",
+      "sha256": "2047016251ed14e78c229e56bd08d7973e335700af1fbd38c5fd401e2efa6d81"
+    },
+    {
+      "path": "packages/contracts/README.md",
+      "sha256": "7cc88a7d0671a886796fa1036d1869683d41126a1773584eaf0f273ae24c1665"
+    },
+    {
+      "path": "packages/contracts/openapi.json",
+      "sha256": "050daad9688209175ad87e647c0c72de3e3a723abc610f51a126afbc237e1f7c"
+    },
+    {
+      "path": "packages/contracts/package.json",
+      "sha256": "18fb8c861ac46b52b84f44a3a727ff286061f90ec3c24bb5ec15c72e8d0e654f"
+    },
+    {
+      "path": "packages/contracts/src/generated.ts",
+      "sha256": "a78f8e1af4b1eff5128a49efc673eee035b96292bfcc5b256c54c306ec03b700"
+    },
+    {
+      "path": "packages/contracts/src/index.ts",
+      "sha256": "ebcd17cd531191ad3bab694498f2e3ad490a4d40d1ab6fe3f66aaf6730895a02"
+    },
+    {
+      "path": "packages/contracts/tsconfig.json",
+      "sha256": "2c8a017ebb4f648d54601297251a077271c86c208c6ea8351357c0f458fb5aa8"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "45ea6082fc7771e03d77379d9f1f76eeafba1f63359990010f0c65085eb4d8cf"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "0e07e4f8d9ecf75c7c5c637f047db572808ede2c32dd8778dd9dcf9f40961b1a"
+    },
+    {
+      "path": "scripts/check_secrets.py",
+      "sha256": "a50577d5f1273efe49035a174762231c4ccae8a4b55568ea2fbecf8949e34009"
+    },
+    {
+      "path": "scripts/generate_contracts.py",
+      "sha256": "58e709992d8e0c9fee04fc4e8f3d7627fe0b47649466cb481cc20282f37c202c"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/contracts.test.tsx",
+      "sha256": "35bb6dc08d4ca6c6e3a0d47642c77f9f00b4010ef6c3fbdad9e00d3823790be2"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/test_contracts_ci.py",
+      "sha256": "5a12adb2741d409a41bc57d1c614c94505ac79b836387696d2246d5987e5c73c"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/test_cursors.py",
+      "sha256": "371dca7b6f93dee8fe3cd403fca5258320ce7ffdd54822f9c89651aeebee1cc2"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/test_transport.py",
+      "sha256": "27a0d5c21261860c6b664c158394d19a6cd88ca5cfd2505df8c7ef836e27d3a1"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/tsconfig.json",
+      "sha256": "2d6390ce19c6596c7ab3ea4ac5a90932bcc1502dacfa30c9b6b9fc5d6fc28a09"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "3d6e06b145ea34b0116d6872b8a4c8ac3ae0999f66135f2c80464ceea2e45ed2"
+    }
+  ],
+  "verification": [
+    {
+      "name": "Generated types drift fails CI",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C03-repair.md"
+    },
+    {
+      "name": "Opaque cursor rejects different actor/query",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C03-repair.md"
+    },
+    {
+      "name": "Plan coverage validator detects orphan requirement",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C03-repair.md"
+    },
+    {
+      "name": "No secret-bearing CI on untrusted PR",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P01-C03-repair.md"
+    }
+  ],
+  "review": {
+    "risk": "high",
+    "depth": "deep",
+    "independent": true,
+    "critical": 0,
+    "high": 0,
+    "evidence": "memory/handoffs/ZE-P01-C03-review.md"
+  }
+}
