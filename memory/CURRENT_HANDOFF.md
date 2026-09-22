@@ -1,7 +1,7 @@
 CHUNK: ZE-P01-C03
-STATUS: IN_PROGRESS; completion evidence repair awaiting human merge
+STATUS: PR_OPEN; completion evidence repair awaiting human merge
 COMMIT: acd74835c75315f04aad228432ccf69ca1285a6e
-PR: Pending creation; branch feature/ze-p01-c03-completion-evidence
+PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/9; branch feature/ze-p01-c03-completion-evidence
 CHANGE: Restore missing C03 completion witnesses and execution metadata. Implementation was human-merged in PR #8; this repair PR supplies the evidence record.
 VALIDATION: Original final implementation passed GitHub quality run 35698538149 and bootstrap run 35698538229. See docs/planning/verification/ZE-P01-C03-repair.md and memory/handoffs/ZE-P01-C03-review.md for repair checks and independent review.
 BLOCKERS: Human review and merge required before C03 can reconcile as complete.
