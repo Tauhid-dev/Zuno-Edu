@@ -1,0 +1,77 @@
+name: Product quality and contracts
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16@sha256:a3b7f434b2dc57ce85a67e171163eb8ab1a1ebcb39d27484661f26b1dfbe30d6
+        env:
+          POSTGRES_USER: zuno_test
+          POSTGRES_PASSWORD: zuno_disposable_test
+          POSTGRES_DB: zuno_c02_test
+        ports: ['55432:5432']
+        options: >-
+          --health-cmd "pg_isready -U zuno_test -d zuno_c02_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine@sha256:520775a41a63e77e06c73e35d2fd9cc15921a609516818796b4ecbb813078bc7
+        ports: ['16379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      ZUNO_TEST_DATABASE_URL: postgresql+psycopg://zuno_test:zuno_disposable_test@127.0.0.1:55432/zuno_c02_test
+      ZUNO_TEST_REDIS_URL: redis://127.0.0.1:16379/15
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: .python-version
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .node-version
+      - name: Install pinned tools and frozen dependencies
+        run: |
+          python -m pip install uv==0.12.3
+          npm install --global pnpm@11.19.0 --ignore-scripts
+          uv sync --locked
+          pnpm install --frozen-lockfile
+      - name: Python lint, format and typing
+        run: |
+          uv run --locked ruff check apps/api/src tests/chunks scripts/generate_contracts.py scripts/check_secrets.py
+          uv run --locked ruff format --check apps/api/src tests/chunks/ZE-P01-C02 tests/chunks/ZE-P01-C03 scripts/generate_contracts.py scripts/check_secrets.py
+          uv run --locked mypy apps/api/src tests/chunks scripts/generate_contracts.py scripts/check_secrets.py
+      - name: Catalog and generated contracts must agree
+        run: uv run --locked python scripts/generate_contracts.py --check
+      - name: Python tests including architecture, authorization and real migrations
+        run: uv run --locked pytest tests/chunks
+      - name: Frontend lint, types and tests
+        run: |
+          pnpm exec eslint apps/web/src packages/contracts/src tests/chunks/**/*.test.tsx
+          pnpm run typecheck
+          pnpm exec vitest run
+      - name: Build packages
+        run: |
+          uv build --no-sources
+          pnpm --dir apps/web exec next build
+      - name: Secret scan
+        run: uv run --locked python scripts/check_secrets.py
+      - name: Dependency scans
+        run: |
+          uv export --locked --no-dev --no-emit-project --format requirements-txt --output-file /tmp/zuno-runtime-requirements.txt
+          uv run --locked pip-audit --requirement /tmp/zuno-runtime-requirements.txt --no-deps --disable-pip
+          pnpm audit --prod --audit-level low
