@@ -1,3 +1,2 @@
-// Future transport types are generated from approved OpenAPI contracts.
-// Foundation does not declare business DTOs or endpoint clients.
-export {};
+// Generated from implemented, catalog-validated transport contracts.
+export type { components, operations, paths } from "./generated";
