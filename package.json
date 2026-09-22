@@ -11,7 +11,7 @@
     "dev:web": "pnpm --dir apps/web dev",
     "build:web": "pnpm --dir apps/web build",
     "lint": "eslint apps/web/src packages/contracts/src tests/chunks/**/*.test.tsx vitest.config.ts eslint.config.mjs",
-    "typecheck": "tsc --noEmit -p apps/web/tsconfig.json && tsc --noEmit -p packages/contracts/tsconfig.json && tsc --noEmit -p tests/chunks/ZE-P01-C01/tsconfig.json && tsc --noEmit -p tests/chunks/ZE-P01-C03/tsconfig.json",
+    "typecheck": "pnpm --dir apps/web exec next typegen && tsc --noEmit -p apps/web/tsconfig.json && tsc --noEmit -p packages/contracts/tsconfig.json && tsc --noEmit -p tests/chunks/ZE-P01-C01/tsconfig.json && tsc --noEmit -p tests/chunks/ZE-P01-C03/tsconfig.json",
     "test": "vitest run",
     "contracts:check": "uv run --locked python scripts/generate_contracts.py --check",
     "contracts:generate": "uv run --locked python scripts/generate_contracts.py"
