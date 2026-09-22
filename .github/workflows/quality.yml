@@ -18,7 +18,7 @@ jobs:
         image: postgres:16@sha256:a3b7f434b2dc57ce85a67e171163eb8ab1a1ebcb39d27484661f26b1dfbe30d6
         env:
           POSTGRES_USER: zuno_test
-          POSTGRES_PASSWORD: zuno_disposable_test
+          POSTGRES_PASSWORD: zuno_disposable_test # pragma: allowlist secret (disposable CI only)
           POSTGRES_DB: zuno_c02_test
         ports: ['55432:5432']
         options: >-

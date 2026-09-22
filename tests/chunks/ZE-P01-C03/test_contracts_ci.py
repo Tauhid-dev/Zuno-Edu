@@ -1,6 +1,7 @@
 """Negative CI gates: contract drift, orphan requirements, and untrusted PR safety."""
 
 import copy
+import hashlib
 import importlib
 import json
 import re
@@ -15,10 +16,51 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
+import check_secrets as secrets_scan  # noqa: E402
 import generate_contracts as contracts  # noqa: E402
 from zuno_edu.bootstrap.app import create_app  # noqa: E402
 
 plan = importlib.import_module("validate_plan")
+
+
+def test_secret_scan_exempts_only_matching_public_metadata(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    integrity = "sha512-" + "AbCd0123+/" * 8 + "=="
+    Path("pnpm-lock.yaml").write_text(
+        "resolution: {integrity: " + integrity + "}\n", encoding="utf-8"
+    )
+    finding: dict[str, object] = {
+        "type": "Base64 High Entropy String",
+        "line_number": 1,
+        "hashed_secret": hashlib.sha1(integrity.encode()).hexdigest(),
+    }
+    assert secrets_scan.public_digest("pnpm-lock.yaml", finding)
+    finding["hashed_secret"] = hashlib.sha1(b"another-credential").hexdigest()
+    assert not secrets_scan.public_digest("pnpm-lock.yaml", finding)
+    finding["hashed_secret"] = hashlib.sha1(integrity.encode()).hexdigest()
+    Path("pnpm-lock.yaml").write_text("token: " + integrity, encoding="utf-8")
+    assert not secrets_scan.public_digest("pnpm-lock.yaml", finding)
+    Path("docs/product").mkdir(parents=True)
+    commit = "0123456789abcdef" * 2 + "01234567"
+    Path("docs/product/scope-lock.json").write_text(
+        '{"merge_commit": "' + commit + '"}', encoding="utf-8"
+    )
+    finding.update(
+        type="Hex High Entropy String", hashed_secret=hashlib.sha1(commit.encode()).hexdigest()
+    )
+    assert secrets_scan.public_digest("docs/product/scope-lock.json", finding)
+    finding["type"] = "Private Key"
+    assert not secrets_scan.public_digest("docs/product/scope-lock.json", finding)
+    Path(".secrets.baseline").write_text(
+        '{"hashed_secret": "' + commit + '"}', encoding="utf-8"
+    )
+    for detector in ("Hex High Entropy String", "Secret Keyword"):
+        finding["type"] = detector
+        assert secrets_scan.public_digest(".secrets.baseline", finding)
+    Path(".secrets.baseline").write_text('{"token": "' + commit + '"}', encoding="utf-8")
+    assert not secrets_scan.public_digest(".secrets.baseline", finding)
 
 
 def test_checked_in_types_are_generated_and_drift_fails(tmp_path: Path) -> None:
