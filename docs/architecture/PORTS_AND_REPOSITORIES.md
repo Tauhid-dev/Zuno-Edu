@@ -1,6 +1,6 @@
 # Ports and aggregate repositories
 
-Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.
+Status: DRAFT, scope 1.0 / architecture 2. Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.
 
 Repositories return domain roots or named scoped projections, never an unscoped ORM session. Every application write uses UnitOfWork. Provider calls execute through durable intent outside database locks; each adapter maps provider errors to the named port failures.
 
@@ -654,13 +654,15 @@ Repositories return domain roots or named scoped projections, never an unscoped 
 - **Objects:** MfaFactor, RecoveryCode, MfaChallenge
 - **Adapter:** SQLAlchemy data-mapper; PostgreSQL; encrypted secret column handled by secret adapter
 - **Persistence:** mfa_factors,mfa_recovery_codes,mfa_challenges
-- **Invariants:** Challenge consume, recovery code consume, timestep update and full-session issuance commit atomically.
+- **Invariants:** Challenge consume, recovery code consume, timestep update and full-session issuance commit atomically., ADR 0004: acquire the shared Account row lock before factor/challenge locks even when no factor exists; revalidate trusted authorization and current lifecycle inside the transaction before idempotency outcome or mutation. Status/role writes retain membership-lock-before-Account order; MFA paths do not acquire the membership lock.
 - **Requirements:** AUTH-001, AUTH-002, AUTH-003, SEC-004
 - **Chunks:** ZE-P02-C01, ZE-P02-C03
 
 | Interface signature | Purpose | Inputs | Output | Failures |
 |---|---|---|---|---|
-| get_factor_for_update(account_id:uuid,scope:SelfAuthScope)->MfaFactor? | get factor for update | account_id:uuid,scope:SelfAuthScope | MfaFactor? | MfaReplay, RepositoryConflict, PersistenceUnavailable |
+| get_factor_for_update(account_id:uuid,scope:SelfAuthScope)->MfaFactor? | Lock and return only the active factor for the scoped account; never choose a pending or latest factor | account_id:uuid,scope:SelfAuthScope | MfaFactor? | MfaReplay, RepositoryConflict, PersistenceUnavailable |
+| get_pending_factor_for_update(account_id:uuid,setup_token_hash:bytes,browser_hash:bytes,scope:SelfAuthScope)->MfaFactor? | Under the shared Account lock, validate the exact hashed setup challenge against scoped account/browser, setup purpose, expiry, attempts and nonconsumption; follow its factor_id to lock that pending factor. Never select latest-by-account or an active factor. | account_id:uuid,setup_token_hash:bytes,browser_hash:bytes,scope:SelfAuthScope | MfaFactor? | MfaReplay, RepositoryConflict, PersistenceUnavailable |
+| invalidate_pending_setup(account_id:uuid,scope:SelfAuthScope)->int | Under the shared Account lock, revoke all pending factors and consume every dependent pending setup credential for the scoped account; return count of invalidated pending factors. Preserve active factors and recovery codes. | account_id:uuid,scope:SelfAuthScope | int | MfaReplay, RepositoryConflict, PersistenceUnavailable |
 | get_challenge_for_update(token_hash:bytes,browser_hash:bytes)->MfaChallenge? | get challenge for update | token_hash:bytes,browser_hash:bytes | MfaChallenge? | MfaReplay, RepositoryConflict, PersistenceUnavailable |
 | find_recovery_for_update(factor_id:uuid,code_hash:bytes)->RecoveryCode? | find recovery for update | factor_id:uuid,code_hash:bytes | RecoveryCode? | MfaReplay, RepositoryConflict, PersistenceUnavailable |
 | save_factor(factor:MfaFactor,expected_version:int)->None | save factor | factor:MfaFactor,expected_version:int | None | MfaReplay, RepositoryConflict, PersistenceUnavailable |

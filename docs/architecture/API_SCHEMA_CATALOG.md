@@ -1,6 +1,6 @@
 # API schema catalog
 
-Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.
+Status: DRAFT, scope 1.0 / architecture 2. Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.
 
 `required` means key presence is mandatory; nullable independently permits null. Optional blank child fields normalize to null. Unknown write properties are rejected. Referenced DTO fields validate recursively. Enum values are closed. Path IDs are opaque UUIDs and never confer access.
 
@@ -1166,7 +1166,7 @@ Complete staff MFA challenge input
 
 ## MfaSetupView
 
-MfaSetupView
+Original successful enrolment response only; never replayable. Duplicate and restart semantics are defined by ADR 0004.
 
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
@@ -1181,7 +1181,7 @@ Begin staff TOTP setup from either password-login or invitation limited context,
 | Field | Type | Required | Nullable | Location | Validation |
 |---|---|---|---|---|---|
 | password | password | True | False | body | 12–128 characters; breached-password screening; no silent truncation |
-| Idempotency-Key | uuid | True | False | header | Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days |
+| Idempotency-Key | uuid | True | False | header | ADR 0004 exception: validate current account/session or limited setup context, browser, purpose, expiry, attempts and CSRF/Origin before idempotency. First committed enrolment returns MfaSetupView once; same key/body after commit returns secret-free 409 MFA_REPLAY; changed body returns 409 IDEMPOTENCY_CONFLICT. Serialize duplicates, restart and confirmation; rollback permits retry, uncertain commit requires authoritative lookup. Keep only safe principal/operation/key, keyed canonical-body digest and outcome metadata for 7 days; never store/replay the URI or recoverable setup token. A lost response requires explicit restart with fresh permitted password authentication and a new key, invalidating pending setup credentials atomically without removing an active factor before replacement confirmation. Existing lifetime, attempt and abuse limits apply. |
 | setup_token | token | False | False | body | Required without full session for either login mfa_setup_required or invitation-accepted limited setup; bound to same staff account and setup purpose; expired/consumed/foreign tokens rejected; unrelated full session forbidden |
 
 ## RecoveryCodeView

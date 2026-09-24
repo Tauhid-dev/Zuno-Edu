@@ -80,3 +80,7 @@ Shared domain IDs, Money, time values, actor/scope types and infrastructure tran
 | ZE-P12-C05 |  |  |  |  |  |
 | ZE-P12-C06 |  |  |  |  |  |
 | ZE-P12-C07 |  |  |  |  |  |
+
+## Architecture 2 correction
+
+[ADR 0004](ADR/0004-mfa-enrolment-retry.md) assigns the enrolment replay exception and atomic restart tests to ZE-P02-C01, and explicit retry/restart UX to StaffMfaSetup in ZE-P09-C03. Existing operation, object, port and requirement ownership and dependencies remain unchanged. No product implementation is included in this proposal.

@@ -560,7 +560,7 @@ Every FK receives the listed lookup/index or a covering composite index. The map
 | Aspect | Plan |
 | --- | --- |
 | Columns | principal_scope text;operation_id text;key uuid;request_hash bytea;result_ciphertext bytea?;status text;expires_at timestamptz |
-| Constraints / keys | PK(principal_scope,operation_id,key); mismatch body409; session not response replayed outside valid principal scope |
+| Constraints / keys | PK(principal_scope,operation_id,key); mismatch body409; session not response replayed outside valid principal scope; ADR 0004 enrolment request_hash encodes digest-format and key version with keyed canonical-body digest; result_ciphertext IS NULL; missing digest key fails closed |
 | Indexes | expires_at |
 | Lifecycle / deletion | 7d general,90d financial; provider reference dedupe permanent ledger |
 

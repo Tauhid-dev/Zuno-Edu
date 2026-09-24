@@ -332,7 +332,8 @@
       "Suspension revokes sessions",
       "CSRF/session expiry",
       "Rate-limit behavior",
-      "Login and invitation limited MFA tokens enter role-neutral setup without a full session; activated SessionView alone selects role landing."
+      "Login and invitation limited MFA tokens enter role-neutral setup without a full session; activated SessionView alone selects role landing.",
+      "ADR 0004: one-time provisioning response; same-key replay and changed-body conflict; concurrent duplicate/rollback/uncertain-commit behavior; safe keyed metadata without secret cache; explicit restart and confirmation races; expired/consumed/foreign-browser denial; active-factor preservation and unchanged abuse limits."
     ],
     "api_operations": [
       "API-AUTH-INVITE-ACCEPT",
@@ -408,7 +409,8 @@
       "Pass: Single-use reset and MFA recovery replay",
       "Pass: Suspension revokes sessions",
       "Pass: CSRF/session expiry",
-      "Pass: Rate-limit behavior"
+      "Pass: Rate-limit behavior",
+      "ADR 0004: one-time provisioning response; same-key replay and changed-body conflict; concurrent duplicate/rollback/uncertain-commit behavior; safe keyed metadata without secret cache; explicit restart and confirmation races; expired/consumed/foreign-browser denial; active-factor preservation and unchanged abuse limits."
     ],
     "verification_evidence": "docs/planning/verification/ZE-P02-C01.md",
     "workflow": {
@@ -4813,7 +4815,8 @@
       "No credential persistence",
       "Logout/revoked session",
       "Role route mismatch",
-      "Opaque login/invitation MFA setup tokens enter /mfa-setup without guessed role or full-session guards; expiry restarts sign-in and final SessionView controls landing."
+      "Opaque login/invitation MFA setup tokens enter /mfa-setup without guessed role or full-session guards; expiry restarts sign-in and final SessionView controls landing.",
+      "ADR 0004: lost enrolment response and secret-free MFA_REPLAY UX; no automatic new-key retry; explicit freshly authenticated restart; volatile secrets cleared when superseded; role-neutral setup grants no portal access."
     ],
     "api_operations": [
       "API-ACCOUNT-PASSWORD",
@@ -4920,7 +4923,8 @@
       "Pass: MFA/error/recovery flows",
       "Pass: No credential persistence",
       "Pass: Logout/revoked session",
-      "Pass: Role route mismatch"
+      "Pass: Role route mismatch",
+      "ADR 0004: lost enrolment response and secret-free MFA_REPLAY UX; no automatic new-key retry; explicit freshly authenticated restart; volatile secrets cleared when superseded; role-neutral setup grants no portal access."
     ],
     "verification_evidence": "docs/planning/verification/ZE-P09-C03.md",
     "workflow": {

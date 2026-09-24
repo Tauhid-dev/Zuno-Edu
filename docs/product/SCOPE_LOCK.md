@@ -2,7 +2,7 @@
 
 STATUS: DRAFT
 SCOPE_VERSION: 1.0
-ARCHITECTURE_VERSION: 1
+ARCHITECTURE_VERSION: 2
 APPROVAL_EVIDENCE: none
 
 This document does not claim that a human has approved or merged the bootstrap plan. The proposed complete launch baseline consists of `LAUNCH_SCOPE.md`, `OUT_OF_SCOPE.md`, the 219 stable required records in `requirements.json`, and the functional/non-functional requirement documents. No product feature is implemented during bootstrap.
@@ -30,3 +30,7 @@ A DRAFT marker alone is not a blocker after verified human merge. Missing, misma
 ## Immutable implementation constraints
 
 One selected chunk per session; synchronized remote master baseline; no dependent work on an unmerged branch; no master mutations during reconciliation; PR_OPEN is not COMPLETE; risk-appropriate review (independent deep review for high/critical risk) and required tests; no financial teacher privilege; no cross-family/student leakage; no provider details in domain entities; no opportunistic refactoring or future functionality; human PR-only handoff; stop after handoff.
+
+## Proposed architecture 2 correction
+
+The MFA enrolment retry correction is recorded in ADR 0004. Scope 1.0 and all launch requirements remain unchanged. The previous approved architecture 1 lock is preserved at f1f18fbd0e77bd305cd71d1ca6aa2d17d773bad3 (planning PR #2). This proposal remains DRAFT until its own identified PR is human-merged and freshly reconciled.

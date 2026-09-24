@@ -2,8 +2,8 @@
   "schema_version": 1,
   "status": "DRAFT",
   "scope_version": "1.0",
-  "architecture_version": 1,
-  "reviewed_backend_snapshot": "9dbbca29f47a8317ffb8907aba6471cb010d8870142d4a3dd8b1ea14a6ad6126",
+  "architecture_version": 2,
+  "reviewed_backend_snapshot": "cfc61966cdf7c754c6ea5dc5f298d2b77ba99548a1819ef563dabb33dff99999",
   "components": [
     {
       "name": "AppShell",
@@ -1869,7 +1869,7 @@
         "empty": "Show a specific absence message and only permitted next action.",
         "error": "Field422,stale409,denied403/invisible404,expired401 and transient429/503 are distinct; show safe message/request_id and bounded retry.",
         "success": "Render authoritative returned DTO and invalidate relevant scoped query keys.",
-        "detail": "Show URI once; confirm yields MfaActivationView; require acknowledgement of recovery-code saving before leaving; never analytics/log QR seed."
+        "detail": "Show URI once; confirm yields MfaActivationView; require acknowledgement of recovery-code saving before leaving; never analytics/log QR seed. ADR 0004: retain secrets only in volatile state. Do not automatically retry enrolment with a new key. 409 MFA_REPLAY returns no URI; continue confirmation only with the original retained credentials. If lost, explain explicit restart with fresh permitted password authentication and a new key. Clear superseded secrets; old pending proofs fail. 409 IDEMPOTENCY_CONFLICT requires resolving the request/key mismatch, not automatic retry."
       },
       "authorization": [
         {
@@ -40907,7 +40907,8 @@
       "roles": [
         "teacher",
         "admin"
-      ]
+      ],
+      "retry_semantics": "ADR 0004 exception: validate current account/session or limited setup context, browser, purpose, expiry, attempts and CSRF/Origin before idempotency. First committed enrolment returns MfaSetupView once; same key/body after commit returns secret-free 409 MFA_REPLAY; changed body returns 409 IDEMPOTENCY_CONFLICT. Serialize duplicates, restart and confirmation; rollback permits retry, uncertain commit requires authoritative lookup. Keep only safe principal/operation/key, keyed canonical-body digest and outcome metadata for 7 days; never store/replay the URI or recoverable setup token. A lost response requires explicit restart with fresh permitted password authentication and a new key, invalidating pending setup credentials atomically without removing an active factor before replacement confirmation. Existing lifetime, attempt and abuse limits apply."
     },
     {
       "route": "/mfa-setup",
