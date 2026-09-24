@@ -21,7 +21,15 @@ version until a future live reconciliation verifies architecture 2 approval.
 No product completion record is created. The original uncommitted identity code
 and blocker notes remain untouched in worktree 9047.
 
-Validation: pending final metadata checks and committed-witness audit.
+Validation: validate_plan.py PASS (219 requirements, 62 chunks, 114 witnesses);
+next_chunk.py --validate PASS; reconcile_state.py --validate-plan PASS;
+git diff --check PASS. Final pointer validation and committed-witness audit remain
+required after the actual PR number is available.
+
+Publication: cffdc37 was committed and pushed to
+feature/planning-approval-evidence-repair. Connector PR creation returned 403
+(Resource not accessible by integration). The user-authorized browser route is
+available but signed out. No PR number or completed approval repair is claimed.
 
 Review: low-risk metadata-only repair; lightweight author diff review. The
 independent deep review of the unchanged MFA contracts remains recorded in
