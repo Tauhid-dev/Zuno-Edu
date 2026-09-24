@@ -29,10 +29,20 @@ The initial Windows workflow run failed 13 tests and errored once because fixtur
 files were hashed with CRLF but Git committed LF. A fresh run uses process-local
 GIT_CONFIG_COUNT=1, GIT_CONFIG_KEY_0=core.autocrlf, GIT_CONFIG_VALUE_0=false so
 fixture byte witnesses and committed bytes agree; no global Git setting or test
-assertion is changed. Final result is recorded in the PR handoff once available.
+assertion is changed. The rerun PASSED all 61 tests in 315.156 seconds.
 The catalog renderers now write explicit UTF-8/LF and obtain version labels from
 the proposed lock, making their output reproducible across Windows and Linux.
 Final independent critical-risk deep review by /root/contract_review approved
 the planning correction with no remaining High/Medium findings. See the review
 record in memory/handoffs/ADR-0004-review.md.
 No product tests, completion evidence, implementation PR or merge claim is made.
+
+All 114 witnesses were separately checked against actual staged Git blob bytes
+before commit, with zero mismatches. The planning commit was pushed successfully.
+PR creation through the GitHub connector returned HTTP 403 (Resource not accessible
+by integration). Automatic approval review rejected opening GitHub's browser UI
+as an alternate publishing route. No PR was created and no CI run is claimed.
+The planning_pr remains null until an authorized PR is created; recording its real
+number and checking the final committed witnesses remain required before handoff
+for merge. Branch: feature/mfa-enrolment-retry-contract, base
+f1f18fbd0e77bd305cd71d1ca6aa2d17d773bad3.
