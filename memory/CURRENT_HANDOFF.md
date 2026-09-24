@@ -1,12 +1,12 @@
-CHUNK: BOOTSTRAP / ADR-0004; ZE-P02-C01 remains conditional
-STATUS: DRAFT planning correction, reviewed and pushed; PR creation blocked
-COMMIT: Initial proposal 00788a7; base f1f18fbd0e77bd305cd71d1ca6aa2d17d773bad3; later metadata follows on same branch
-PR: none; branch feature/mfa-enrolment-retry-contract
-CHANGE: Architecture 2 defines one-time MFA provisioning, safe duplicate errors and explicit restart. Scoped repository and keyed metadata contracts included. Scope 1.0 unchanged.
-VALIDATION: Plan, routing, graph and 61 workflow tests pass; 114 staged witnesses match. Independent deep review approved. See docs/planning/verification/ADR-0004-mfa-enrolment-retry.md and memory/handoffs/ADR-0004-review.md.
-BLOCKERS: Connector PR creation returned 403; automatic review rejected the alternate browser route. Explicit permission or connector access is needed. No PR/CI claim. Partial C01 work is preserved uncommitted in worktree 9047 and excluded here.
-NEXT: Create planning PR only through an authorized route, record its actual number in DRAFT scope-lock.json, validate final witnesses and await human merge. Then synchronize/reconcile before product work. Preserve and assess partial C01 work.
+CHUNK: BOOTSTRAP / architecture 2 approval evidence repair
+STATUS: PR_OPEN; approval evidence repair awaiting human merge
+COMMIT: Published baseline 20d5319; base f7b48ecace44c84643371a7fc3715df46e2387f9; approval pointer follows on the same branch
+PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/11; branch feature/planning-approval-evidence-repair
+CHANGE: Record this repair PR as the approval pointer for the unchanged architecture 2 witnesses delivered by merged PR #10. Its merged lock had planning_pr=null; pointing back to #10 cannot satisfy merged-lock equality.
+VALIDATION: Fresh synchronized master reconciliation confirmed ZE-P01-C01/C02/C03 complete, DRAFT scope and execution_authorized=false. Repair checks: docs/planning/verification/planning-approval-evidence-repair.md.
+BLOCKERS: Human review and merge of PR #11 required. ZE-P02-C01 remains incomplete; partial work is untouched in worktree 9047.
+NEXT: After human merge, synchronize master and run scripts/next_chunk.py. Resume C01 only if READY and execution_authorized=true; preserve and assess its partial work.
 NEXT_MODEL: gpt-6-astra
 REASONING: xhigh
-WHY: Authentication boundaries require independent security review.
-LOAD: AGENTS.md; memory/repository.json; ADR 0004; fresh synchronized next_chunk.py packet; docs/planning/chunks/ZE-P02-C01.md only if selected.
+WHY: Authentication and MFA concurrency require critical-risk independent review.
+LOAD: AGENTS.md; memory/repository.json; docs/planning/STATE_RECONCILIATION.md#Planning approval and DRAFT → effective LOCKED; fresh scripts/next_chunk.py packet; docs/planning/chunks/ZE-P02-C01.md only if selected.
