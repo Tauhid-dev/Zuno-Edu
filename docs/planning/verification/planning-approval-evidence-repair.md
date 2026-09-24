@@ -23,13 +23,16 @@ and blocker notes remain untouched in worktree 9047.
 
 Validation: validate_plan.py PASS (219 requirements, 62 chunks, 114 witnesses);
 next_chunk.py --validate PASS; reconcile_state.py --validate-plan PASS;
-git diff --check PASS. Final pointer validation and committed-witness audit remain
-required after the actual PR number is available.
+git diff --check PASS. Final pointer checks PASS: planning_pr=11 is the only
+scope-lock change, DRAFT is retained, and all 114 committed authority witnesses
+match the unchanged baseline. Final metadata validation was repeated successfully.
 
-Publication: cffdc37 was committed and pushed to
-feature/planning-approval-evidence-repair. Connector PR creation returned 403
-(Resource not accessible by integration). The user-authorized browser route is
-available but signed out. No PR number or completed approval repair is claimed.
+Publication: the user created PR #11 against master from
+feature/planning-approval-evidence-repair. Live GitHub metadata confirms it is
+open, unmerged, and belongs to Tauhid-dev/Zuno-Edu. The follow-up records
+planning_pr=11 while status remains DRAFT until verified human merge.
+The connector cannot update the PR description (HTTP 403). Its template marker
+still requires replacement with ZUNO_EDU_CHUNK:BOOTSTRAP by the PR owner.
 
 Review: low-risk metadata-only repair; lightweight author diff review. The
 independent deep review of the unchanged MFA contracts remains recorded in
