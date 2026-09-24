@@ -1,6 +1,6 @@
 # API operation catalog
 
-Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.
+Status: DRAFT, scope 1.0 / architecture 2. Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.
 
 All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consumers and expose no HTTP route. Field-by-field request/response definitions are in [API_SCHEMA_CATALOG.md](API_SCHEMA_CATALOG.md); every operation refers to a concrete named schema, including path/query inputs. Transport conventions and status codes are in API_ARCHITECTURE.md.
 
@@ -106,9 +106,9 @@ All HTTP paths are versioned under `/api/v1`. WORKER entries are internal consum
 - **Domain objects:** Account, Session, Credential, RoleGrant, MfaFactor, RecoveryCode, MfaChallenge
 - **Repository / ports:** UserRepository, SessionRepository, PasswordHasher, TokenIssuer, UnitOfWork, Clock, FamilyRepository, NotificationRepository, MfaRepository, MfaVerifier
 - **Success status:** 200
-- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.
+- **Transaction:** Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks. ADR 0004 exception: validate current account/session or limited setup context, browser, purpose, expiry, attempts and CSRF/Origin before idempotency. First committed enrolment returns MfaSetupView once; same key/body after commit returns secret-free 409 MFA_REPLAY; changed body returns 409 IDEMPOTENCY_CONFLICT. Serialize duplicates, restart and confirmation; rollback permits retry, uncertain commit requires authoritative lookup. Keep only safe principal/operation/key, keyed canonical-body digest and outcome metadata for 7 days; never store/replay the URI or recoverable setup token. A lost response requires explicit restart with fresh permitted password authentication and a new key, invalidating pending setup credentials atomically without removing an active factor before replacement confirmation. Existing lifetime, attempt and abuse limits apply.
 - **Implementation chunk:** ZE-P02-C01
-- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED
+- **Errors:** UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, VALIDATION_ERROR, VERSION_CONFLICT, INVALID_STATE, MFA_REPLAY, MFA_CHALLENGE_EXPIRED, MFA_ATTEMPTS_EXCEEDED, IDEMPOTENCY_CONFLICT
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, TCH-001
 - **Consumers:** teacher, admin
 

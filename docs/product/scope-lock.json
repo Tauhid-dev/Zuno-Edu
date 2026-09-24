@@ -2,8 +2,8 @@
   "schema_version": 1,
   "status": "DRAFT",
   "scope_version": "1.0",
-  "architecture_version": 1,
-  "planning_pr": 2,
+  "architecture_version": 2,
+  "planning_pr": null,
   "plan_artifacts": [
     {
       "path": "docs/architecture/ADR/0001-launch-baseline.md",
@@ -18,20 +18,24 @@
       "sha256": "b4d8d8aef8a681dbcffd3a9599a4cef6fabd6fc70ca943ef85bc178aa17f8d25"
     },
     {
+      "path": "docs/architecture/ADR/0004-mfa-enrolment-retry.md",
+      "sha256": "fc74d699f72245a2be4b22c39281910a308702744f39cb50038e2f74f0798e13"
+    },
+    {
       "path": "docs/architecture/AGGREGATES.md",
       "sha256": "3581a69835a1c072fddc32c76d199684101517e948777d8107e7e8a375b6ae3c"
     },
     {
       "path": "docs/architecture/API_ARCHITECTURE.md",
-      "sha256": "5a103aa98d74ba3e88a631e7f62980a7355344941e3ee59b7dffca54e0f0a1d9"
+      "sha256": "3393ca339cef03d58bc9a241592e12c44d75ea303f5698df1281557320650bb3"
     },
     {
       "path": "docs/architecture/API_CATALOG.md",
-      "sha256": "520c485d1b6358f82934bb0b0e75d078d11e9fb96a48e45a5c1dd8df1625f1f5"
+      "sha256": "9e5628666f567d4328898b31b6b33a8fd283ced8a4e66b2420f21840962e7ea7"
     },
     {
       "path": "docs/architecture/API_SCHEMA_CATALOG.md",
-      "sha256": "07974f68a5ff1e6e49cd278232770b1d2318fdfcb6dac561a1e523b324c98df5"
+      "sha256": "675c543cd24c6d42a4219711e0003cc2debbc7447ea205c7ae715e2de869ecee"
     },
     {
       "path": "docs/architecture/AUTHORIZATION_MODEL.md",
@@ -43,11 +47,11 @@
     },
     {
       "path": "docs/architecture/BACKEND_OBJECT_CATALOG.md",
-      "sha256": "144922846a9f66e4f69791b8d4e042837f4bd42f34da14a86c8190627d436abe"
+      "sha256": "94f699a3a93c76055e1eb127d7cee870475a1d33e3034b70a2c9dd137b2fc2be"
     },
     {
       "path": "docs/architecture/BACKEND_SERVICE_CATALOG.md",
-      "sha256": "add110a809a18bdcdf7fe2ed4266a249aa20ece4beb2329168766d6f3d7dda88"
+      "sha256": "224b69e35ab7cec7988b44d36680e4a37b45e051a15bdcb8b772b9833a4700e3"
     },
     {
       "path": "docs/architecture/BILLING_ARCHITECTURE.md",
@@ -59,7 +63,7 @@
     },
     {
       "path": "docs/architecture/CODE_BLUEPRINT.md",
-      "sha256": "70629c47a42313c235d5bbb56fe9060d734cba48fad48b3dea651ff0e7031269"
+      "sha256": "6eab9437501e2c523e8d1e7e8dbdaa018141db79117b21141707e3d894644f83"
     },
     {
       "path": "docs/architecture/COMMUNICATION_ARCHITECTURE.md",
@@ -67,7 +71,7 @@
     },
     {
       "path": "docs/architecture/DATABASE_SCHEMA_PLAN.md",
-      "sha256": "08280a70b187c53c2853524fc5acefdd84e320ee1bfffe23edb75bccb75747b7"
+      "sha256": "baf314158fa13bf768336a63a876d78c3b72ebee81f50ace55451cecfa576978"
     },
     {
       "path": "docs/architecture/DATA_ACCESS_BOUNDARIES.md",
@@ -95,19 +99,19 @@
     },
     {
       "path": "docs/architecture/FRONTEND_BACKEND_MAPPING.md",
-      "sha256": "4610312f5004f858a92cdb41536491f1648de94b5dc3f97d7f77cf0b4029ea0e"
+      "sha256": "5afb689d3f6c7d4b2a197da11afe311a0633452b9e98f57b92d14376a428fd48"
     },
     {
       "path": "docs/architecture/FRONTEND_COMPONENT_CATALOG.md",
-      "sha256": "21f2cd53bcdc6c2296cfe447cf08944e8549fd0f4427ececd6d7968b91fbc4c7"
+      "sha256": "c9d669985f8735e896bb19a1752ae2b7eddebaf4b434d0c9f0ac7d4b1264d810"
     },
     {
       "path": "docs/architecture/FRONTEND_ROUTE_MAP.md",
-      "sha256": "1043276cd749dcafee50e27c712e5f8eff50fb9fd8f434aabdf8a4bb033bb541"
+      "sha256": "6771611203b42e884d59af5e4ce790d98ea7f7d9e838e904d35d9cae3c076ccd"
     },
     {
       "path": "docs/architecture/FRONTEND_STATE_AND_API_MODEL.md",
-      "sha256": "a18a83e19ee18adbe2af853ef202641fbcf646047d22a09e448dce5879134c15"
+      "sha256": "38f0555044904db6a26624258c818d5094ce84d973b2981fb2fca79a96b86466"
     },
     {
       "path": "docs/architecture/INTEGRATIONS.md",
@@ -123,11 +127,11 @@
     },
     {
       "path": "docs/architecture/PORTS_AND_REPOSITORIES.md",
-      "sha256": "ebaaa1ded8ab4f5a8e6c895f0931d2b90be5389b0d0b758ea815377e8c335532"
+      "sha256": "562eef3f658c515409b65e371da7ac8f7e53249f02e6e4941f07f4b13cbe3a34"
     },
     {
       "path": "docs/architecture/SECURITY_ARCHITECTURE.md",
-      "sha256": "f51b5e080f106dd41df9ab98d9bebab490f07c84ddba8569bf664f449f6e5dda"
+      "sha256": "159ff20342412ea33428816688f3247a63e5cf99e77fc2be3e4ab84c33df151d"
     },
     {
       "path": "docs/architecture/SETTINGS_CATALOG.md",
@@ -139,11 +143,11 @@
     },
     {
       "path": "docs/architecture/backend-catalog.json",
-      "sha256": "a0025e16226e89d2460b4afb257aa6f41b5c088f8bf95d1122a5325cd3aba80b"
+      "sha256": "cfc61966cdf7c754c6ea5dc5f298d2b77ba99548a1819ef563dabb33dff99999"
     },
     {
       "path": "docs/architecture/frontend-catalog.json",
-      "sha256": "4ee178ea7fafd96ad082969e7201f343331858b5e023ec97fc5f4b5405549f4b"
+      "sha256": "04a0b250b67dd9f3721120ecee166fe99f8761b8ad8935ebbf4d40d393534c9a"
     },
     {
       "path": "docs/planning/AGENT_WORKFLOW.md",
@@ -152,7 +156,7 @@
     {
       "path": "docs/planning/chunks.json",
       "normalization": "chunk-plan-v1",
-      "sha256": "6fb531e1ea4fdfd224a73ecec437f3bebb40c3693fa81fdcc9b7057a2dfd3750"
+      "sha256": "9598208dc6d319f2a7a6959f4e475c68558c143336d4e7bc08e09a02ebf1207b"
     },
     {
       "path": "docs/planning/chunks/ZE-P01-C01.md",
@@ -172,7 +176,7 @@
     {
       "path": "docs/planning/chunks/ZE-P02-C01.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "f377fc8f3eb76ac07c4ae4b5b1cc6d777cf8e239c4698b273101dfcff9ca87ab"
+      "sha256": "23962761cef8a16bb0c75ded733f487fa8556b4098085f730723bd070b42cefb"
     },
     {
       "path": "docs/planning/chunks/ZE-P02-C02.md",
@@ -342,7 +346,7 @@
     {
       "path": "docs/planning/chunks/ZE-P09-C03.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "44aa3363ce8bf19058f3d1c2a15db73a1e38f5c51d67df22ccc19e7c7a319e47"
+      "sha256": "dd25dfea4591b6ea81d99d65f34fcce4d677432e4a101df6b1991ee2c8ed3f36"
     },
     {
       "path": "docs/planning/chunks/ZE-P10-C01.md",
@@ -511,7 +515,7 @@
     {
       "path": "docs/product/SCOPE_LOCK.md",
       "normalization": "scope-document-v1",
-      "sha256": "099fe49f3ceb763b9d97049752c08b0e9c939021ef9fca817368f8bb31413334"
+      "sha256": "b038c4f8ab7a35c4fcd0e686d0091bf30b638f678cec223b56063f6a6acf7192"
     },
     {
       "path": "docs/product/USER_JOURNEYS.md",

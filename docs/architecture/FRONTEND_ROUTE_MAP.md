@@ -1,6 +1,6 @@
 # Frontend route map
 
-Status: DRAFT, scope 1.0 / architecture 1. These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.
+Status: DRAFT, scope 1.0 / architecture 2. These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.
 
 Routes sharing a component retain separate trusted route bindings. Detail/dialog selection uses authorized returned identifiers, never user-entered opaque IDs. Private data is not statically generated or publicly cached. MFA setup routes use their limited setup context.
 

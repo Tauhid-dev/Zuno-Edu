@@ -3,14 +3,15 @@ from pathlib import Path
 import json
 ROOT=Path(__file__).resolve().parents[1]
 D=ROOT/'docs/architecture'
-f=json.loads((D/'frontend-catalog.json').read_text())
+f=json.loads((D/'frontend-catalog.json').read_text(encoding='utf-8'))
 def fmt(value):
     if isinstance(value,list):return ', '.join(str(x) for x in value)
     if isinstance(value,dict):return '; '.join(str(k)+': '+fmt(v) for k,v in value.items())
     return str(value)
 def cell(value):return fmt(value).replace('|','\\|').replace('\n',' ')
-def write(name,text):(D/(name+'.md')).write_text('\n'.join(line.rstrip() for line in text.splitlines()).rstrip()+'\n')
-head='Status: DRAFT, scope 1.0 / architecture 1. These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.\n\n'
+def write(name,text):(D/(name+'.md')).write_text('\n'.join(line.rstrip() for line in text.splitlines()).rstrip()+'\n', encoding='utf-8', newline='\n')
+lock=json.loads((ROOT/'docs/product/scope-lock.json').read_text(encoding='utf-8'))
+head=f"Status: DRAFT, scope {lock['scope_version']} / architecture {lock['architecture_version']}."+' These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.\n\n'
 s='# Frontend route map\n\n'+head+'Routes sharing a component retain separate trusted route bindings. Detail/dialog selection uses authorized returned identifiers, never user-entered opaque IDs. Private data is not statically generated or publicly cached. MFA setup routes use their limited setup context.\n\n'
 for surface in ['public','parent','student','teacher','admin']:
     s+='## '+surface.title()+'\n\n| Route | Main component | Bindings / parameter sources | Mounted API operations | Guard |\n|---|---|---|---|---|\n'

@@ -1,6 +1,6 @@
 # Frontend component catalog
 
-Status: DRAFT, scope 1.0 / architecture 1. These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.
+Status: DRAFT, scope 1.0 / architecture 2. These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.
 
 Reusable primitives accept DTOs and explicit callbacks. Feature controllers own their generated API subset and current request state. Composition is explicit and its cross-chunk ownership is included in the dependency graph. A shared renderer does not import a role-feature tree. Every field-level request/response is defined in API_SCHEMA_CATALOG.
 
@@ -817,7 +817,7 @@ Reusable primitives accept DTOs and explicit callbacks. Feature controllers own 
 - **Reuse:** Shared presentation/domain composition
 - **Input Sources:**
 - **Local State:** Provisioning URI/setup token/TOTP code/recovery codes transient.
-- **States:** loading: Keep structural headings and announce loading; disable duplicate dependent actions.; empty: Show a specific absence message and only permitted next action.; error: Field422,stale409,denied403/invisible404,expired401 and transient429/503 are distinct; show safe message/request_id and bounded retry.; success: Render authoritative returned DTO and invalidate relevant scoped query keys.; detail: Show URI once; confirm yields MfaActivationView; require acknowledgement of recovery-code saving before leaving; never analytics/log QR seed.
+- **States:** loading: Keep structural headings and announce loading; disable duplicate dependent actions.; empty: Show a specific absence message and only permitted next action.; error: Field422,stale409,denied403/invisible404,expired401 and transient429/503 are distinct; show safe message/request_id and bounded retry.; success: Render authoritative returned DTO and invalidate relevant scoped query keys.; detail: Show URI once; confirm yields MfaActivationView; require acknowledgement of recovery-code saving before leaving; never analytics/log QR seed. ADR 0004: retain secrets only in volatile state. Do not automatically retry enrolment with a new key. 409 MFA_REPLAY returns no URI; continue confirmation only with the original retained credentials. If lost, explain explicit restart with fresh permitted password authentication and a new key. Clear superseded secrets; old pending proofs fail. 409 IDEMPOTENCY_CONFLICT requires resolving the request/key mismatch, not automatic retry.
 - **Accessibility:** Text setup key/URI alternative to QR; copy feedback accessible; recovery codes selectable without being auto-downloaded publicly.
 - **Import Boundary:** Shared components accept data/callbacks and import no role-feature tree.
 - **Requirements:** ADM-001, AUTH-001, AUTH-002, AUTH-003, AUTH-004, AUTH-005, TCH-001

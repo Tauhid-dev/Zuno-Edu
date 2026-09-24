@@ -5920,7 +5920,7 @@
         {
           "name": "enrol_mfa",
           "signature": "enrol_mfa(principal: Principal, request: API_AUTH_MFA_ENROLRequest) -> MfaSetupView",
-          "purpose": "Create pending TOTP enrolment",
+          "purpose": "Create pending TOTP enrolment. ADR 0004 exception: validate current account/session or limited setup context, browser, purpose, expiry, attempts and CSRF/Origin before idempotency. First committed enrolment returns MfaSetupView once; same key/body after commit returns secret-free 409 MFA_REPLAY; changed body returns 409 IDEMPOTENCY_CONFLICT. Serialize duplicates, restart and confirmation; rollback permits retry, uncertain commit requires authoritative lookup. Keep only safe principal/operation/key, keyed canonical-body digest and outcome metadata for 7 days; never store/replay the URI or recoverable setup token. A lost response requires explicit restart with fresh permitted password authentication and a new key, invalidating pending setup credentials atomically without removing an active factor before replacement confirmation. Existing lifetime, attempt and abuse limits apply.",
           "input": "API_AUTH_MFA_ENROLRequest",
           "output": "MfaSetupView",
           "errors": [
@@ -5932,7 +5932,8 @@
             "INVALID_STATE",
             "MFA_REPLAY",
             "MFA_CHALLENGE_EXPIRED",
-            "MFA_ATTEMPTS_EXCEEDED"
+            "MFA_ATTEMPTS_EXCEEDED",
+            "IDEMPOTENCY_CONFLICT"
           ],
           "authorization": "Full staff session with recent password reauthentication OR unexpired purpose-bound MFA setup token returned by password-verified login (mfa_setup_required) or staff invitation acceptance. Server resolves teacher/admin account identity from the token, never a browser-selected role. Limited context permits only enrolment/confirmation; it grants no full session or privileged page access. Enforce token expiry, purpose, account binding, single-use activation and attempt limits.",
           "operation": "API-AUTH-MFA-ENROL"
@@ -16334,20 +16335,45 @@
       "persistence": "mfa_factors,mfa_recovery_codes,mfa_challenges",
       "adapter": "SQLAlchemy data-mapper; PostgreSQL; encrypted secret column handled by secret adapter",
       "invariants": [
-        "Challenge consume, recovery code consume, timestep update and full-session issuance commit atomically."
+        "Challenge consume, recovery code consume, timestep update and full-session issuance commit atomically.",
+        "ADR 0004: acquire the shared Account row lock before factor/challenge locks even when no factor exists; revalidate trusted authorization and current lifecycle inside the transaction before idempotency outcome or mutation. Status/role writes retain membership-lock-before-Account order; MFA paths do not acquire the membership lock."
       ],
       "methods": [
         {
           "signature": "get_factor_for_update(account_id:uuid,scope:SelfAuthScope)->MfaFactor?",
           "input": "account_id:uuid,scope:SelfAuthScope",
           "output": "MfaFactor?",
-          "purpose": "get factor for update",
+          "purpose": "Lock and return only the active factor for the scoped account; never choose a pending or latest factor",
           "errors": [
             "MfaReplay",
             "RepositoryConflict",
             "PersistenceUnavailable"
           ],
           "name": "get_factor_for_update"
+        },
+        {
+            "signature": "get_pending_factor_for_update(account_id:uuid,setup_token_hash:bytes,browser_hash:bytes,scope:SelfAuthScope)->MfaFactor?",
+            "input": "account_id:uuid,setup_token_hash:bytes,browser_hash:bytes,scope:SelfAuthScope",
+          "output": "MfaFactor?",
+          "purpose": "Under the shared Account lock, validate the exact hashed setup challenge against scoped account/browser, setup purpose, expiry, attempts and nonconsumption; follow its factor_id to lock that pending factor. Never select latest-by-account or an active factor.",
+          "errors": [
+            "MfaReplay",
+            "RepositoryConflict",
+            "PersistenceUnavailable"
+          ],
+          "name": "get_pending_factor_for_update"
+        },
+        {
+          "signature": "invalidate_pending_setup(account_id:uuid,scope:SelfAuthScope)->int",
+          "input": "account_id:uuid,scope:SelfAuthScope",
+          "output": "int",
+          "purpose": "Under the shared Account lock, revoke all pending factors and consume every dependent pending setup credential for the scoped account; return count of invalidated pending factors. Preserve active factors and recovery codes.",
+          "errors": [
+            "MfaReplay",
+            "RepositoryConflict",
+            "PersistenceUnavailable"
+          ],
+          "name": "invalidate_pending_setup"
         },
         {
           "signature": "get_challenge_for_update(token_hash:bytes,browser_hash:bytes)->MfaChallenge?",
@@ -16911,10 +16937,11 @@
         "INVALID_STATE",
         "MFA_REPLAY",
         "MFA_CHALLENGE_EXPIRED",
-        "MFA_ATTEMPTS_EXCEEDED"
+        "MFA_ATTEMPTS_EXCEEDED",
+        "IDEMPOTENCY_CONFLICT"
       ],
       "success_status": 200,
-      "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks.",
+      "transaction": "Authorize, reserve idempotency where required, lock affected aggregate/version, invoke domain behavior, commit audit+outbox; provider calls outside held locks. ADR 0004 exception: validate current account/session or limited setup context, browser, purpose, expiry, attempts and CSRF/Origin before idempotency. First committed enrolment returns MfaSetupView once; same key/body after commit returns secret-free 409 MFA_REPLAY; changed body returns 409 IDEMPOTENCY_CONFLICT. Serialize duplicates, restart and confirmation; rollback permits retry, uncertain commit requires authoritative lookup. Keep only safe principal/operation/key, keyed canonical-body digest and outcome metadata for 7 days; never store/replay the URI or recoverable setup token. A lost response requires explicit restart with fresh permitted password authentication and a new key, invalidating pending setup credentials atomically without removing an active factor before replacement confirmation. Existing lifetime, attempt and abuse limits apply.",
       "chunk": "ZE-P02-C01"
     },
     {
@@ -36964,7 +36991,7 @@
     },
     {
       "name": "MfaSetupView",
-      "description": "MfaSetupView",
+      "description": "Original successful enrolment response only; never replayable. Duplicate and restart semantics are defined by ADR 0004.",
       "fields": [
         {
           "name": "setup_token",
@@ -37010,7 +37037,7 @@
           "type": "uuid",
           "required": true,
           "nullable": false,
-          "validation": "Principal + operation + key; same body replays result, different body 409 IDEMPOTENCY_CONFLICT; retention 7 days, billing 90 days",
+          "validation": "ADR 0004 exception: validate current account/session or limited setup context, browser, purpose, expiry, attempts and CSRF/Origin before idempotency. First committed enrolment returns MfaSetupView once; same key/body after commit returns secret-free 409 MFA_REPLAY; changed body returns 409 IDEMPOTENCY_CONFLICT. Serialize duplicates, restart and confirmation; rollback permits retry, uncertain commit requires authoritative lookup. Keep only safe principal/operation/key, keyed canonical-body digest and outcome metadata for 7 days; never store/replay the URI or recoverable setup token. A lost response requires explicit restart with fresh permitted password authentication and a new key, invalidating pending setup credentials atomically without removing an active factor before replacement confirmation. Existing lifetime, attempt and abuse limits apply.",
           "location": "header"
         },
         {
@@ -50558,7 +50585,7 @@
     {
       "name": "idempotency_records",
       "columns": "principal_scope text;operation_id text;key uuid;request_hash bytea;result_ciphertext bytea?;status text;expires_at timestamptz",
-      "constraints": "PK(principal_scope,operation_id,key); mismatch body409; session not response replayed outside valid principal scope",
+      "constraints": "PK(principal_scope,operation_id,key); mismatch body409; session not response replayed outside valid principal scope; ADR 0004 enrolment request_hash encodes digest-format and key version with keyed canonical-body digest; result_ciphertext IS NULL; missing digest key fails closed",
       "indexes": "expires_at",
       "lifecycle": "7d general,90d financial; provider reference dedupe permanent ledger"
     },

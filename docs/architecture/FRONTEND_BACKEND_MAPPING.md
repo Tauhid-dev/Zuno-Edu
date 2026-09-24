@@ -1,6 +1,6 @@
 # Frontend to backend mapping
 
-Status: DRAFT, scope 1.0 / architecture 1. These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.
+Status: DRAFT, scope 1.0 / architecture 2. These are planned contracts, not implemented screens. Canonical data: [frontend-catalog.json](frontend-catalog.json). Backend schemas and authorization are authoritative; navigation and UI guards never confer access.
 
 540 explicit route/component/API mappings cover every user HTTP operation. Internal workers and signed provider webhook ingress have no browser screen. Repeated operations reflect legitimate role-specific consumers, not extra backend implementations.
 

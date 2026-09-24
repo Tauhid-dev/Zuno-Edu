@@ -1,10 +1,11 @@
 from pathlib import Path
 import json
-R=Path(__file__).resolve().parents[1]; A=R/'docs/architecture';b=json.loads((A/'backend-catalog.json').read_text())
-def put(n,s): (A/(n+'.md')).write_text(s.rstrip()+'\n')
+R=Path(__file__).resolve().parents[1]; A=R/'docs/architecture';b=json.loads((A/'backend-catalog.json').read_text(encoding='utf-8'))
+def put(n,s): (A/(n+'.md')).write_text(s.rstrip()+'\n', encoding='utf-8', newline='\n')
 def val(x):return ', '.join(x) if isinstance(x,list) else str(x)
 def esc(x):return val(x).replace('|','\\|').replace('\n',' ')
-head='Status: DRAFT, scope 1.0 / architecture 1. Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.\n\n'
+lock=json.loads((R/'docs/product/scope-lock.json').read_text(encoding='utf-8'))
+head=f"Status: DRAFT, scope {lock['scope_version']} / architecture {lock['architecture_version']}."+' Canonical structured contracts: [backend-catalog.json](backend-catalog.json). These are design contracts, not implemented classes or endpoints. Implementation ownership and requirement traceability are in CODE_BLUEPRINT.md and docs/planning/REQUIREMENT_TRACEABILITY.md.\n\n'
 s='# Backend object catalog\n\n'+head
 for o in b['objects']:
  s+='## '+o['name']+'\n\n'

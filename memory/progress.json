@@ -4,15 +4,16 @@
   "default_branch": "master",
   "scope_version": "1.0",
   "architecture_version": 1,
-  "master_sha_at_last_reconciliation": "665ebdc6f81af91eec572fd3309e9c2d307e075a",
+  "master_sha_at_last_reconciliation": "f1f18fbd0e77bd305cd71d1ca6aa2d17d773bad3",
   "current_phase": "P01",
-  "last_completed_chunk": "ZE-P01-C02",
+  "last_completed_chunk": "ZE-P01-C03",
   "next_candidate_chunk": "ZE-P02-C01",
-  "active_chunk": "ZE-P01-C03",
-  "active_pr": 9,
+  "active_chunk": null,
+  "active_pr": null,
   "completed_chunks": [
     "ZE-P01-C01",
-    "ZE-P01-C02"
+    "ZE-P01-C02",
+    "ZE-P01-C03"
   ],
   "blocked_chunks": [],
   "workflow_version": 1
