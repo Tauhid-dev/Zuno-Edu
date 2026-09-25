@@ -9,7 +9,7 @@
   "last_completed_chunk": "ZE-P01-C03",
   "next_candidate_chunk": "ZE-P02-C01",
   "active_chunk": "ZE-P02-C01",
-  "active_pr": null,
+  "active_pr": 12,
   "completed_chunks": [
     "ZE-P01-C01",
     "ZE-P01-C02",

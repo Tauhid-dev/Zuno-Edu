@@ -280,7 +280,7 @@
   {
     "id": "ZE-P02-C01",
     "title": "Authentication, sessions and adult recovery",
-    "status": "IN_PROGRESS",
+    "status": "PR_OPEN",
     "sequence": 40,
     "dependencies": [
       "ZE-P01-C02",
@@ -321,10 +321,10 @@
     "execution": {
       "base_master_sha": "9e6974081241c28f4a31b0e7da4ca7ba6f7391ec",
       "branch": "feature/ze-p02-c01-authentication-resume",
-      "commit": null,
-      "pr": null,
+      "commit": "d92178f0f190eaa8912924205bfc7ec99adacd72",
+      "pr": 12,
       "completion_evidence": "memory/completions/ZE-P02-C01.json",
-      "stage": "REVIEWED"
+      "stage": "PR_OPEN"
     },
     "objective": "Implement AuthenticationService credentials, login/logout, verification/recovery tokens, staff MFA, session rotation/revocation and account-state checks. Registration profile orchestration remains in account/family chunk; send intents through durable outbox.",
     "required_tests": [
