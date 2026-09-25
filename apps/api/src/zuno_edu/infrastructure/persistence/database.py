@@ -1,15 +1,19 @@
 """Explicit composition; construction never connects or migrates the database."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session, sessionmaker
 
+from zuno_edu.modules.identity.application.ports import IssuedToken
+from zuno_edu.modules.identity.domain import Account
+from zuno_edu.modules.identity.infrastructure.repository import SqlAlchemyIdentityTransaction
 from zuno_edu.modules.operations.domain.delivery import OutboxEvent
-from zuno_edu.shared.persistence import CommitResult
+from zuno_edu.shared.persistence import Clock, CommitResult
 
 from .repository import IntegrationRepository
 
@@ -24,6 +28,7 @@ class AuditRecord:
 
 
 type AuditWriter = Callable[[Session, tuple[AuditRecord, ...]], None]
+type IdentityNotificationWriter = Callable[[Session, Account, IssuedToken], None]
 
 
 class Database:
@@ -36,6 +41,21 @@ class Database:
 
     def unit_of_work(self, audit_writer: AuditWriter | None = None) -> SqlAlchemyUnitOfWork:
         return SqlAlchemyUnitOfWork(self.sessions, audit_writer)
+
+    @contextmanager
+    def identity_transaction(
+        self,
+        audit_writer: AuditWriter,
+        notification_writer: IdentityNotificationWriter,
+        clock: Clock | None = None,
+    ) -> Iterator[SqlAlchemyIdentityTransaction]:
+        with self.unit_of_work(audit_writer) as uow:
+            assert uow._session is not None
+
+            def commit(action: str, subject: UUID | None) -> None:
+                uow.commit(audit=(AuditRecord(uuid4(), action, subject),))
+
+            yield SqlAlchemyIdentityTransaction(uow._session, commit, notification_writer, clock)
 
     def close(self) -> None:
         self.engine.dispose()
@@ -53,6 +73,16 @@ class SqlAlchemyUnitOfWork:
         if self._integrations is None:
             raise RuntimeError("Transaction is not active")
         return self._integrations
+
+    @property
+    def identity(self) -> SqlAlchemyIdentityTransaction:
+        if self._session is None:
+            raise RuntimeError("Transaction is not active")
+
+        def commit(action: str, subject: UUID | None) -> None:
+            self.commit(audit=(AuditRecord(uuid4(), action, subject),))
+
+        return SqlAlchemyIdentityTransaction(self._session, commit)
 
     def begin(self) -> SqlAlchemyUnitOfWork:
         if self._session is not None:

@@ -1,0 +1,1 @@
+"""Concrete identity adapters."""

@@ -1,7 +1,8 @@
 # Project state
 
-Scope is LOCKED. Fresh master verified C01 and C02 completion.
-C03 implementation was human-merged in PR #8, but omitted its completion record.
-This evidence-only repair is PR_OPEN: https://github.com/Tauhid-dev/Zuno-Edu/pull/9.
-C03 is not recorded COMPLETE before verified human merge of this repair.
-Next selection must come from synchronized reconciliation; P02-C01 is conditional.
+Scope is LOCKED at architecture 2 after verified human merge of PR #11.
+ZE-P01-C01/C02/C03 have verified completion evidence.
+ZE-P02-C01 is implemented, validated and independently reviewed on
+feature/ze-p02-c01-authentication-resume; publication is in progress.
+It is not COMPLETE until fresh reconciliation verifies its human-merged PR.
+ZE-P02-C02 is the conditional next candidate after that merge.
