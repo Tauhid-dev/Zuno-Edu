@@ -33,3 +33,8 @@ findings (header relocation, extra nullable union alternatives, unrestricted out
 were fixed and covered by negative regressions. Final review approved with no remaining
 material findings. Final validation: 67 affected tests passed; generator --check, Ruff,
 format, all chunk mypy checks and frontend typecheck passed.
+
+Architecture-boundary repair (2026-09-26): /root/contract_review independently approved
+HTTP presentation DTOs replacing application-layer Pydantic configuration, with no
+material findings. Verified unchanged OpenAPI, extra-field rejection, dataclass adaptation
+and secret repr suppression. Full Python suite: 129 passed; boundary test unchanged.

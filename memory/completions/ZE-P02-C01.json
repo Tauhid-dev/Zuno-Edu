@@ -36,7 +36,7 @@
     },
     {
       "path": "apps/api/src/zuno_edu/interfaces/api/identity.py",
-      "sha256": "725f9f6593fbd22e09eb195cb15fe276b169d1828d0ac69c4c7bddc5a7c496f5"
+      "sha256": "1311bea639ef12a7e1294f4db2b778cde7e07006fc4d53b7432e7e64f4d11225"
     },
     {
       "path": "apps/api/src/zuno_edu/modules/identity/README.md",
@@ -52,7 +52,7 @@
     },
     {
       "path": "apps/api/src/zuno_edu/modules/identity/application/contracts.py",
-      "sha256": "200350df954402e4d5b572df6c35547341f29feb4332cc0a9ae1a3c67130df24"
+      "sha256": "59a922ba225788664ff7917b8a2a7bd588bd6aa7a606436810cce10ded3dd1e6"
     },
     {
       "path": "apps/api/src/zuno_edu/modules/identity/application/ports.py",
@@ -92,11 +92,11 @@
     },
     {
       "path": "docs/planning/verification/ZE-P02-C01.md",
-      "sha256": "1e8621c13a3c84a76e25e724d3e7c6adb0abfc208c8d7837ae0fa30116fe30fc"
+      "sha256": "cfa86c80a7355cd6f0e906166ba6ca420fb36049eca8ff87a111dab16c77c05d"
     },
     {
       "path": "memory/handoffs/ZE-P02-C01-review.md",
-      "sha256": "ab95d44523cc1e33555549b4bb210a1befe6b343227de5ef3a388d7bdc412ce3"
+      "sha256": "af81ff2c005fbcf5ddc9306db2a6da66e8282464696f20f6a17974deeeca4efc"
     },
     {
       "path": "tests/chunks/ZE-P01-C02/test_migrations.py",
@@ -157,6 +157,10 @@
     {
       "path": "packages/contracts/src/generated.ts",
       "sha256": "be36d2f813b3138c12909814bd29cc02fbe367036e91209f8830ff4bfb2180ae"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/identity.py",
+      "sha256": "862883c718dd5ec47c48338f04bfd36ae7ea3d27ca616eff08775db6607a1ebe"
     }
   ],
   "verification": [

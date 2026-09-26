@@ -17,6 +17,7 @@ from zuno_edu.modules.identity.application.contracts import (
     StaffSetupSessionView,
 )
 from zuno_edu.modules.identity.application.service import AuthenticationService
+from zuno_edu.presentation.http import identity as responses
 from zuno_edu.presentation.http.models import TransportModel
 
 SESSION_COOKIE = "__Host-zuno-session"
@@ -111,7 +112,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
             request.cookies.get(SESSION_COOKIE),
         )
 
-    @router.post("/auth/sessions", response_model=AuthOutcomeView)
+    @router.post("/auth/sessions", response_model=responses.AuthOutcomeView)
     def login(
         body: API_AUTH_LOGINRequest,
         response: Response,
@@ -122,7 +123,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
         set_cookie(response, SETUP_COOKIE, result.setup_token, 600)
         return result
 
-    @router.get("/account/session", response_model=SessionView)
+    @router.get("/account/session", response_model=responses.SessionView)
     def current(
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
@@ -140,7 +141,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
         auth.logout(principal, {"setup_token": token} if token else {})
         set_cookie(response, SETUP_COOKIE, None, 0)
 
-    @router.post("/auth/mfa/verifications", response_model=SessionView)
+    @router.post("/auth/mfa/verifications", response_model=responses.SessionView)
     def verify_mfa(
         body: API_AUTH_MFARequest,
         principal: Annotated[RequestContext, Depends(context)],
@@ -148,7 +149,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
     ) -> SessionView:
         return auth.verify_mfa(principal, body.model_dump())
 
-    @router.post("/account/mfa/enrolment", response_model=MfaSetupView)
+    @router.post("/account/mfa/enrolment", response_model=responses.MfaSetupView)
     def enrol(
         body: API_AUTH_MFA_ENROLRequest,
         response: Response,
@@ -166,7 +167,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
         set_cookie(response, SETUP_COOKIE, result.setup_token, 600)
         return result
 
-    @router.post("/account/mfa/confirmation", response_model=MfaActivationView)
+    @router.post("/account/mfa/confirmation", response_model=responses.MfaActivationView)
     def confirm(
         body: API_AUTH_MFA_CONFIRMRequest,
         principal: Annotated[RequestContext, Depends(context)],
@@ -206,7 +207,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
     ) -> None:
         auth.reset_password(principal, body.model_dump())
 
-    @router.post("/auth/staff-invitations/accept", response_model=StaffSetupSessionView)
+    @router.post("/auth/staff-invitations/accept", response_model=responses.StaffSetupSessionView)
     def accept(
         body: API_AUTH_INVITE_ACCEPTRequest,
         response: Response,
