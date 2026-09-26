@@ -18,7 +18,6 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
 import check_secrets as secrets_scan  # noqa: E402
 import generate_contracts as contracts  # noqa: E402
-from zuno_edu.bootstrap.app import create_app  # noqa: E402
 
 plan = importlib.import_module("validate_plan")
 
@@ -75,7 +74,7 @@ def test_checked_in_types_are_generated_and_drift_fails(tmp_path: Path) -> None:
 
 
 def test_catalog_rejects_missing_routes_schema_changes_and_duplicate_dtos(tmp_path: Path) -> None:
-    document = create_app().openapi()
+    document = contracts.contract_document()
     invalid = copy.deepcopy(document)
     invalid["paths"].clear()
     with pytest.raises(ValueError, match="Missing implemented"):
@@ -184,3 +183,69 @@ def test_secret_scan_rejects_seeded_private_key(tmp_path: Path) -> None:
     )
     assert result.returncode == 1 and "Private Key" in result.stdout
     assert "synthetic-test-content" not in result.stdout
+
+
+def test_authentication_contract_routes_and_header_are_required() -> None:
+    document = contracts.contract_document()
+    contracts.validate(document)
+    invalid = copy.deepcopy(document)
+    del invalid["paths"]["/api/v1/auth/email-verifications"]
+    with pytest.raises(ValueError, match="API-AUTH-VERIFY"):
+        contracts.validate(invalid)
+    for field, value in (("required", False), ("in", "query"), ("schema", {"type": "string"})):
+        invalid = copy.deepcopy(document)
+        header = invalid["paths"]["/api/v1/account/mfa/enrolment"]["post"]["parameters"][0]
+        header[field] = value
+        with pytest.raises(ValueError, match="Schema fields"):
+            contracts.validate(invalid)
+
+
+def test_authentication_contract_rejects_nullable_reference_array_and_role_drift() -> None:
+    document = contracts.contract_document()
+    for name, field, value in (
+        ("AuthOutcomeView", "session", {"anyOf": [{"type": "string"}, {"type": "null"}]}),
+        ("SessionView", "privileges", {"type": "array", "items": {"type": "integer"}}),
+        (
+            "API_AUTH_MFA_ENROLRequest",
+            "setup_token",
+            {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        ),
+    ):
+        invalid = copy.deepcopy(document)
+        invalid["components"]["schemas"][name]["properties"][field] = value
+        with pytest.raises(ValueError, match="Schema .* drift"):
+            contracts.validate(invalid)
+    invalid = copy.deepcopy(document)
+    invalid["components"]["schemas"]["Role"]["enum"].append("owner")
+    with pytest.raises(ValueError, match="Schema enum drift"):
+        contracts.validate(invalid)
+
+
+def test_catalog_does_not_allow_body_fields_to_move_to_headers() -> None:
+    document = contracts.contract_document()
+    schema = document["components"]["schemas"]["API_AUTH_MFA_ENROLRequest"]
+    del schema["properties"]["password"]
+    schema["required"].remove("password")
+    document["paths"]["/api/v1/account/mfa/enrolment"]["post"]["parameters"].append(
+        {
+            "name": "password",
+            "in": "header",
+            "required": True,
+            "schema": {"type": "string", "format": "uuid"},
+        }
+    )
+    with pytest.raises(ValueError, match="Schema fields"):
+        contracts.validate(document)
+
+
+def test_catalog_rejects_extra_union_alternative_and_open_status() -> None:
+    document = contracts.contract_document()
+    document["components"]["schemas"]["AuthOutcomeView"]["properties"]["session"]["anyOf"].append(
+        {"type": "integer"}
+    )
+    with pytest.raises(ValueError, match="Schema union drift"):
+        contracts.validate(document)
+    document = contracts.contract_document()
+    del document["components"]["schemas"]["AuthOutcomeView"]["properties"]["status"]["enum"]
+    with pytest.raises(ValueError, match="Schema enum drift"):
+        contracts.validate(document)

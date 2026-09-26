@@ -10,6 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
+from zuno_edu.modules.identity.domain import AuthError
 from zuno_edu.shared.persistence import VersionConflict
 
 from .models import Error
@@ -24,6 +25,13 @@ ERRORS: dict[str, tuple[int, str]] = {
     "VALIDATION_ERROR": (422, "Check required fields, allowed fields and formats."),
     "RATE_LIMITED": (429, "Too many requests. Try again later."),
     "PROVIDER_UNAVAILABLE": (503, "The service is temporarily unavailable."),
+    "INVALID_CREDENTIALS": (401, "The credentials or recovery proof are invalid."),
+    "ACCOUNT_SUSPENDED": (401, "The credentials or recovery proof are invalid."),
+    "MFA_REPLAY": (409, "This authentication proof has already been used."),
+    "MFA_CHALLENGE_EXPIRED": (409, "This authentication challenge has expired."),
+    "MFA_ATTEMPTS_EXCEEDED": (429, "Too many authentication attempts. Try again later."),
+    "IDEMPOTENCY_CONFLICT": (409, "This idempotency key was used with different input."),
+    "INCOMPATIBLE_ROLE": (422, "The requested role configuration is invalid."),
 }
 
 
@@ -40,7 +48,7 @@ class ApiError(Exception):
         if self.retry_after_seconds is not None and (
             type(self.retry_after_seconds) is not int
             or not 1 <= self.retry_after_seconds <= 3600
-            or self.code not in {"RATE_LIMITED", "PROVIDER_UNAVAILABLE"}
+            or self.code not in {"RATE_LIMITED", "PROVIDER_UNAVAILABLE", "MFA_ATTEMPTS_EXCEEDED"}
         ):
             raise ValueError("Invalid retry metadata")
 
@@ -82,6 +90,14 @@ def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(VersionConflict)
     async def version_error(request: Request, error: VersionConflict) -> JSONResponse:
         return problem(request, ApiError("VERSION_CONFLICT"))
+
+    @app.exception_handler(AuthError)
+    async def auth_error(request: Request, error: AuthError) -> JSONResponse:
+        code = error.code if error.code in ERRORS else "INVALID_STATE"
+        retry = (
+            3600 if code == "RATE_LIMITED" else (60 if code == "MFA_ATTEMPTS_EXCEEDED" else None)
+        )
+        return problem(request, ApiError(code, retry))
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, error: RequestValidationError) -> JSONResponse:

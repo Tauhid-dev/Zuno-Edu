@@ -26,6 +26,14 @@ def test_initial_migration_upgrade_and_compatibility(database_url: str) -> None:
             "outbox_events",
             "background_jobs",
             "webhook_inbox",
+            "accounts",
+            "credentials",
+            "sessions",
+            "one_time_tokens",
+            "mfa_factors",
+            "mfa_challenges",
+            "mfa_recovery_codes",
+            "idempotency_records",
         }
         command.check(config)
         command.upgrade(config, "head")
@@ -34,9 +42,9 @@ def test_initial_migration_upgrade_and_compatibility(database_url: str) -> None:
 
         with TestClient(create_app()) as client:
             assert client.get("/api/v1/health").status_code == 200
-        with pytest.raises(RuntimeError, match="Data-preserving"):
+        with pytest.raises(RuntimeError, match="forward-only"):
             command.downgrade(config, "base")
         with database.engine.connect() as connection:
-            assert connection.scalar(sa.text("SELECT version_num FROM alembic_version")) == "0001"
+            assert connection.scalar(sa.text("SELECT version_num FROM alembic_version")) == "0002"
     finally:
         database.close()

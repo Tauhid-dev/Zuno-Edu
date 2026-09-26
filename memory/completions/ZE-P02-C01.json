@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "chunk_id": "ZE-P02-C01",
+  "requirements": [
+    "ADM-001",
+    "AUTH-001",
+    "AUTH-002",
+    "AUTH-003",
+    "AUTH-004",
+    "AUTH-005",
+    "PAR-001",
+    "STU-001",
+    "TCH-001",
+    "WEB-011"
+  ],
+  "artifacts": [
+    {
+      "path": ".secrets.baseline",
+      "sha256": "e2fd0e8624833eac6a2f299bf0c0d47e33aa6bfc92d84fad1c00f397ff0df433"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/bootstrap/app.py",
+      "sha256": "c7b7de842183d41ee112c6c13c129c43c807b7c150554aa71cc773ae41f892dc"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/database.py",
+      "sha256": "b865f94c27f8efe97b5a10a8fece649b95f04e8b346f9dbba81bbe5c111f00ec"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/migrations/versions/0002_identity_foundation.py",
+      "sha256": "4f2372d4836ef64013f90a720326d802dd275e06a881dc54b97c1681121314af"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/tables.py",
+      "sha256": "0ec73cedcbbdd5f08e92b41af2ba40d0cdef33622fe12724d5c1b3af43914fda"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/interfaces/api/identity.py",
+      "sha256": "1311bea639ef12a7e1294f4db2b778cde7e07006fc4d53b7432e7e64f4d11225"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/README.md",
+      "sha256": "f8de194250ec11a82f43102bb695b257a72efd5d4c95f3cfa3253b7af40aa430"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/__init__.py",
+      "sha256": "e6419e692040ef844231640905ec125a34cf972b45709d1ee5a3dcb985b3d63f"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/application/__init__.py",
+      "sha256": "791001aa6eb8601af5e173a2f3cb535226fd39b9226d8fcbfd8ee163cbe5ee63"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/application/contracts.py",
+      "sha256": "59a922ba225788664ff7917b8a2a7bd588bd6aa7a606436810cce10ded3dd1e6"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/application/ports.py",
+      "sha256": "1884cdfa9c1f85bb7b7205ef877b913c9646dc3e66b8ddb73de54e18d88a7bc4"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/application/service.py",
+      "sha256": "ddb8d078877e0c8bb6c5e85142d2b989e6ddea75adf6e4da9d4b1b2d53234356"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/domain/__init__.py",
+      "sha256": "d56787e1ae84d3a136e5f411c2f1c9410dd9b762bd57b61591fb57216b06ef58"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/infrastructure/__init__.py",
+      "sha256": "24cb4b0ce1593ae8f623034e9b7e1427b7dba98fdefd7ce8238671a2a707d0c6"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/infrastructure/crypto.py",
+      "sha256": "c4d269b6cda641001a38a9750dac77ce92893ff9763ad32355c0ed17ffcb22f1"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/infrastructure/notifications.py",
+      "sha256": "2a66a4847cce3d29860c0254407aab6f286b80513f179ba61fe0b6b6bc209bca"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/infrastructure/repository.py",
+      "sha256": "6434c6547fe6086a4d3fcd60a8efa6a5569919434b67f5ff32e96b983ec128bf"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/infrastructure/security.py",
+      "sha256": "a16dd1bd7b4653f1c30093ea67c4b9e4ab742e7871ceeac35b14af68daf3258f"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/errors.py",
+      "sha256": "fa1c694f7f0c9f7f111708a757ce4e8860ae31039a3dd5cbb09d42022689e9b5"
+    },
+    {
+      "path": "docs/planning/verification/ZE-P02-C01.md",
+      "sha256": "cfa86c80a7355cd6f0e906166ba6ca420fb36049eca8ff87a111dab16c77c05d"
+    },
+    {
+      "path": "memory/handoffs/ZE-P02-C01-review.md",
+      "sha256": "af81ff2c005fbcf5ddc9306db2a6da66e8282464696f20f6a17974deeeca4efc"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C02/test_migrations.py",
+      "sha256": "85c34d62e3a6fc95aa2f34fddd332ddb9a43e20db5e8ebfc9c7c90e033c653dc"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/conftest.py",
+      "sha256": "c8595151ae162f5b5f334ff3c644d20000478b062668b7af0895a3a8f3be7ceb"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/fakes.py",
+      "sha256": "6b5797728c58a01938b064978eae2ca97e55aa5bbe9f3405702fc448580411eb"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_authentication_service.py",
+      "sha256": "3dbd6e085cacd12ac199cbde2bdb2b1d9e6168f47925ae1536e6a7264534838a"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_crypto.py",
+      "sha256": "ebd13acfc2ca719ed99202c187642d5a3cdbd0e70396e783374cf709c8816b95"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_database_service.py",
+      "sha256": "3878bfe05887e652f97747da8d7df74a483ec08bbf425be8b2515d73b2dfbd3e"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_http.py",
+      "sha256": "8b6cd7f1cef9e9c570da6f3ead2afd16efd9056a48066f4f3a1f4fde672e6d6c"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_identity_domain.py",
+      "sha256": "b21272e67bb3c16badb7a04081d84e31e56023b2e30c68ad38d7ad5b993925ee"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_repository.py",
+      "sha256": "67bd6a41e103f828f14ee2149abf3586840840552448db7e8a76fb6c3b932acc"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_security.py",
+      "sha256": "1590d52c0b2971a21f753e16be3d3988073360b5a9889e575c3cb5695f86672f"
+    },
+    {
+      "path": ".github/workflows/quality.yml",
+      "sha256": "57e48ed7e53fb4a969b413581dc774b67f801aad8163cb9aa84befcf187c8b9d"
+    },
+    {
+      "path": "scripts/generate_contracts.py",
+      "sha256": "1d997900138c3db10ab466452b8b3e127c03e8fe0a617b730bbf10ce9ced1808"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/test_contracts_ci.py",
+      "sha256": "2122b5b3d94b793215054ac818e28e170027ec88057c0fb3c88eba29f9f26430"
+    },
+    {
+      "path": "packages/contracts/openapi.json",
+      "sha256": "875ec3698df14e803a072e9eb90c4ee25202bf5bd12284a7bfd4af4c61636afa"
+    },
+    {
+      "path": "packages/contracts/src/generated.ts",
+      "sha256": "be36d2f813b3138c12909814bd29cc02fbe367036e91209f8830ff4bfb2180ae"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/presentation/http/identity.py",
+      "sha256": "862883c718dd5ec47c48338f04bfd36ae7ea3d27ca616eff08775db6607a1ebe"
+    }
+  ],
+  "verification": [
+    {
+      "name": "Wrong credentials and enumeration response",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "Single-use reset and MFA recovery replay",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "Suspension revokes sessions",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "CSRF/session expiry",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "Rate-limit behavior",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "Login and invitation limited MFA tokens enter role-neutral setup without a full session; activated SessionView alone selects role landing.",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "ADR 0004: one-time provisioning response; same-key replay and changed-body conflict; concurrent duplicate/rollback/uncertain-commit behavior; safe keyed metadata without secret cache; explicit restart and confirmation races; expired/consumed/foreign-browser denial; active-factor preservation and unchanged abuse limits.",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "125 combined regression tests",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "Static and planning validation",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    },
+    {
+      "name": "Secret scan",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C01.md"
+    }
+  ],
+  "review": {
+    "risk": "critical",
+    "depth": "deep",
+    "independent": true,
+    "critical": 0,
+    "high": 0,
+    "evidence": "memory/handoffs/ZE-P02-C01-review.md"
+  }
+}
