@@ -36,7 +36,7 @@
     },
     {
       "path": "apps/api/src/zuno_edu/interfaces/api/identity.py",
-      "sha256": "8e9134a1eb7aa049f5bd3787f36c925663db5fc1e5a486f37e848e96f8c4283f"
+      "sha256": "725f9f6593fbd22e09eb195cb15fe276b169d1828d0ac69c4c7bddc5a7c496f5"
     },
     {
       "path": "apps/api/src/zuno_edu/modules/identity/README.md",
@@ -52,7 +52,7 @@
     },
     {
       "path": "apps/api/src/zuno_edu/modules/identity/application/contracts.py",
-      "sha256": "cffb567c521788fb3f262f065858ab12ee2ce78b24811ab3aaf13460899f6c26"
+      "sha256": "200350df954402e4d5b572df6c35547341f29feb4332cc0a9ae1a3c67130df24"
     },
     {
       "path": "apps/api/src/zuno_edu/modules/identity/application/ports.py",
@@ -92,11 +92,11 @@
     },
     {
       "path": "docs/planning/verification/ZE-P02-C01.md",
-      "sha256": "28501a980203af5b0c37f56c70c8b4735e9b70bdaa3676f93353488f954f6f01"
+      "sha256": "1e8621c13a3c84a76e25e724d3e7c6adb0abfc208c8d7837ae0fa30116fe30fc"
     },
     {
       "path": "memory/handoffs/ZE-P02-C01-review.md",
-      "sha256": "dd23d593e9eca194447bc53bb49abdbf690d9742ffb5c231129cf37017a83fea"
+      "sha256": "ab95d44523cc1e33555549b4bb210a1befe6b343227de5ef3a388d7bdc412ce3"
     },
     {
       "path": "tests/chunks/ZE-P01-C02/test_migrations.py",
@@ -141,6 +141,22 @@
     {
       "path": ".github/workflows/quality.yml",
       "sha256": "57e48ed7e53fb4a969b413581dc774b67f801aad8163cb9aa84befcf187c8b9d"
+    },
+    {
+      "path": "scripts/generate_contracts.py",
+      "sha256": "1d997900138c3db10ab466452b8b3e127c03e8fe0a617b730bbf10ce9ced1808"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/test_contracts_ci.py",
+      "sha256": "2122b5b3d94b793215054ac818e28e170027ec88057c0fb3c88eba29f9f26430"
+    },
+    {
+      "path": "packages/contracts/openapi.json",
+      "sha256": "875ec3698df14e803a072e9eb90c4ee25202bf5bd12284a7bfd4af4c61636afa"
+    },
+    {
+      "path": "packages/contracts/src/generated.ts",
+      "sha256": "be36d2f813b3138c12909814bd29cc02fbe367036e91209f8830ff4bfb2180ae"
     }
   ],
   "verification": [

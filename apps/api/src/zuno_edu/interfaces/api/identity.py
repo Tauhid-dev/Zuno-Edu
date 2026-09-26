@@ -6,6 +6,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, Request, Response
 from pydantic import Field, StringConstraints, model_validator
+from pydantic.json_schema import SkipJsonSchema
 
 from zuno_edu.modules.identity.application.contracts import (
     AuthOutcomeView,
@@ -28,18 +29,18 @@ Token = Annotated[str, StringConstraints(min_length=1, max_length=512)]
 Code = Annotated[str, StringConstraints(pattern=r"^(?:[0-9]{6}|[A-Z2-7]{26})$")]
 
 
-class LoginRequest(TransportModel):
+class API_AUTH_LOGINRequest(TransportModel):
     identifier: Annotated[
         str, StringConstraints(strip_whitespace=True, min_length=1, max_length=254)
     ]
     password: Password = Field(repr=False)
 
 
-class TokenRequest(TransportModel):
+class API_AUTH_VERIFYRequest(TransportModel):
     token: Token = Field(repr=False)
 
 
-class EmailRequest(TransportModel):
+class API_AUTH_RESENDRequest(TransportModel):
     email: Annotated[
         str,
         StringConstraints(
@@ -48,30 +49,34 @@ class EmailRequest(TransportModel):
     ]
 
 
-class ResetRequest(TokenRequest):
+class API_AUTH_RESET_REQUESTRequest(API_AUTH_RESENDRequest):
+    pass
+
+
+class API_AUTH_RESETRequest(API_AUTH_VERIFYRequest):
     new_password: Password = Field(repr=False)
 
 
-class InvitationRequest(TokenRequest):
+class API_AUTH_INVITE_ACCEPTRequest(API_AUTH_VERIFYRequest):
     password: Password = Field(repr=False)
 
 
-class MfaRequest(TransportModel):
+class API_AUTH_MFARequest(TransportModel):
     challenge_token: Token = Field(repr=False)
     code: Code = Field(repr=False)
 
 
-class ConfirmRequest(TransportModel):
+class API_AUTH_MFA_CONFIRMRequest(TransportModel):
     setup_token: Token = Field(repr=False)
     code: Annotated[str, StringConstraints(pattern=r"^[0-9]{6}$")] = Field(repr=False)
 
 
-class EnrolRequest(TransportModel):
+class API_AUTH_MFA_ENROLRequest(TransportModel):
     password: Password = Field(repr=False)
-    setup_token: Token | None = Field(default=None, repr=False)
+    setup_token: Token | SkipJsonSchema[None] = Field(default=None, repr=False)
 
     @model_validator(mode="after")
-    def nonnullable_optional(self) -> EnrolRequest:
+    def nonnullable_optional(self) -> API_AUTH_MFA_ENROLRequest:
         if "setup_token" in self.model_fields_set and self.setup_token is None:
             raise ValueError("setup_token must be omitted or supplied")
         return self
@@ -108,7 +113,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/auth/sessions", response_model=AuthOutcomeView)
     def login(
-        body: LoginRequest,
+        body: API_AUTH_LOGINRequest,
         response: Response,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
@@ -137,7 +142,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/auth/mfa/verifications", response_model=SessionView)
     def verify_mfa(
-        body: MfaRequest,
+        body: API_AUTH_MFARequest,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
     ) -> SessionView:
@@ -145,7 +150,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/account/mfa/enrolment", response_model=MfaSetupView)
     def enrol(
-        body: EnrolRequest,
+        body: API_AUTH_MFA_ENROLRequest,
         response: Response,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
@@ -163,7 +168,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/account/mfa/confirmation", response_model=MfaActivationView)
     def confirm(
-        body: ConfirmRequest,
+        body: API_AUTH_MFA_CONFIRMRequest,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
     ) -> MfaActivationView:
@@ -171,7 +176,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/auth/email-verifications", status_code=204)
     def verify_email(
-        body: TokenRequest,
+        body: API_AUTH_VERIFYRequest,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
     ) -> None:
@@ -179,7 +184,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/auth/email-verifications/resend", status_code=204)
     def resend(
-        body: EmailRequest,
+        body: API_AUTH_RESENDRequest,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
     ) -> None:
@@ -187,7 +192,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/auth/password-reset-requests", status_code=204)
     def request_reset(
-        body: EmailRequest,
+        body: API_AUTH_RESET_REQUESTRequest,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
     ) -> None:
@@ -195,7 +200,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/auth/password-resets", status_code=204)
     def reset(
-        body: ResetRequest,
+        body: API_AUTH_RESETRequest,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],
     ) -> None:
@@ -203,7 +208,7 @@ def create_identity_router(factory: ServiceFactory) -> APIRouter:
 
     @router.post("/auth/staff-invitations/accept", response_model=StaffSetupSessionView)
     def accept(
-        body: InvitationRequest,
+        body: API_AUTH_INVITE_ACCEPTRequest,
         response: Response,
         principal: Annotated[RequestContext, Depends(context)],
         auth: Annotated[AuthenticationService, Depends(service)],

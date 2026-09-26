@@ -26,3 +26,10 @@ PR 12 CI repair review (2026-09-26): /root/contract_review independently approve
 the final per-chunk mypy loop with no material findings. Both conftest modules stay
 covered, application/shared-script checks remain, and a failing mypy command fails
 the Ubuntu CI step. Ruff/format and all four separate chunk type checks passed.
+
+PR 12 generated-contract repair review (2026-09-26): /root/contract_review independently
+reviewed the schema-only composition, catalog mapping and generated assets. Three Medium
+findings (header relocation, extra nullable union alternatives, unrestricted outcome status)
+were fixed and covered by negative regressions. Final review approved with no remaining
+material findings. Final validation: 67 affected tests passed; generator --check, Ruff,
+format, all chunk mypy checks and frontend typecheck passed.
