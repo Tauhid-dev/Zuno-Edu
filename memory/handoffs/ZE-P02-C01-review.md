@@ -21,3 +21,8 @@ Final combined suite: 125 passed; C01 subset: 55 passed. Static checks pass.
 Final independent re-review explicitly approved the implementation after the expiry
 regressions passed. Subsequent handoff/evidence-only updates do not alter product
 behavior. Human PR review and merge remain required.
+
+PR 12 CI repair review (2026-09-26): /root/contract_review independently approved
+the final per-chunk mypy loop with no material findings. Both conftest modules stay
+covered, application/shared-script checks remain, and a failing mypy command fails
+the Ubuntu CI step. Ruff/format and all four separate chunk type checks passed.

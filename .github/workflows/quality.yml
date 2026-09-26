@@ -54,7 +54,13 @@ jobs:
         run: |
           uv run --locked ruff check apps/api/src tests/chunks scripts/generate_contracts.py scripts/check_secrets.py
           uv run --locked ruff format --check apps/api/src tests/chunks/ZE-P01-C02 tests/chunks/ZE-P01-C03 scripts/generate_contracts.py scripts/check_secrets.py
-          uv run --locked mypy apps/api/src tests/chunks scripts/generate_contracts.py scripts/check_secrets.py
+          uv run --locked mypy apps/api/src scripts/generate_contracts.py scripts/check_secrets.py
+          # Chunk-local conftest modules must be checked in separate mypy invocations.
+          for chunk in tests/chunks/ZE-*/; do
+            if find "$chunk" -name '*.py' -print -quit | grep -q .; then
+              uv run --locked mypy "$chunk" scripts/generate_contracts.py scripts/check_secrets.py
+            fi
+          done
       - name: Catalog and generated contracts must agree
         run: uv run --locked python scripts/generate_contracts.py --check
       - name: Python tests including architecture, authorization and real migrations
