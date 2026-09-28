@@ -27,7 +27,7 @@ Acceptance proof in tests/chunks/ZE-P02-C02:
   binding, safe field projection, immutable records and SQL update/delete/truncate
   denial, exact writer/reader privileges, and rollback/fail-closed audit failures.
 - Real account-lock and empty-table-lock waits across expiry deny protected reads.
-- Migration head upgrade/idempotence/metadata/application rollback passes; downgrade
+- Migration head upgrade/idempotence/metadata and application startup compatibility smoke pass; downgrade
   fails safely without deleting evidence. Session revocation trigger is transactional.
 
 Validation: final focused suite 41 PASS; earlier affected authentication/boundary

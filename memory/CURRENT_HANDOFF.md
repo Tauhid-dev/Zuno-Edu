@@ -1,7 +1,7 @@
 CHUNK: ZE-P02-C02
-STATUS: PR_OPEN; publication pending; not MERGED
+STATUS: PR_OPEN; not MERGED
 COMMIT: 82cd43f6510055b5c31271af23ea7e0878afa442
-PR: pending
+PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/14
 CHANGE: Trusted current actor/scopes, shared fixed MFA freshness, append-only scoped audit API/storage, transactional role revocation and session-preserving same-principal step-up. Policy PR #13 verified merged.
 VALIDATION: Product 162 PASS locally (2 Redis tests await CI); workflow 61/61; lint/types/contracts/secret scan PASS; independent critical/deep review PASS. CI includes unchanged Redis tests.
 BLOCKERS: None in implementation; human review/merge required after CI.
