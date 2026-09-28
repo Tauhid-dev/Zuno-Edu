@@ -3,17 +3,18 @@
   "project": "zuno-edu",
   "default_branch": "master",
   "scope_version": "1.0",
-  "architecture_version": 2,
-  "master_sha_at_last_reconciliation": "9e6974081241c28f4a31b0e7da4ca7ba6f7391ec",
+  "architecture_version": 3,
+  "master_sha_at_last_reconciliation": "af5dbd9cd1d1dfa75f67367d9bb4eb3931cf2ba0",
   "current_phase": "P02",
-  "last_completed_chunk": "ZE-P01-C03",
-  "next_candidate_chunk": "ZE-P02-C01",
-  "active_chunk": "ZE-P02-C01",
-  "active_pr": 12,
+  "last_completed_chunk": "ZE-P02-C01",
+  "next_candidate_chunk": "ZE-P02-C02",
+  "active_chunk": "ZE-P02-C02",
+  "active_pr": 13,
   "completed_chunks": [
     "ZE-P01-C01",
     "ZE-P01-C02",
-    "ZE-P01-C03"
+    "ZE-P01-C03",
+    "ZE-P02-C01"
   ],
   "blocked_chunks": [],
   "workflow_version": 1

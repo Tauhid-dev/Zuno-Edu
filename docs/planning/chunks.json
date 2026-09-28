@@ -439,6 +439,8 @@
     ],
     "area": "apps/api/src/zuno_edu/domain/policies",
     "required_context": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -462,11 +464,13 @@
       "skills/security/security-review/SKILL.md"
     ],
     "affected_areas": [
-      "apps/api/src/zuno_edu/domain/policies"
+      "apps/api/src/zuno_edu/domain/policies",
+      "apps/api/src/zuno_edu/modules/identity/application/service.py",
+      "apps/api/src/zuno_edu/interfaces/api/identity.py"
     ],
     "execution": {
-      "base_master_sha": null,
-      "branch": null,
+      "base_master_sha": "af5dbd9cd1d1dfa75f67367d9bb4eb3931cf2ba0",
+      "branch": "feature/ze-p02-c02-authorization-audit",
       "commit": null,
       "pr": null,
       "completion_evidence": null
@@ -477,7 +481,12 @@
       "Untrusted actor fields ignored",
       "Deny-by-default policy checks",
       "Audit append-only and redaction",
-      "Role revocation invalidates session"
+      "Role revocation invalidates session",
+      "Recent MFA valid strictly before 30 minutes; exact expiry and older evidence denied",
+      "Missing and future MFA evidence denied; successful step-up restores protected access",
+      "Ordinary authenticated access survives MFA freshness expiry; activity never extends MFA timestamp",
+      "Failed/replayed step-up and lock waits crossing expiry cannot grant protected access",
+      "Initiating and failing same-principal step-up retains the ordinary session and cookie; foreign proof cannot refresh its MFA"
     ],
     "api_operations": [
       "API-ADMIN-AUDIT"
@@ -516,7 +525,9 @@
       "apps/api/src/zuno_edu/domain/policies",
       "tests/chunks/ZE-P02-C02/",
       "memory/completions/ZE-P02-C02.json",
-      "memory/handoffs/ZE-P02-C02.md"
+      "memory/handoffs/ZE-P02-C02.md",
+      "apps/api/src/zuno_edu/modules/identity/application/service.py",
+      "apps/api/src/zuno_edu/interfaces/api/identity.py"
     ],
     "context_selection": "Read only entries matching the named requirement/object/service/API/component IDs in larger catalogs.",
     "acceptance_criteria": [
@@ -525,7 +536,12 @@
       "Pass: Untrusted actor fields ignored",
       "Pass: Deny-by-default policy checks",
       "Pass: Audit append-only and redaction",
-      "Pass: Role revocation invalidates session"
+      "Pass: Role revocation invalidates session",
+      "Pass: Recent MFA valid strictly before 30 minutes; exact expiry and older evidence denied",
+      "Pass: Missing and future MFA evidence denied; successful step-up restores protected access",
+      "Pass: Ordinary authenticated access survives MFA freshness expiry; activity never extends MFA timestamp",
+      "Pass: Failed/replayed step-up and lock waits crossing expiry cannot grant protected access",
+      "Pass: Initiating and failing same-principal step-up retains the ordinary session and cookie; foreign proof cannot refresh its MFA"
     ],
     "verification_evidence": "docs/planning/verification/ZE-P02-C02.md",
     "workflow": {

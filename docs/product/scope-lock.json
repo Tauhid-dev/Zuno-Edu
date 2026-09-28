@@ -2,8 +2,8 @@
   "schema_version": 1,
   "status": "DRAFT",
   "scope_version": "1.0",
-  "architecture_version": 2,
-  "planning_pr": 11,
+  "architecture_version": 3,
+  "planning_pr": 13,
   "plan_artifacts": [
     {
       "path": "docs/architecture/ADR/0001-launch-baseline.md",
@@ -22,12 +22,16 @@
       "sha256": "fc74d699f72245a2be4b22c39281910a308702744f39cb50038e2f74f0798e13"
     },
     {
+      "path": "docs/architecture/ADR/0005-recent-mfa-freshness.md",
+      "sha256": "48166d5a3dc682cb8ce2e88a2f58b527b4829ffdbcaef7375e16715cc0e7cd06"
+    },
+    {
       "path": "docs/architecture/AGGREGATES.md",
       "sha256": "3581a69835a1c072fddc32c76d199684101517e948777d8107e7e8a375b6ae3c"
     },
     {
       "path": "docs/architecture/API_ARCHITECTURE.md",
-      "sha256": "3393ca339cef03d58bc9a241592e12c44d75ea303f5698df1281557320650bb3"
+      "sha256": "eb3fb3b362fbeb5ffb6b366db53f8a34f963ca1e776fb453e0d5ac961e02f1f3"
     },
     {
       "path": "docs/architecture/API_CATALOG.md",
@@ -39,7 +43,7 @@
     },
     {
       "path": "docs/architecture/AUTHORIZATION_MODEL.md",
-      "sha256": "d3e4405dce4084882bdf9e2e368dd3fd6f4481911f1526a874e055f7817543ca"
+      "sha256": "32a5d45fa0dd15a1b286743a1c60ab21cfab8f515e76176014497f9058cd086d"
     },
     {
       "path": "docs/architecture/BACKEND_ARCHITECTURE.md",
@@ -131,7 +135,7 @@
     },
     {
       "path": "docs/architecture/SECURITY_ARCHITECTURE.md",
-      "sha256": "159ff20342412ea33428816688f3247a63e5cf99e77fc2be3e4ab84c33df151d"
+      "sha256": "abf5925976722ec17a24e9891db4f9e23a1825cbd3765acf68a2b3dacdd30905"
     },
     {
       "path": "docs/architecture/SETTINGS_CATALOG.md",
@@ -156,7 +160,7 @@
     {
       "path": "docs/planning/chunks.json",
       "normalization": "chunk-plan-v1",
-      "sha256": "9598208dc6d319f2a7a6959f4e475c68558c143336d4e7bc08e09a02ebf1207b"
+      "sha256": "649ab54ce43914741ba0d35c84a5267da96e0b52d148e4e49b30468b371aee70"
     },
     {
       "path": "docs/planning/chunks/ZE-P01-C01.md",
@@ -181,7 +185,7 @@
     {
       "path": "docs/planning/chunks/ZE-P02-C02.md",
       "normalization": "chunk-manifest-v1",
-      "sha256": "337e86b06b1052c57b3bf3e05b3340328c99c2df9f619799d75e2acf5dca9d9d"
+      "sha256": "0ee9d370403dce24823a2bc39b52ad8918bcf930f6307a0564ae6853dff9b3c0"
     },
     {
       "path": "docs/planning/chunks/ZE-P02-C03.md",
@@ -515,7 +519,7 @@
     {
       "path": "docs/product/SCOPE_LOCK.md",
       "normalization": "scope-document-v1",
-      "sha256": "b038c4f8ab7a35c4fcd0e686d0091bf30b638f678cec223b56063f6a6acf7192"
+      "sha256": "265f13b5d26f6f6b4c3fa50c7f190bd3485b18065ed7749f619aaa6ea6ec61f6"
     },
     {
       "path": "docs/product/USER_JOURNEYS.md",
@@ -530,5 +534,10 @@
   "product_baseline": {
     "pr": 1,
     "merge_commit": "e6818689ce23526165c4fe99a8899e9d5641891e"
+  },
+  "previous_approval": {
+    "architecture_version": 2,
+    "planning_pr": 11,
+    "master_sha": "af5dbd9cd1d1dfa75f67367d9bb4eb3931cf2ba0"
   }
 }

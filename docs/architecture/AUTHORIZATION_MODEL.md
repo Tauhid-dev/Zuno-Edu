@@ -39,3 +39,15 @@ Identity administration obtains exact family relationship and independent billin
 Education administration obtains a cohort-scoped named learner/enrolment selector without the identity student directory. Override history is education-only and tied to a single current enrolment. Receipt/finance and child contact information remain excluded. Operational/public uploads use the authenticated operations-admin account ID as context; educational resources require a writable curriculum revision and education privilege.
 
 RoleGrant is composed inside Account. Role and status writes both lock the identity-admin membership set and compare Account.version, so simultaneous removals/suspensions cannot leave zero active identity administrators. A role-neutral MFA setup route accepts a ten-minute purpose-bound limited token from either successful password login or staff invitation acceptance, and no full session is required before confirmation. The backend obtains the staff identity from that token; setup access cannot be converted into portal authority until TOTP proof succeeds.
+
+## Recent MFA
+
+[ADR 0005](ADR/0005-recent-mfa-freshness.md) defines recent MFA as a fixed
+30-minute window from the most recent successful server-recorded verification.
+At exactly 30 minutes it expires. Activity never extends it. Expiry requires
+step-up for the next protected operation without ending an otherwise valid normal
+session. Successful step-up establishes a new timestamp/window. Use the shared
+server-side `RECENT_MFA_MAX_AGE` policy; frontend checks are UX only.
+Missing/future evidence fails closed; independent session expiry, current roles,
+resource scope and revocation controls still apply. Existing authentication/MFA
+contracts supply step-up; no new endpoint or privilege is introduced.

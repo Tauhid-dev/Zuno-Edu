@@ -17,8 +17,11 @@ class PlanValidationTests(unittest.TestCase):
         self.root=Path(self.directory.name).resolve()
         for directory in ('docs','skills'):
             shutil.copytree(ROOT/directory,self.root/directory)
+        context = Path('apps/api/src/zuno_edu/modules/identity/README.md')
+        (self.root/context).parent.mkdir(parents=True)
+        shutil.copy2(ROOT/context,self.root/context)
         for directory in ('apps/api','packages/contracts','infra'):
-            (self.root/directory).mkdir(parents=True)
+            (self.root/directory).mkdir(parents=True,exist_ok=True)
             (self.root/directory/'README.md').write_text('Bootstrap fixture.\n')
         self.previous=validator.ROOT
         validator.ROOT=self.root

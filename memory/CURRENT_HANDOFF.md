@@ -1,12 +1,12 @@
-CHUNK: ZE-P02-C01 — Authentication, sessions and adult recovery
-STATUS: PR_OPEN #12; human merge pending
-COMMIT: d92178f0f190eaa8912924205bfc7ec99adacd72 (implementation)
-PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/12; branch feature/ze-p02-c01-authentication-resume
-CHANGE: Authentication service, HTTP routes, encrypted durable recovery intent, audited UOW boundary, identity migration, MFA replay/restart and session revocation.
-VALIDATION: 55 C01 tests and 125 combined tests pass; real PostgreSQL/Redis, lint/format/types and plan checks pass. Independent critical-risk deep review approved.
-BLOCKERS: GitHub denies description update (403); paste docs/planning/verification/ZE-P02-C01-pr-body.md into PR before merge.
-NEXT: Update PR description; human review/merge. Stop before another chunk.
+CHUNK: ZE-P02-C02 — recent-MFA policy proposal
+STATUS: Policy PR_OPEN #13; architecture 3 DRAFT pending human merge; C02 implementation PLANNED
+COMMIT: base af5dbd9cd1d1dfa75f67367d9bb4eb3931cf2ba0
+PR: https://github.com/Tauhid-dev/Zuno-Edu/pull/13; P02 C01 PR #12 verified merged
+CHANGE: ADR 0005 fixes recent MFA at 30 minutes from successful verification, preserves ordinary sessions and specifies shared server enforcement and boundary tests.
+VALIDATION: 61/61 workflow tests, plan/witness/routing/graph checks and independent deep review PASS; product tests planned.
+BLOCKERS: Human policy-PR merge and fresh reconciliation required by SCOPE_CHANGE_PROCESS.
+NEXT: ZE-P02-C02 implementation after verified approval
 NEXT_MODEL: gpt-6-astra
 REASONING: xhigh
-WHY: Conditional ZE-P02-C02 authorization/audit work has critical security risk.
-LOAD: AGENTS.md; memory/repository.json; fresh scripts/next_chunk.py after synchronized human merge; docs/planning/chunks/ZE-P02-C02.md only if selected.
+WHY: Critical authorization and audit boundaries require independent deep review.
+LOAD: AGENTS.md; fresh next_chunk.py; C02 manifest; ADR 0005; packet-selected contracts and skills.
