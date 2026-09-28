@@ -4,18 +4,21 @@
   "default_branch": "master",
   "scope_version": "1.0",
   "architecture_version": 3,
-  "master_sha_at_last_reconciliation": "b9acb4b6448f3e719465d9d654e7b078f0d6a08d",
+  "master_sha_at_last_reconciliation": "153e419cb7cd21c83b8388398f1dd95ad5cc23fd",
   "current_phase": "P02",
-  "last_completed_chunk": "ZE-P02-C01",
-  "next_candidate_chunk": "ZE-P02-C02",
-  "active_chunk": "ZE-P02-C02",
-  "active_pr": 14,
+  "last_completed_chunk": "ZE-P02-C02",
+  "next_candidate_chunk": "ZE-P02-C03",
+  "active_chunk": "ZE-P02-C03",
+  "active_pr": null,
   "completed_chunks": [
     "ZE-P01-C01",
     "ZE-P01-C02",
     "ZE-P01-C03",
-    "ZE-P02-C01"
+    "ZE-P02-C01",
+    "ZE-P02-C02"
   ],
-  "blocked_chunks": [],
+  "blocked_chunks": [
+    "ZE-P02-C03"
+  ],
   "workflow_version": 1
 }

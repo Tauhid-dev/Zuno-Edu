@@ -1,9 +1,8 @@
 # Project state
 
-Remote master b9acb4b6448f3e719465d9d654e7b078f0d6a08d verified on 2026-09-28.
-PR #13 human merge locks architecture 3/scope 1.0 and the fixed 30-minute MFA policy.
-P01 C01/C02/C03 and P02 C01 remain confirmed complete. C02 is implemented and
-independently reviewed on its feature branch; PR #14 is open; both CI workflows passed at 9ddf510. Final metadata
-commit must also pass CI before human merge.
-No C02 completion is assumed until fresh remote reconciliation proves human merge.
-Conditional next candidate: ZE-P02-C03; Astra/high. Use next_chunk.py after sync.
+Remote master 153e419cb7cd21c83b8388398f1dd95ad5cc23fd verified on 2026-09-28.
+P01 C01/C02/C03 and P02 C01/C02 are confirmed merged; PR #14 completed C02.
+Scope 1.0 / architecture 3 remains locked. C03 is BLOCKED on the exact student
+self-profile enrolment/release authorization predicate; no product implementation.
+The owner decision is pending. See CURRENT_HANDOFF and the C03 verification record.
+Branch: feature/ze-p02-c03-accounts-family-students. No C03 PR or completion claim.
