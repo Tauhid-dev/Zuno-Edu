@@ -106,6 +106,9 @@ def test_plan_coverage_validator_detects_orphan_requirement(
 ) -> None:
     shutil.copytree(ROOT / "docs", tmp_path / "docs")
     shutil.copytree(ROOT / "skills", tmp_path / "skills")
+    context = Path("apps/api/src/zuno_edu/modules/identity/README.md")
+    (tmp_path / context).parent.mkdir(parents=True)
+    shutil.copy2(ROOT / context, tmp_path / context)
     path = tmp_path / "docs/product/requirements.json"
     requirements = json.loads(path.read_text(encoding="utf-8"))
     requirements.append({**requirements[0], "id": "TEST-ORPHAN"})
