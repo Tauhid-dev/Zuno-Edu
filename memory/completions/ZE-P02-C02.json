@@ -126,7 +126,7 @@
     },
     {
       "path": "docs/planning/verification/ZE-P02-C02.md",
-      "sha256": "3ba12614f2f7a255fd960b9fd7d266d315be1fc5c17c5510d3f819b5fb75fe16"
+      "sha256": "01468ac248a524ab3ba9f4932855f79a74297d7599a513d6dacdb775f2392642"
     },
     {
       "path": "memory/handoffs/ZE-P02-C02-review.md",
@@ -200,7 +200,7 @@
       "evidence": "docs/planning/verification/ZE-P02-C02.md"
     },
     {
-      "name": "162 local product tests; Redis checks required in CI",
+      "name": "CI backend 164/164 and frontend 2/2; real PostgreSQL/Redis, builds and dependency scans",
       "result": "PASS",
       "evidence": "docs/planning/verification/ZE-P02-C02.md"
     }
