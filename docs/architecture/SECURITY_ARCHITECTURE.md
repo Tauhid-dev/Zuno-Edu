@@ -45,3 +45,15 @@ Review regression cases must also cover two simultaneous first attendance/assess
 ## MFA enrolment retry exception (architecture 2)
 
 For API-AUTH-MFA-ENROL, [ADR 0004](ADR/0004-mfa-enrolment-retry.md) overrides generic same-result replay. ADR 0004 exception: validate current account/session or limited setup context, browser, purpose, expiry, attempts and CSRF/Origin before idempotency. First committed enrolment returns MfaSetupView once; same key/body after commit returns secret-free 409 MFA_REPLAY; changed body returns 409 IDEMPOTENCY_CONFLICT. Serialize duplicates, restart and confirmation; rollback permits retry, uncertain commit requires authoritative lookup. Keep only safe principal/operation/key, keyed canonical-body digest and outcome metadata for 7 days; never store/replay the URI or recoverable setup token. A lost response requires explicit restart with fresh permitted password authentication and a new key, invalidating pending setup credentials atomically without removing an active factor before replacement confirmation. Existing lifetime, attempt and abuse limits apply.
+
+## Recent MFA freshness (architecture 3)
+
+[ADR 0005](ADR/0005-recent-mfa-freshness.md) defines recent MFA as a fixed
+30-minute window from the most recent successful server-recorded verification.
+At exactly 30 minutes it expires. Activity never extends it. Expiry requires
+step-up for the next protected operation without ending an otherwise valid normal
+session. Successful step-up establishes a new timestamp/window. Use the shared
+server-side `RECENT_MFA_MAX_AGE` policy; frontend checks are UX only.
+Missing/future evidence fails closed; independent session expiry, current roles,
+resource scope and revocation controls still apply. Existing authentication/MFA
+contracts supply step-up; no new endpoint or privilege is introduced.

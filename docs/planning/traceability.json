@@ -7008,6 +7008,8 @@
       "TeacherWorkQueue"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -11022,6 +11024,8 @@
       "AdminAuditLog"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -20592,6 +20596,8 @@
       "TeacherWorkQueue"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -20961,6 +20967,8 @@
       "TeacherWorkQueue"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -21329,6 +21337,8 @@
       "TeacherWorkQueue"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -21697,6 +21707,8 @@
       "TeacherWorkQueue"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -22249,6 +22261,8 @@
       "TeacherWorkQueue"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -22736,6 +22750,8 @@
       "TeacherWorkQueue"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -23039,6 +23055,8 @@
       "StudentProfilePanel"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -23081,6 +23099,8 @@
     "implementation_status": "PLANNED",
     "frontend_components": [],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -23121,6 +23141,8 @@
     "implementation_status": "PLANNED",
     "frontend_components": [],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -23204,6 +23226,8 @@
       "TeacherFeedbackProgress"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -23498,6 +23522,8 @@
     "implementation_status": "PLANNED",
     "frontend_components": [],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -23539,6 +23565,8 @@
     "implementation_status": "PLANNED",
     "frontend_components": [],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -23579,6 +23607,8 @@
     "implementation_status": "PLANNED",
     "frontend_components": [],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
@@ -24954,6 +24984,8 @@
       "TeacherSchedule"
     ],
     "design_documents": [
+      "apps/api/src/zuno_edu/modules/identity/README.md",
+      "docs/architecture/ADR/0005-recent-mfa-freshness.md",
       "docs/architecture/API_CATALOG.md",
       "docs/architecture/AUTHORIZATION_MODEL.md",
       "docs/architecture/BACKEND_OBJECT_CATALOG.md",
