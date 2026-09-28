@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "chunk_id": "ZE-P02-C02",
+  "requirements": [
+    "ADM-029",
+    "AUTH-006",
+    "AUTH-007",
+    "AUTH-008",
+    "AUTH-009",
+    "AUTH-010",
+    "AUTH-012",
+    "NFR-012",
+    "SEC-004",
+    "SEC-005",
+    "SEC-006",
+    "SEC-007",
+    "SEC-012",
+    "SEC-013",
+    "SEC-014",
+    "TCH-016"
+  ],
+  "artifacts": [
+    {
+      "path": "apps/api/src/zuno_edu/bootstrap/app.py",
+      "sha256": "e8dc3ba6c6ab87a4dde50bbd110a2e6edaf8331fd27e7cc6e933547e6102ca1d"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/domain/__init__.py",
+      "sha256": "fbb0152624c52d3c5d689fad748ca3666ef85cda2320e3e10d26dcd67ff4c9f9"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/domain/policies/__init__.py",
+      "sha256": "0819a5f724ba6dd393f36d74508521dbc4735fb0b708d2efea48b1381af97f24"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/migrations/versions/0003_audit_foundation.py",
+      "sha256": "7a4832f4ed408244ab553abab35aa191a08fda876292b882332dbcaff5dc8194"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/infrastructure/persistence/tables.py",
+      "sha256": "4bcf487eda054d556e50e223777167274d09c62ae3d39b2a122a9ab4334d191b"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/interfaces/api/audit.py",
+      "sha256": "66ce80ccb9cfadcdc497d8a3d863f1a1bcf9ce3e3a27c7a923f39534648d602c"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/interfaces/api/identity.py",
+      "sha256": "3719202301f2c7fd121e97e9466a5580d5486c384e1aef2befe8d192f0ded700"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/application/principal.py",
+      "sha256": "28db63e873d2df8f665bee6a91711abd0368e71155fad71607614434694835e5"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/identity/application/service.py",
+      "sha256": "045336e23e4243651f0c5b4d8ba93b9b50c37bb0278ab11282742c1947bc0e78"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/README.md",
+      "sha256": "04b3e91122a8cbbe70c7fb4dce42bca289acf6c377009c74365be1252529dcf8"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/application/audit.py",
+      "sha256": "b5d2ea0e4ef8313910f53e6d587e66fefd1a061eb1e66796e506ce606a93e9d8"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/domain/audit.py",
+      "sha256": "682ee316411604c386c9f21a186145eb66af0d726804584247e02f1dd56e95be"
+    },
+    {
+      "path": "apps/api/src/zuno_edu/modules/operations/infrastructure/audit.py",
+      "sha256": "6726d55b226ce795e0efb53d53d11e5cddd6bf349737ec6e6a4a9053d546a30f"
+    },
+    {
+      "path": "packages/contracts/openapi.json",
+      "sha256": "0785eb6274c5785b5470195b4668a66eaa39021f5e7fef08abc5a819dd09d338"
+    },
+    {
+      "path": "packages/contracts/src/generated.ts",
+      "sha256": "8152b601ff4b0e378da5bef30ed1a118195cb1b677167b85c8ebef8cc87bdfdd"
+    },
+    {
+      "path": "scripts/generate_contracts.py",
+      "sha256": "e385b22399aaeb8d7d6bf0de2d8f0cfd9f5183025decebf288bad163c31432c3"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C02/test_migrations.py",
+      "sha256": "d1f9e875085c6877bb26f2937a5de91e36be988b77f86279f6043e22871da84e"
+    },
+    {
+      "path": "tests/chunks/ZE-P01-C03/test_contracts_ci.py",
+      "sha256": "c1bbbd85c02dd08498bc35c1bcd6f01ceaccc04c08bc449e943e561ca5e720cb"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/conftest.py",
+      "sha256": "a704e64bc029efc657daa8f38947946f224e075a4a9965ce545c1f1fe5f40fb6"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_authentication_service.py",
+      "sha256": "b79f27cf0f1583fb1f55d3566b442f3a5be8dfbafd736b09f0418c49257dcd23"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C01/test_http.py",
+      "sha256": "c6ddb3b0e15959213dd0385ae8dd32814e817b2ed8a2e7b24384f65e6a045377"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C02/conftest.py",
+      "sha256": "862ba44498f21ead934fad0c23596663a84c3be60d319e8b8dd9599593bfd5cb"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C02/test_audit_api.py",
+      "sha256": "913d4aa6211a184ff6be2d916d8900c8bafb7040a225d3c35a1accebbdb8511d"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C02/test_authorization_audit.py",
+      "sha256": "217e8ade45fe8857c9a8fb5708a8d3bce2e9f523b5e96ade0c850a181b737ee2"
+    },
+    {
+      "path": "tests/chunks/ZE-P02-C02/test_mfa_stepup.py",
+      "sha256": "09b35bf6de663364380e829b02498732a3c4ca4d8ae8562fe0de92d48c5623be"
+    },
+    {
+      "path": "tests/chunks/conftest.py",
+      "sha256": "ee10ffc60b4818fd299e78a698ffab3ec742507a628606cd512f9402e20b2194"
+    },
+    {
+      "path": "docs/planning/verification/ZE-P02-C02.md",
+      "sha256": "3ba12614f2f7a255fd960b9fd7d266d315be1fc5c17c5510d3f819b5fb75fe16"
+    },
+    {
+      "path": "memory/handoffs/ZE-P02-C02-review.md",
+      "sha256": "5e34060129e2abfd21b25dd3f63aa4eb30c328d1babc58c2d0c5ac5a79d3acaf"
+    }
+  ],
+  "verification": [
+    {
+      "name": "Teacher plus finance privilege rejected",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Untrusted actor fields ignored",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Deny-by-default policy checks",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Audit append-only and redaction",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Role revocation invalidates session",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Recent MFA valid strictly before 30 minutes; exact expiry and older evidence denied",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Missing and future MFA evidence denied; successful step-up restores protected access",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Ordinary authenticated access survives MFA freshness expiry; activity never extends MFA timestamp",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Failed/replayed step-up and lock waits crossing expiry cannot grant protected access",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Initiating and failing same-principal step-up retains the ordinary session and cookie; foreign proof cannot refresh its MFA",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Plan/witness/routing/graph",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "61 workflow tests",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "Lint/format/typecheck/contracts",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    },
+    {
+      "name": "162 local product tests; Redis checks required in CI",
+      "result": "PASS",
+      "evidence": "docs/planning/verification/ZE-P02-C02.md"
+    }
+  ],
+  "review": {
+    "risk": "critical",
+    "depth": "deep",
+    "independent": true,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "evidence": "memory/handoffs/ZE-P02-C02-review.md"
+  }
+}
