@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "DRAFT",
+  "status": "LOCKED",
   "scope_version": "1.0",
   "architecture_version": 3,
   "planning_pr": 13,
@@ -539,5 +539,9 @@
     "architecture_version": 2,
     "planning_pr": 11,
     "master_sha": "af5dbd9cd1d1dfa75f67367d9bb4eb3931cf2ba0"
+  },
+  "approval": {
+    "pr": 13,
+    "merge_commit": "b9acb4b6448f3e719465d9d654e7b078f0d6a08d"
   }
 }

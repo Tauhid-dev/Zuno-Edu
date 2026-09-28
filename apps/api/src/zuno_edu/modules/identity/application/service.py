@@ -6,6 +6,7 @@ from datetime import timedelta
 from typing import Protocol
 from uuid import UUID, uuid4
 
+from zuno_edu.domain.policies import Principal
 from zuno_edu.modules.identity.domain import (
     Account,
     AccountStatus,
@@ -40,6 +41,7 @@ from .ports import (
     SelfAuthScope,
     TokenIssuer,
 )
+from .principal import current_identity, principal_for
 
 
 class RequestSecurity(Protocol):
@@ -180,7 +182,8 @@ class AuthenticationService:
                 view, cookie = self._new_session(tx, account, principal, False)
                 result = AuthOutcomeView("authenticated", view, None, None, view.expires_at)
             tx.commit("authentication.login", account.id)
-        self._cookie(cookie)
+        if cookie is not None:
+            self._cookie(cookie)
         return result
 
     def _challenge(
@@ -203,24 +206,15 @@ class AuthenticationService:
     ) -> tuple[Account, Session]:
         if principal.session_token is None:
             raise AuthError("UNAUTHENTICATED")
-        session = tx.sessions.find_active(
-            self._tokens.digest(principal.session_token), self._clock.now()
+        return current_identity(
+            tx, self._tokens.digest(principal.session_token), self._clock, self._staff_approved
         )
-        if session is None:
-            raise AuthError("UNAUTHENTICATED")
-        if not session.is_active(self._clock.now()):
-            raise AuthError("UNAUTHENTICATED")
-        account = tx.users.get_scoped(session.user_id, SelfAuthScope(session.user_id))
-        if account is None or account.status not in {AccountStatus.ACTIVE, AccountStatus.PENDING}:
-            raise AuthError("UNAUTHENTICATED")
-        if account.staff and (
-            account.status != AccountStatus.ACTIVE
-            or not session.mfa_verified_at
-            or not account.mfa_enabled
-            or not self._staff_approved(account.id)
-        ):
-            raise AuthError("UNAUTHENTICATED")
-        return account, session
+
+    def get_principal(self, context: RequestContext, request_id: UUID) -> Principal:
+        self._security.validate(context, mutation=False)
+        with self._transactions() as tx:
+            account, session = self._current(tx, context)
+            return principal_for(account, session, request_id)
 
     def get_session(self, principal: RequestContext, request: Mapping[str, str]) -> SessionView:
         self._security.validate(principal, mutation=False)
@@ -381,11 +375,21 @@ class AuthenticationService:
 
     def verify_mfa(self, principal: RequestContext, request: Mapping[str, str]) -> SessionView:
         browser = self._start(principal, "verify_mfa", principal.browser_token)
-        now = self._clock.now()
+        expected_account: UUID | None = None
+        if principal.session_token:
+            with self._transactions() as tx:
+                try:
+                    previous, _ = self._current(tx, principal)
+                    expected_account = previous.id
+                except AuthError as exc:
+                    if exc.code != "UNAUTHENTICATED":
+                        raise
         with self._transactions() as tx:
             account, challenge = self._challenge(
                 tx, request["challenge_token"], browser, "challenge"
             )
+            if expected_account is not None and account.id != expected_account:
+                raise AuthError("FORBIDDEN")
             now = self._clock.now()
             factor = tx.mfa.get_factor_for_update(account.id, SelfAuthScope(account.id))
             if factor is None or factor.id != challenge.factor_id:

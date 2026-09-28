@@ -166,7 +166,7 @@ def test_full_session_logout_and_current_status_recheck(h: Harness, role: Role) 
 
 def test_limited_context_cannot_be_used_as_full_session(h: Harness) -> None:
     token = h.login(h.account())
-    assert h.cookies[-1] is None and not h.store.state.sessions
+    assert not h.cookies and not h.store.state.sessions
     with pytest.raises(AuthError, match="UNAUTHENTICATED"):
         h.service.get_session(replace(h.context, session_token=token), {})
 

@@ -1,9 +1,9 @@
 # Scope lock
 
-STATUS: DRAFT
+STATUS: LOCKED
 SCOPE_VERSION: 1.0
 ARCHITECTURE_VERSION: 3
-APPROVAL_EVIDENCE: none
+APPROVAL_EVIDENCE: PR #13 human merge b9acb4b6448f3e719465d9d654e7b078f0d6a08d; fresh reconciliation verified 2026-09-28
 
 This document does not claim that a human has approved or merged the bootstrap plan. The proposed complete launch baseline consists of `LAUNCH_SCOPE.md`, `OUT_OF_SCOPE.md`, the 219 stable required records in `requirements.json`, and the functional/non-functional requirement documents. No product feature is implemented during bootstrap.
 

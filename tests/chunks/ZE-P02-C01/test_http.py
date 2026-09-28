@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from dataclasses import replace
 from datetime import timedelta
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +13,7 @@ from zuno_edu.modules.identity.domain import AuthError, Role
 
 
 def client_for(h: Harness) -> TestClient:
-    def factory(cookie: Callable[[str | None], None]) -> AuthenticationService:
+    def factory(cookie: Callable[[str | None], None], request_id: UUID) -> AuthenticationService:
         return AuthenticationService(
             h.store.transaction,
             h.passwords,

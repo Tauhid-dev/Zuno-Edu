@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 
+from zuno_edu.interfaces.api.audit import AuditFactory, create_audit_router
 from zuno_edu.interfaces.api.health import router
 from zuno_edu.interfaces.api.identity import (
     BROWSER_COOKIE,
@@ -22,9 +23,12 @@ from zuno_edu.presentation.http.models import Error
 def create_app(
     identity_factory: ServiceFactory | None = None,
     request_security: RequestSecurity | None = None,
+    audit_factory: AuditFactory | None = None,
 ) -> FastAPI:
     if (identity_factory is None) != (request_security is None):
         raise ValueError("Identity service and browser security must be composed together")
+    if audit_factory is not None and identity_factory is None:
+        raise ValueError("Audit requires authenticated identity composition")
     application = FastAPI(
         title="Zuno Edu",
         version="0.1.0",
@@ -36,6 +40,11 @@ def create_app(
     application.include_router(router, prefix="/api/v1")
     if identity_factory is not None and request_security is not None:
         application.include_router(create_identity_router(identity_factory), prefix="/api/v1")
+
+        if audit_factory is not None:
+            application.include_router(
+                create_audit_router(identity_factory, audit_factory), prefix="/api/v1"
+            )
 
         @application.middleware("http")
         async def browser_context(
