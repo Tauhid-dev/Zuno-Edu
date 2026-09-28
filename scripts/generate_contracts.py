@@ -9,10 +9,13 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 from zuno_edu.bootstrap.app import create_app
+from zuno_edu.interfaces.api.audit import create_audit_router
 from zuno_edu.interfaces.api.identity import create_identity_router
 from zuno_edu.modules.identity.application.service import AuthenticationService
+from zuno_edu.modules.operations.application.audit import AuditService
 
 ROOT = Path(__file__).resolve().parents[1]
 OPENAPI = ROOT / "packages/contracts/openapi.json"
@@ -122,7 +125,7 @@ def validate(document: dict[str, Any], root: Path = ROOT) -> None:
                     5:-1
                 ].split("|"):
                     raise ValueError("Schema enum drift: " + name)
-            if kind == "uuid" and prop.get("format") != "uuid":
+            if kind == "uuid" and nonnull[0].get("format") != "uuid":
                 raise ValueError("Schema UUID format drift: " + name)
             if kind.endswith("[]"):
                 item_type = kind[:-2]
@@ -155,11 +158,18 @@ def validate(document: dict[str, Any], root: Path = ROOT) -> None:
 def contract_document() -> dict[str, Any]:
     """Describe implemented routes without composing live authentication dependencies."""
 
-    def unavailable(cookie: Callable[[str | None], None]) -> AuthenticationService:
+    def unavailable(
+        cookie: Callable[[str | None], None], request_id: UUID
+    ) -> AuthenticationService:
         raise RuntimeError("Contract generation must not invoke authentication")
 
     app = create_app()
     app.include_router(create_identity_router(unavailable), prefix="/api/v1")
+
+    def no_audit() -> AuditService:
+        raise RuntimeError("Contract generation must not invoke audit")
+
+    app.include_router(create_audit_router(unavailable, no_audit), prefix="/api/v1")
     return app.openapi()
 
 

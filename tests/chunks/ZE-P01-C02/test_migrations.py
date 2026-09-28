@@ -23,6 +23,7 @@ def test_initial_migration_upgrade_and_compatibility(database_url: str) -> None:
         command.upgrade(config, "head")
         assert set(sa.inspect(database.engine).get_table_names()) == {
             "alembic_version",
+            "audit_records",
             "outbox_events",
             "background_jobs",
             "webhook_inbox",
@@ -45,6 +46,6 @@ def test_initial_migration_upgrade_and_compatibility(database_url: str) -> None:
         with pytest.raises(RuntimeError, match="forward-only"):
             command.downgrade(config, "base")
         with database.engine.connect() as connection:
-            assert connection.scalar(sa.text("SELECT version_num FROM alembic_version")) == "0002"
+            assert connection.scalar(sa.text("SELECT version_num FROM alembic_version")) == "0003"
     finally:
         database.close()

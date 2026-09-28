@@ -277,3 +277,29 @@ inbox = sa.Table(
 )
 sa.Index("ix_inbox_pending", inbox.c.status, inbox.c.received_at)
 sa.Index("ix_inbox_lease", inbox.c.lease_until)
+
+# Audit payloads are deliberately absent. Explicit projections are safe at rest.
+audit_records = sa.Table(
+    "audit_records",
+    metadata,
+    sa.Column("id", UUID(as_uuid=True), primary_key=True),
+    sa.Column("actor_id", UUID(as_uuid=True), sa.ForeignKey("accounts.id")),
+    sa.Column("action", sa.Text, nullable=False),
+    sa.Column("resource_type", sa.Text, nullable=False),
+    sa.Column("resource_id", UUID(as_uuid=True)),
+    sa.Column("occurred_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("request_id", UUID(as_uuid=True), nullable=False),
+    sa.Column("outcome", sa.Text, nullable=False),
+    sa.Column("reason", sa.Text),
+    sa.Column("metadata", JSONB, nullable=False, server_default="{}"),
+)
+
+sa.Index("ix_audit_time", audit_records.c.occurred_at, audit_records.c.id)
+sa.Index("ix_audit_actor_time", audit_records.c.actor_id, audit_records.c.occurred_at)
+sa.Index(
+    "ix_audit_resource_time",
+    audit_records.c.resource_type,
+    audit_records.c.resource_id,
+    audit_records.c.occurred_at,
+)
+sa.Index("ix_audit_request", audit_records.c.request_id)

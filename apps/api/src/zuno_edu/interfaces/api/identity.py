@@ -24,7 +24,7 @@ SESSION_COOKIE = "__Host-zuno-session"
 BROWSER_COOKIE = "__Host-zuno-browser"
 CSRF_COOKIE = "__Host-zuno-csrf"
 SETUP_COOKIE = "__Host-zuno-setup"
-type ServiceFactory = Callable[[Callable[[str | None], None]], AuthenticationService]
+type ServiceFactory = Callable[[Callable[[str | None], None], UUID], AuthenticationService]
 Password = Annotated[str, StringConstraints(min_length=12, max_length=128)]
 Token = Annotated[str, StringConstraints(min_length=1, max_length=512)]
 Code = Annotated[str, StringConstraints(pattern=r"^(?:[0-9]{6}|[A-Z2-7]{26})$")]
@@ -95,13 +95,13 @@ def set_cookie(response: Response, name: str, value: str | None, max_age: int) -
 def create_identity_router(factory: ServiceFactory) -> APIRouter:
     router = APIRouter()
 
-    def service(response: Response) -> AuthenticationService:
+    def service(request: Request, response: Response) -> AuthenticationService:
         def cookie(value: str | None) -> None:
             set_cookie(response, SESSION_COOKIE, value, 7 * 24 * 3600)
             if value:
                 set_cookie(response, SETUP_COOKIE, None, 0)
 
-        return factory(cookie)
+        return factory(cookie, request.state.request_id)
 
     def context(request: Request) -> RequestContext:
         return RequestContext(

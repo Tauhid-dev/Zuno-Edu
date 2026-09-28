@@ -252,3 +252,12 @@ def test_catalog_rejects_extra_union_alternative_and_open_status() -> None:
     del document["components"]["schemas"]["AuthOutcomeView"]["properties"]["status"]["enum"]
     with pytest.raises(ValueError, match="Schema enum drift"):
         contracts.validate(document)
+
+
+def test_nullable_audit_uuid_format_remains_validated() -> None:
+    document = contracts.contract_document()
+    contracts.validate(document)
+    field = document["components"]["schemas"]["AuditView"]["properties"]["actor_id"]
+    field["anyOf"][0]["format"] = "email"
+    with pytest.raises(ValueError, match="UUID format drift"):
+        contracts.validate(document)
