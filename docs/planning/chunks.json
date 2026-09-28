@@ -423,7 +423,7 @@
   {
     "id": "ZE-P02-C02",
     "title": "Resource authorization and audit foundation",
-    "status": "PLANNED",
+    "status": "BLOCKED",
     "sequence": 50,
     "dependencies": [
       "ZE-P02-C01"
@@ -465,8 +465,8 @@
       "apps/api/src/zuno_edu/domain/policies"
     ],
     "execution": {
-      "base_master_sha": null,
-      "branch": null,
+      "base_master_sha": "af5dbd9cd1d1dfa75f67367d9bb4eb3931cf2ba0",
+      "branch": "feature/ze-p02-c02-authorization-audit",
       "commit": null,
       "pr": null,
       "completion_evidence": null
@@ -511,7 +511,9 @@
       "SEC-014",
       "TCH-016"
     ],
-    "blockers": [],
+    "blockers": [
+      "API-ADMIN-AUDIT requires recent MFA but the approved contracts define no maximum age or re-verification policy. Human security-policy decision required before implementation."
+    ],
     "expected_files": [
       "apps/api/src/zuno_edu/domain/policies",
       "tests/chunks/ZE-P02-C02/",
